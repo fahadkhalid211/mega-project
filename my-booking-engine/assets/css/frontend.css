@@ -736,7 +736,7 @@ button:focus-visible {
 }
 
 .mb-section {
-	padding: 28px 0;
+	padding: 32px 0;
 	border-bottom: 1px solid var(--mb-border);
 }
 
@@ -745,10 +745,24 @@ button:focus-visible {
 }
 
 .mb-section-title {
-	font-size: 20px;
-	font-weight: 700;
+	font-size: 21px;
+	font-weight: 800;
+	letter-spacing: -0.01em;
 	margin: 0 0 16px 0;
 	color: #0f172a;
+	position: relative;
+	padding-left: 14px;
+}
+
+.mb-section-title::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 3px;
+	bottom: 3px;
+	width: 4px;
+	border-radius: 4px;
+	background: var(--mb-primary);
 }
 
 .mb-section-subtitle {
@@ -793,6 +807,12 @@ button:focus-visible {
 	border-radius: 8px;
 	font-size: 14px;
 	font-weight: 500;
+	transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.mb-amenity-pill:hover {
+	background: #f1f5f9;
+	border-color: #e2e8f0;
 }
 
 .mb-amenity-check {
@@ -806,9 +826,9 @@ button:focus-visible {
 	top: 30px;
 	background: #ffffff;
 	border: 1px solid var(--mb-border);
-	border-radius: 16px;
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-	padding: 24px;
+	border-radius: var(--mb-radius-lg);
+	box-shadow: 0 16px 40px -12px rgba(15, 23, 42, 0.14);
+	padding: 26px;
 }
 
 .mb-card-price-row {
@@ -944,6 +964,11 @@ button:focus-visible {
 	border: 1px solid var(--mb-border);
 	border-radius: 12px;
 	padding: 18px;
+	transition: box-shadow 0.2s ease;
+}
+
+.mb-review-card:hover {
+	box-shadow: 0 6px 18px -8px rgba(15, 23, 42, 0.12);
 }
 
 .mb-review-author {
