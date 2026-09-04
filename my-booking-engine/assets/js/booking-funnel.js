@@ -122,6 +122,9 @@
 		 * slots, day-rental and night-stay ranges, and fixed capacity events.
 		 */
 		fetchAvailability(startDate, endDate) {
+			if (!this.entityId) {
+				console.warn('[MB Engine] fetchAvailability called with no entityId');
+			}
 			const params = new URLSearchParams({ entity_id: this.entityId, date: startDate || '' });
 			if (endDate) {
 				params.append('end_date', endDate);
@@ -129,9 +132,21 @@
 			return fetch(this.restBase() + 'slots?' + params.toString(), {
 				headers: { 'X-WP-Nonce': this.restNonce() }
 			})
-				.then((res) => res.json())
-				.then((res) => (res && res.success) ? res.data : null)
-				.catch(() => null);
+				.then((res) => res.json().then((body) => ({ ok: res.ok, status: res.status, body })).catch((parseErr) => {
+					console.warn('[MB Engine] availability response was not valid JSON', res.status, parseErr);
+					return { ok: false, status: res.status, body: null };
+				}))
+				.then(({ ok, status, body }) => {
+					if (!ok || !body || !body.success) {
+						console.warn('[MB Engine] availability check failed', { status, body });
+						return null;
+					}
+					return body.data;
+				})
+				.catch((err) => {
+					console.warn('[MB Engine] availability request errored', err);
+					return null;
+				});
 		}
 
 		/**

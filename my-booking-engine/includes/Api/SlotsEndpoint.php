@@ -71,17 +71,39 @@ class SlotsEndpoint extends RestController {
 			$date = current_time( 'Y-m-d' );
 		}
 
-		if ( 'mb_booking_entity' !== get_post_type( $entity_id ) ) {
+		if ( ! $entity_id || 'mb_booking_entity' !== get_post_type( $entity_id ) ) {
 			return new \WP_REST_Response(
 				array(
 					'success' => false,
-					'message' => __( 'Invalid booking entity.', 'my-booking-engine' ),
+					'message' => sprintf(
+						/* translators: %d: entity ID received */
+						__( 'Invalid booking entity (id received: %d).', 'my-booking-engine' ),
+						$entity_id
+					),
 				),
 				404
 			);
 		}
 
-		$result = SlotEngine::get_slots( $entity_id, $date, $end_date, $session_token );
+		// Never let a fatal in the slot-calculation chain surface as an
+		// HTML error page — the frontend can't parse that as JSON and
+		// just shows "could not check availability" with no clue why.
+		// Catch it and return the real message instead.
+		try {
+			$result = SlotEngine::get_slots( $entity_id, $date, $end_date, $session_token );
+		} catch ( \Throwable $e ) {
+			return new \WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => $e->getMessage(),
+					'debug'   => array(
+						'file' => $e->getFile(),
+						'line' => $e->getLine(),
+					),
+				),
+				500
+			);
+		}
 
 		return rest_ensure_response(
 			array(
