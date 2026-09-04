@@ -1493,6 +1493,168 @@ button:focus-visible {
 	border-top: 1px solid var(--mb-border);
 }
 
+/* --- Step 1: Modern Inline Two-Column Split (calendar + slots/price) --- */
+.mb-funnel-split {
+	display: grid;
+	grid-template-columns: 1fr 320px;
+	gap: 24px;
+	align-items: start;
+}
+
+.mb-funnel-calendar-wrap {
+	background: #fff;
+	border: 1px solid var(--mb-border);
+	border-radius: var(--mb-radius);
+	padding: 16px;
+}
+
+.mb-funnel-split-right {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	position: sticky;
+	top: 0;
+}
+
+.mb-funnel-slots-panel {
+	background: #f8fafc;
+	border: 1px solid var(--mb-border);
+	border-radius: var(--mb-radius);
+	padding: 16px;
+	min-height: 100px;
+}
+
+.mb-slots-placeholder,
+.mb-slots-loading,
+.mb-slots-empty {
+	margin: 0;
+	font-size: 13px;
+	color: var(--mb-text-muted);
+	text-align: center;
+	padding: 12px 4px;
+}
+
+.mb-slots-empty {
+	color: var(--mb-danger);
+}
+
+.mb-slots-grid-inline {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 8px;
+	max-height: 320px;
+	overflow-y: auto;
+	padding-right: 2px;
+}
+
+.mb-slot-chip {
+	background: #fff;
+	border: 1px solid var(--mb-border);
+	border-radius: var(--mb-radius-sm);
+	padding: 10px 6px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--mb-text);
+	cursor: pointer;
+	transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.mb-slot-chip:hover:not(.is-disabled) {
+	border-color: var(--mb-primary);
+	color: var(--mb-primary);
+}
+
+.mb-slot-chip.is-selected {
+	background: var(--mb-primary);
+	border-color: var(--mb-primary);
+	color: #fff;
+}
+
+.mb-slot-chip.is-disabled {
+	background: #f1f5f9;
+	color: #cbd5e1;
+	cursor: not-allowed;
+	text-decoration: line-through;
+}
+
+.mb-trip-summary-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 14px;
+	font-weight: 600;
+	margin-bottom: 10px;
+}
+
+.mb-trip-summary-badge {
+	font-size: 12px;
+	font-weight: 700;
+	padding: 6px 10px;
+	border-radius: 999px;
+	text-align: center;
+}
+
+.mb-trip-summary-badge.is-available {
+	background: #dcfce7;
+	color: #166534;
+}
+
+/* Live, sticky price card — updates instantly as calendar/slot selection changes */
+.mb-live-price-card {
+	background: #0f172a;
+	color: #fff;
+	border-radius: var(--mb-radius-lg);
+	padding: 20px;
+}
+
+.mb-price-card-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	font-size: 13px;
+	color: #cbd5e1;
+	padding: 6px 0;
+}
+
+.mb-price-card-row strong {
+	color: #fff;
+	font-weight: 700;
+	text-align: right;
+}
+
+.mb-price-card-total {
+	border-top: 1px solid rgba(255,255,255,0.15);
+	margin-top: 6px;
+	padding-top: 12px;
+	font-size: 15px;
+}
+
+.mb-price-card-total strong {
+	font-size: 22px;
+	color: #4ade80;
+}
+
+.mb-price-card-hint {
+	margin: 10px 0 0 0;
+	font-size: 11.5px;
+	color: #94a3b8;
+	line-height: 1.4;
+}
+
+@media (max-width: 900px) {
+	.mb-funnel-split {
+		grid-template-columns: 1fr;
+	}
+	.mb-funnel-split-right {
+		position: static;
+	}
+	.mb-slots-grid-inline {
+		grid-template-columns: repeat(3, 1fr);
+		max-height: none;
+	}
+}
+
 .mb-review-summary-card {
 	background: #f8fafc;
 	border: 1px solid var(--mb-border);
