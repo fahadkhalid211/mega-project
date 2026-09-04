@@ -861,7 +861,6 @@
 	display: flex;
 	flex-direction: column;
 	gap: 20px;
-	padding-bottom: 90px; /* keep content clear of the sticky footer */
 }
 
 .mb-app-card {
@@ -1017,11 +1016,13 @@
 	align-items: center;
 	justify-content: flex-end;
 	gap: 12px;
-	background: rgba(255, 255, 255, 0.92);
+	background: rgba(255, 255, 255, 0.96);
 	backdrop-filter: blur(6px);
 	border-top: 1px solid #e2e8f0;
-	padding: 16px 4px;
-	margin-top: -70px;
+	padding: 16px 20px;
+	margin-top: 10px;
+	border-radius: 0 0 16px 16px;
+	box-shadow: 0 -4px 14px rgba(15, 23, 42, 0.05);
 	z-index: 5;
 }
 
