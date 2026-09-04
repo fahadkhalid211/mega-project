@@ -45,7 +45,7 @@ class Review {
 		if ( $booking_id > 0 ) {
 			$row = $wpdb->get_row(
 				$wpdb->prepare(
-					"SELECT id, status FROM {$bookings_table} WHERE id = %d AND entity_id = %d AND status IN ('confirmed', 'completed')",
+					"SELECT id, status FROM {$wpdb->prefix}mb_bookings WHERE id = %d AND entity_id = %d AND status IN ('confirmed', 'completed')",
 					$booking_id,
 					$entity_id
 				)
@@ -57,7 +57,7 @@ class Review {
 		if ( $customer_id > 0 ) {
 			$count = $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM {$bookings_table} WHERE entity_id = %d AND customer_id = %d AND status IN ('confirmed', 'completed')",
+					"SELECT COUNT(*) FROM {$wpdb->prefix}mb_bookings WHERE entity_id = %d AND customer_id = %d AND status IN ('confirmed', 'completed')",
 					$entity_id,
 					$customer_id
 				)
@@ -71,7 +71,7 @@ class Review {
 		if ( ! empty( $customer_email ) && is_email( $customer_email ) ) {
 			$count = $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM {$bookings_table} WHERE entity_id = %d AND customer_email = %s AND status IN ('confirmed', 'completed')",
+					"SELECT COUNT(*) FROM {$wpdb->prefix}mb_bookings WHERE entity_id = %d AND customer_email = %s AND status IN ('confirmed', 'completed')",
 					$entity_id,
 					sanitize_email( $customer_email )
 				)
@@ -115,7 +115,7 @@ class Review {
 		if ( $booking_id > 0 ) {
 			$existing = $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT id FROM {$table} WHERE booking_id = %d AND entity_id = %d",
+					"SELECT id FROM {$wpdb->prefix}mb_reviews WHERE booking_id = %d AND entity_id = %d",
 					$booking_id,
 					$entity_id
 				)
@@ -163,7 +163,7 @@ class Review {
 		$entity_id = absint( $entity_id );
 		$rows      = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT rating, COUNT(*) as count FROM {$table} WHERE entity_id = %d AND status = 'approved' GROUP BY rating",
+				"SELECT rating, COUNT(*) as count FROM {$wpdb->prefix}mb_reviews WHERE entity_id = %d AND status = 'approved' GROUP BY rating",
 				$entity_id
 			)
 		);

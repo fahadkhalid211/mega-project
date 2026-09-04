@@ -44,7 +44,7 @@ class Availability {
 		// Check for blackout dates first.
 		$blackout = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM {$table}
+				"SELECT * FROM {$wpdb->prefix}mb_availabilities
 				WHERE entity_id = %d
 				  AND rule_type = 'blackout'
 				  AND start_date <= %s
@@ -67,7 +67,7 @@ class Availability {
 		// Check for specific date overrides.
 		$custom_rules = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM {$table}
+				"SELECT * FROM {$wpdb->prefix}mb_availabilities
 				WHERE entity_id = %d
 				  AND rule_type = 'custom_date'
 				  AND start_date = %s
@@ -88,7 +88,7 @@ class Availability {
 		// Check for weekly recurring rules.
 		$weekly_rules = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM {$table}
+				"SELECT * FROM {$wpdb->prefix}mb_availabilities
 				WHERE entity_id = %d
 				  AND rule_type = 'weekly_recurring'
 				  AND day_of_week = %d

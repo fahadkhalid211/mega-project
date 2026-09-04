@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name:       Booking Engine - Multi-Model Booking & Appointment System
- * Plugin URI:        https://example.com/booking-engine
+ * Plugin URI:        https://github.com/fahadkhalid211/mega-project
  * Description:       High-performance booking system supporting hourly appointments, day rentals, night stays, and capacity events with worldwide postal code radius search and WooCommerce checkout.
  * Version:           1.1.0
  * Author:            Booking Engine Team
- * Author URI:        https://example.com
+ * Author URI:        https://github.com/fahadkhalid211
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       my-booking-engine
@@ -47,24 +47,24 @@ require_once MB_ENGINE_PATH . 'includes/Autoloader.php';
  * Plugin activation handler.
  * Performs database schema migration using dbDelta and installs default settings.
  */
-function mb_engine_activate() {
+function my_booking_engine_activate() {
 	\MyBookingEngine\Plugin::activate();
 }
-register_activation_hook( __FILE__, 'mb_engine_activate' );
+register_activation_hook( __FILE__, 'my_booking_engine_activate' );
 
 /**
  * Plugin deactivation handler.
  * Cleans up transient locks and flushes rewrite rules.
  */
-function mb_engine_deactivate() {
+function my_booking_engine_deactivate() {
 	\MyBookingEngine\Plugin::deactivate();
 }
-register_deactivation_hook( __FILE__, 'mb_engine_deactivate' );
+register_deactivation_hook( __FILE__, 'my_booking_engine_deactivate' );
 
 /**
  * Initialize the core plugin instance on plugins_loaded.
  */
-function mb_engine_init() {
+function my_booking_engine_init() {
 	\MyBookingEngine\Plugin::get_instance()->init();
 }
-add_action( 'plugins_loaded', 'mb_engine_init' );
+add_action( 'plugins_loaded', 'my_booking_engine_init' );

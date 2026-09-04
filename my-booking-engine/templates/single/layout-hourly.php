@@ -54,7 +54,10 @@ $loc_text     = $loc ? esc_html( trim( $loc->city . ', ' . $loc->postal_code . '
 		<div class="mb-section mb-specs-card">
 			<div class="mb-spec-item">
 				<span class="mb-spec-icon">⏱️</span>
-				<span class="mb-spec-label"><?php echo esc_html( sprintf( __( '%d-minute sessions', 'my-booking-engine' ), $duration ) ); ?></span>
+				<span class="mb-spec-label"><?php
+				/* translators: %d: session duration in minutes */
+				echo esc_html( sprintf( __( '%d-minute sessions', 'my-booking-engine' ), $duration ) );
+				?></span>
 			</div>
 			<div class="mb-spec-item">
 				<span class="mb-spec-icon">⚡</span>

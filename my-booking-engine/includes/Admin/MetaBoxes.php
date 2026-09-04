@@ -151,8 +151,9 @@ class MetaBoxes {
 		// 3. Weekly Availability Schedule Rules.
 		$rules = array();
 		if ( isset( $_POST['mb_schedule'] ) && is_array( $_POST['mb_schedule'] ) ) {
-			foreach ( $_POST['mb_schedule'] as $day_index => $day_data ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				if ( ! empty( $day_data['enabled'] ) && ! empty( $day_data['start'] ) && ! empty( $day_data['end'] ) ) {
+			$raw_schedule = (array) wp_unslash( $_POST['mb_schedule'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			foreach ( $raw_schedule as $day_index => $day_data ) {
+				if ( is_array( $day_data ) && ! empty( $day_data['enabled'] ) && ! empty( $day_data['start'] ) && ! empty( $day_data['end'] ) ) {
 					$rules[] = array(
 						'rule_type'   => 'weekly_recurring',
 						'day_of_week' => absint( $day_index ),

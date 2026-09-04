@@ -211,7 +211,7 @@ class BookingEntity {
 
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM {$table} WHERE post_id = %d LIMIT 1",
+				"SELECT * FROM {$wpdb->prefix}mb_locations WHERE post_id = %d LIMIT 1",
 				$this->id
 			)
 		);
@@ -268,7 +268,7 @@ class BookingEntity {
 
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM {$table} WHERE entity_id = %d ORDER BY day_of_week ASC, start_time ASC",
+				"SELECT * FROM {$wpdb->prefix}mb_availabilities WHERE entity_id = %d ORDER BY day_of_week ASC, start_time ASC",
 				$this->id
 			)
 		);
@@ -493,7 +493,7 @@ class BookingEntity {
 
 		$avg = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT AVG(rating) FROM {$table} WHERE entity_id = %d AND status = 'approved'",
+				"SELECT AVG(rating) FROM {$wpdb->prefix}mb_reviews WHERE entity_id = %d AND status = 'approved'",
 				$this->id
 			)
 		);
@@ -512,7 +512,7 @@ class BookingEntity {
 
 		$count = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$table} WHERE entity_id = %d AND status = 'approved'",
+				"SELECT COUNT(*) FROM {$wpdb->prefix}mb_reviews WHERE entity_id = %d AND status = 'approved'",
 				$this->id
 			)
 		);
@@ -532,7 +532,7 @@ class BookingEntity {
 
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM {$table} WHERE entity_id = %d AND status = 'approved' ORDER BY created_at DESC LIMIT %d",
+				"SELECT * FROM {$wpdb->prefix}mb_reviews WHERE entity_id = %d AND status = 'approved' ORDER BY created_at DESC LIMIT %d",
 				$this->id,
 				absint( $limit )
 			)

@@ -1295,10 +1295,36 @@
 	border-radius: 20px;
 	box-shadow: 0 25px 60px rgba(0,0,0,0.25);
 	width: 100%;
-	max-width: 520px;
-	padding: 28px;
-	max-height: 90vh;
-	overflow-y: auto;
+	max-width: 760px;
+	padding: 28px 32px;
+	max-height: 94vh;
+	overflow: visible;
+	box-sizing: border-box;
+}
+
+@media (max-height: 720px) {
+	.mb-funnel-container {
+		max-height: 92vh;
+		overflow-y: auto;
+	}
+}
+
+.mb-funnel-grid-2 {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+}
+
+@media (max-width: 640px) {
+	.mb-funnel-container {
+		padding: 20px 16px;
+		max-height: 92vh;
+		overflow-y: auto;
+	}
+	.mb-funnel-grid-2 {
+		grid-template-columns: 1fr;
+		gap: 10px;
+	}
 }
 
 .mb-funnel-header {

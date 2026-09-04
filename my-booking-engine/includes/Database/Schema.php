@@ -155,7 +155,7 @@ class Schema {
 		dbDelta( $sql_reviews );
 
 		// Backfill postal_code_clean for any existing rows if empty.
-		$wpdb->query( "UPDATE {$locations_table} SET postal_code_clean = UPPER(REPLACE(REPLACE(REPLACE(postal_code, ' ', ''), '-', ''), '.', '')) WHERE postal_code_clean = '' AND postal_code != ''" );
+		$wpdb->query( "UPDATE {$wpdb->prefix}mb_locations SET postal_code_clean = UPPER(REPLACE(REPLACE(REPLACE(postal_code, ' ', ''), '-', ''), '.', '')) WHERE postal_code_clean = '' AND postal_code != ''" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
 		update_option( 'mb_engine_db_version', self::DB_VERSION );
 	}

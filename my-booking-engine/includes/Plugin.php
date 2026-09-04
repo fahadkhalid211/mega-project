@@ -137,9 +137,6 @@ class Plugin {
 	 * @return void
 	 */
 	public function on_init() {
-		// Load textdomain safely on 'init' as required by WP 6.7+.
-		load_plugin_textdomain( 'my-booking-engine', false, dirname( MB_ENGINE_BASENAME ) . '/languages' );
-
 		// Register Post Types & Taxonomies when $wp_rewrite is ready.
 		PostType::register();
 
@@ -354,10 +351,10 @@ class Plugin {
 			MB_ENGINE_VERSION
 		);
 
-		// 2. Leaflet Map CSS & JS (Free, OpenStreetMap).
+		// 2. Leaflet Map CSS & JS (Bundled locally, 100% compliant with WordPress.org guidelines).
 		wp_enqueue_style(
 			'mb-engine-leaflet',
-			'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+			MB_ENGINE_URL . 'assets/vendor/leaflet/leaflet.css',
 			array(),
 			'1.9.4'
 		);
@@ -387,7 +384,7 @@ class Plugin {
 
 		wp_enqueue_script(
 			'mb-engine-leaflet',
-			'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+			MB_ENGINE_URL . 'assets/vendor/leaflet/leaflet.js',
 			array(),
 			'1.9.4',
 			true
@@ -464,8 +461,18 @@ class Plugin {
 	public function enqueue_admin_assets( $hook ) {
 		global $post;
 
-		$is_mb_post_type = ( isset( $post->post_type ) && 'mb_booking_entity' === $post->post_type );
-		$is_mb_page      = ( false !== strpos( $hook, 'mb-engine' ) );
+		$screen          = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		$screen_post_type = $screen ? $screen->post_type : '';
+		$param_post_type  = isset( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$param_page       = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		$is_mb_post_type = ( 'mb_booking_entity' === $screen_post_type )
+			|| ( isset( $post->post_type ) && 'mb_booking_entity' === $post->post_type )
+			|| ( 'mb_booking_entity' === $param_post_type );
+
+		$is_mb_page = ( false !== strpos( $hook, 'mb-' ) )
+			|| ( false !== strpos( $hook, 'mb_booking_entity' ) )
+			|| ( 0 === strpos( $param_page, 'mb-' ) );
 
 		if ( ! $is_mb_post_type && ! $is_mb_page ) {
 			return;

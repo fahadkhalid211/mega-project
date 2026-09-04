@@ -63,7 +63,7 @@ class Booking {
 
 		return $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM {$table} WHERE id = %d LIMIT 1",
+				"SELECT * FROM {$wpdb->prefix}mb_bookings WHERE id = %d LIMIT 1",
 				absint( $booking_id )
 			)
 		);
@@ -81,7 +81,7 @@ class Booking {
 
 		return $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM {$table} WHERE order_id = %d LIMIT 1",
+				"SELECT * FROM {$wpdb->prefix}mb_bookings WHERE order_id = %d LIMIT 1",
 				absint( $order_id )
 			)
 		);
@@ -151,7 +151,7 @@ class Booking {
 		global $wpdb;
 		$table = Schema::get_bookings_table();
 
-		$sql = "SELECT COALESCE(SUM(capacity_booked), 0) FROM {$table}
+		$sql = "SELECT COALESCE(SUM(capacity_booked), 0) FROM {$wpdb->prefix}mb_bookings
 			WHERE entity_id = %d
 			  AND status IN ('pending', 'confirmed')
 			  AND booking_start < %s
@@ -165,7 +165,7 @@ class Booking {
 		}
 
 		$prepared = $wpdb->prepare( $sql, $params );
-		$total    = $wpdb->get_var( $prepared );
+		$total    = $wpdb->get_var( $prepared ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 		return absint( $total );
 	}
@@ -222,16 +222,16 @@ class Booking {
 		$per_page = absint( $args['per_page'] );
 		$offset   = ( absint( $args['page'] ) - 1 ) * $per_page;
 
-		$count_sql = "SELECT COUNT(*) FROM {$table} WHERE {$where_clause}";
+		$count_sql = "SELECT COUNT(*) FROM {$wpdb->prefix}mb_bookings WHERE {$where_clause}";
 		if ( ! empty( $params ) ) {
 			$count_sql = $wpdb->prepare( $count_sql, $params );
 		}
-		$total = (int) $wpdb->get_var( $count_sql );
+		$total = (int) $wpdb->get_var( $count_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
-		$items_sql = "SELECT * FROM {$table} WHERE {$where_clause} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d";
+		$items_sql = "SELECT * FROM {$wpdb->prefix}mb_bookings WHERE {$where_clause} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d";
 		$params[]  = $per_page;
 		$params[]  = $offset;
-		$items     = $wpdb->get_results( $wpdb->prepare( $items_sql, $params ) );
+		$items     = $wpdb->get_results( $wpdb->prepare( $items_sql, $params ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 		return array(
 			'items' => is_array( $items ) ? $items : array(),

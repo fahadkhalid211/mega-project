@@ -582,3 +582,148 @@
 	font-size: 13px;
 }
 
+/* --- Admin Stepper Wizard Modal Mode & Launch Bar --- */
+.mb-wizard-launch-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+	border: 1px solid #bfdbfe;
+	border-radius: 10px;
+	padding: 14px 20px;
+	margin-bottom: 20px;
+	box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+}
+
+.mb-wizard-badge {
+	display: inline-block;
+	font-size: 10px;
+	font-weight: 800;
+	letter-spacing: 0.5px;
+	background: #2563eb;
+	color: #ffffff;
+	padding: 2px 8px;
+	border-radius: 9999px;
+	margin-bottom: 4px;
+}
+
+.mb-wizard-launch-info h4 {
+	margin: 2px 0 4px 0;
+	font-size: 15px;
+	font-weight: 700;
+	color: #1e3a8a;
+}
+
+.mb-wizard-launch-info p {
+	margin: 0;
+	font-size: 13px;
+	color: #3b82f6;
+}
+
+/* When in popup modal mode */
+#mb-admin-wizard.is-modal {
+	position: fixed !important;
+	inset: 0 !important;
+	z-index: 999999 !important;
+	background: rgba(15, 23, 42, 0.75) !important;
+	backdrop-filter: blur(6px) !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	padding: 24px !important;
+	box-sizing: border-box !important;
+}
+
+#mb-admin-wizard.is-modal .mb-wizard-inner-modal {
+	background: #ffffff;
+	width: 100%;
+	max-width: 1120px;
+	max-height: 92vh;
+	border-radius: 16px;
+	box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	animation: mbModalPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes mbModalPopIn {
+	from {
+		opacity: 0;
+		transform: translateY(24px) scale(0.97);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+#mb-admin-wizard.is-modal .mb-wizard-modal-header {
+	display: flex !important;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 24px;
+	background: #0f172a;
+	color: #ffffff;
+}
+
+.mb-wizard-modal-title {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.mb-modal-icon {
+	font-size: 22px;
+}
+
+.mb-wizard-modal-title strong {
+	font-size: 16px;
+	color: #ffffff;
+	display: block;
+}
+
+.mb-modal-sub {
+	font-size: 12px;
+	color: #94a3b8;
+}
+
+.mb-wizard-modal-actions {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.mb-wizard-modal-close {
+	background: none;
+	border: none;
+	color: #94a3b8;
+	font-size: 28px;
+	line-height: 1;
+	cursor: pointer;
+	padding: 0 4px;
+	transition: color 0.2s;
+}
+
+.mb-wizard-modal-close:hover {
+	color: #ffffff;
+}
+
+#mb-admin-wizard.is-modal .mb-modal-quick-title-row {
+	display: block !important;
+}
+
+#mb-admin-wizard.is-modal .mb-wizard-scroll-body {
+	padding: 24px 28px;
+	overflow-y: auto;
+	flex: 1;
+}
+
+#mb-admin-wizard.is-modal .mb-wizard-footer {
+	padding: 16px 28px;
+	background: #f8fafc;
+	margin-top: 0;
+	border-top: 1px solid #e2e8f0;
+}
+
+

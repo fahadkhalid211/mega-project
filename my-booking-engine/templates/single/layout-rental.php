@@ -86,7 +86,10 @@ $loc_text     = $loc ? esc_html( trim( $loc->city . ', ' . $loc->postal_code . '
 		<div class="mb-section mb-rental-specs">
 			<div class="mb-spec-pill">
 				<span class="mb-spec-icon">💺</span>
-				<span class="mb-spec-text"><?php echo esc_html( sprintf( __( '%d Seats / Capacity', 'my-booking-engine' ), $capacity ) ); ?></span>
+				<span class="mb-spec-text"><?php
+				/* translators: %d: vehicle seating capacity */
+				echo esc_html( sprintf( __( '%d Seats / Capacity', 'my-booking-engine' ), $capacity ) );
+				?></span>
 			</div>
 			<div class="mb-spec-pill">
 				<span class="mb-spec-icon">⚙️</span>

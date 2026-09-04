@@ -60,8 +60,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<td>
 							<select id="mb_sc_entity_id" class="regular-text">
 								<?php if ( ! empty( $entities ) ) : ?>
-									<?php foreach ( $entities as $ent ) : ?>
-										<option value="<?php echo esc_attr( $ent->ID ); ?>"><?php echo esc_html( $ent->post_title ); ?> (ID: <?php echo esc_html( $ent->ID ); ?>)</option>
+									<?php foreach ( $entities as $mb_ent ) : ?>
+										<option value="<?php echo esc_attr( $mb_ent->ID ); ?>"><?php echo esc_html( $mb_ent->post_title ); ?> (ID: <?php echo esc_html( $mb_ent->ID ); ?>)</option>
 									<?php endforeach; ?>
 								<?php else : ?>
 									<option value="0"><?php esc_html_e( 'No listings created yet', 'my-booking-engine' ); ?></option>

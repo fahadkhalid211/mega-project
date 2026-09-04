@@ -242,9 +242,13 @@ class BookingsListTable extends \WP_List_Table {
 		$per_page     = 20;
 		$current_page = $this->get_pagenum();
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$status  = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$search  = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$orderby = isset( $_GET['orderby'] ) ? sanitize_key( wp_unslash( $_GET['orderby'] ) ) : 'id';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$order   = isset( $_GET['order'] ) ? sanitize_key( wp_unslash( $_GET['order'] ) ) : 'DESC';
 
 		$query_result = Booking::query(

@@ -78,7 +78,7 @@ class SpatialQuery {
 					sin( radians( loc.latitude ) )
 				) )
 			) ) AS distance
-			FROM {$table_name} loc
+			FROM {$wpdb->prefix}mb_locations loc
 			INNER JOIN {$wpdb->posts} p ON (loc.post_id = p.ID AND p.post_status = 'publish')
 			WHERE loc.latitude BETWEEN %f AND %f
 			  AND loc.longitude BETWEEN %f AND %f
@@ -97,7 +97,7 @@ class SpatialQuery {
 			$limit
 		);
 
-		$results = $wpdb->get_results( $sql );
+		$results = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 		if ( ! is_array( $results ) ) {
 			$results = array();
@@ -139,7 +139,7 @@ class SpatialQuery {
 
 		$sql = $wpdb->prepare(
 			"SELECT loc.post_id, loc.postal_code, loc.postal_code_clean, loc.city, loc.country_code, loc.latitude, loc.longitude, 0.0 AS distance
-			FROM {$table_name} loc
+			FROM {$wpdb->prefix}mb_locations loc
 			INNER JOIN {$wpdb->posts} p ON (loc.post_id = p.ID AND p.post_status = 'publish')
 			WHERE loc.postal_code = %s
 			   OR loc.postal_code_clean = %s
@@ -168,7 +168,7 @@ class SpatialQuery {
 			$limit
 		);
 
-		$results = $wpdb->get_results( $sql );
+		$results = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		return is_array( $results ) ? $results : array();
 	}
 

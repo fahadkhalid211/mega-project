@@ -70,23 +70,58 @@
 			}
 
 			if (currentStep === totalSteps) {
-				$('#mb-wiz-next').text('✓ Ready to Publish');
+				$('#mb-wiz-next').hide();
+				$('#mb-wiz-publish-btn').show();
 			} else {
-				$('#mb-wiz-next').text('Next Step →');
+				$('#mb-wiz-next').show().text('Next Step →');
+				$('#mb-wiz-publish-btn').hide();
 			}
 		}
+
+		// Modal Auto-Open on "Add New" Listing page
+		const isPostNew = (window.location.href.indexOf('post-new.php') !== -1) && 
+		                  (window.location.href.indexOf('post_type=mb_booking_entity') !== -1 || $('#mb-admin-wizard').length > 0);
+		if (isPostNew) {
+			$('#mb-admin-wizard').addClass('is-modal');
+			$('.mb-wizard-modal-header').show();
+			$('.mb-modal-quick-title-row').show();
+		}
+
+		// Modal Open / Close buttons
+		$('#mb-open-modal-wizard-btn').on('click', function(e) {
+			e.preventDefault();
+			$('#mb-admin-wizard').addClass('is-modal');
+			$('.mb-wizard-modal-header').show();
+			$('.mb-modal-quick-title-row').show();
+			$('#mb_quick_title').focus();
+		});
+
+		$('#mb-minimize-wizard-btn, #mb-close-wizard-x').on('click', function(e) {
+			e.preventDefault();
+			$('#mb-admin-wizard').removeClass('is-modal');
+			$('.mb-wizard-modal-header').hide();
+			$('.mb-modal-quick-title-row').hide();
+		});
+
+		// Synchronize Quick Title with WordPress Title input
+		$('#mb_quick_title').on('input change', function() {
+			const val = $(this).val();
+			$('#title').val(val).trigger('change');
+			const $gutenbergTitle = $('.editor-post-title__input, textarea.editor-post-title__input');
+			if ($gutenbergTitle.length) {
+				$gutenbergTitle.val(val).trigger('input');
+			}
+		});
+
+		$('#title').on('input change', function() {
+			$('#mb_quick_title').val($(this).val());
+		});
 
 		// Next & Prev Buttons
 		$('#mb-wiz-next').on('click', function(e) {
 			e.preventDefault();
 			if (currentStep < totalSteps) {
 				showStep(currentStep + 1);
-			} else {
-				// Focus the main WP publish button
-				$('#publish').focus().addClass('mb-pulse-highlight');
-				setTimeout(function() {
-					$('#publish').removeClass('mb-pulse-highlight');
-				}, 1500);
 			}
 		});
 
@@ -95,6 +130,32 @@
 			if (currentStep > 1) {
 				showStep(currentStep - 1);
 			}
+		});
+
+		// Save & Publish Button inside Wizard Modal
+		$('#mb-wiz-publish-btn').on('click', function(e) {
+			e.preventDefault();
+			const quickTitle = $('#mb_quick_title').val().trim();
+			if (quickTitle && !$('#title').val()) {
+				$('#title').val(quickTitle);
+			}
+
+			// Classic WordPress editor publish button
+			const $publishBtn = $('#publish');
+			if ($publishBtn.length) {
+				$publishBtn.trigger('click');
+				return;
+			}
+
+			// Gutenberg Block Editor publish button
+			const gBtn = document.querySelector('.editor-post-publish-button, .editor-post-publish-panel__toggle');
+			if (gBtn) {
+				gBtn.click();
+				return;
+			}
+
+			// Fallback form submission
+			$('form#post').submit();
 		});
 
 		// Stepper node click jump

@@ -42,11 +42,19 @@ class BookingEndpoint extends RestController {
 							'sanitize_callback' => 'absint',
 						),
 						'start_time'     => array(
-							'required'          => true,
+							'required'          => false,
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+						'booking_start'  => array(
+							'required'          => false,
 							'sanitize_callback' => 'sanitize_text_field',
 						),
 						'end_time'       => array(
-							'required'          => true,
+							'required'          => false,
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+						'booking_end'    => array(
+							'required'          => false,
 							'sanitize_callback' => 'sanitize_text_field',
 						),
 						'capacity'       => array(
@@ -83,13 +91,23 @@ class BookingEndpoint extends RestController {
 	 */
 	public function process_booking( $request ) {
 		$entity_id      = absint( $request->get_param( 'entity_id' ) );
-		$start_time     = sanitize_text_field( $request->get_param( 'start_time' ) );
-		$end_time       = sanitize_text_field( $request->get_param( 'end_time' ) );
+		$start_time     = sanitize_text_field( $request->get_param( 'start_time' ) ?: $request->get_param( 'booking_start' ) );
+		$end_time       = sanitize_text_field( $request->get_param( 'end_time' ) ?: $request->get_param( 'booking_end' ) );
 		$capacity       = max( 1, absint( $request->get_param( 'capacity' ) ) );
 		$customer_name  = sanitize_text_field( $request->get_param( 'customer_name' ) );
 		$customer_email = sanitize_email( $request->get_param( 'customer_email' ) );
 		$customer_phone = sanitize_text_field( $request->get_param( 'customer_phone' ) );
 		$session_token  = sanitize_text_field( $request->get_param( 'session_token' ) );
+
+		if ( empty( $start_time ) || empty( $end_time ) ) {
+			return new \WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => __( 'Please select valid start and end dates/times for your reservation.', 'my-booking-engine' ),
+				),
+				400
+			);
+		}
 
 		if ( 'mb_booking_entity' !== get_post_type( $entity_id ) ) {
 			return new \WP_REST_Response(

@@ -41,19 +41,19 @@ class PostType {
 	 */
 	private static function register_post_type() {
 		$labels = array(
-			'name'               => _x( 'Booking Entities', 'post type general name', 'my-booking-engine' ),
-			'singular_name'      => _x( 'Booking Entity', 'post type singular name', 'my-booking-engine' ),
+			'name'               => _x( 'Listings', 'post type general name', 'my-booking-engine' ),
+			'singular_name'      => _x( 'Listing', 'post type singular name', 'my-booking-engine' ),
 			'menu_name'          => _x( 'Booking Engine', 'admin menu', 'my-booking-engine' ),
-			'name_admin_bar'     => _x( 'Booking Entity', 'add new on admin bar', 'my-booking-engine' ),
-			'add_new'            => _x( 'Add New', 'entity', 'my-booking-engine' ),
-			'add_new_item'       => __( 'Add New Booking Entity (Service, Rental, Property, Event)', 'my-booking-engine' ),
-			'new_item'           => __( 'New Booking Entity', 'my-booking-engine' ),
-			'edit_item'          => __( 'Edit Booking Entity', 'my-booking-engine' ),
-			'view_item'          => __( 'View Booking Entity', 'my-booking-engine' ),
-			'all_items'          => __( 'All Entities', 'my-booking-engine' ),
-			'search_items'       => __( 'Search Booking Entities', 'my-booking-engine' ),
-			'not_found'          => __( 'No booking entities found.', 'my-booking-engine' ),
-			'not_found_in_trash' => __( 'No booking entities found in Trash.', 'my-booking-engine' ),
+			'name_admin_bar'     => _x( 'Listing', 'add new on admin bar', 'my-booking-engine' ),
+			'add_new'            => _x( 'Add New', 'listing', 'my-booking-engine' ),
+			'add_new_item'       => __( 'Add New Listing', 'my-booking-engine' ),
+			'new_item'           => __( 'New Listing', 'my-booking-engine' ),
+			'edit_item'          => __( 'Edit Listing', 'my-booking-engine' ),
+			'view_item'          => __( 'View Listing', 'my-booking-engine' ),
+			'all_items'          => __( 'All Listings', 'my-booking-engine' ),
+			'search_items'       => __( 'Search Listings', 'my-booking-engine' ),
+			'not_found'          => __( 'No listings found.', 'my-booking-engine' ),
+			'not_found_in_trash' => __( 'No listings found in Trash.', 'my-booking-engine' ),
 		);
 
 		$args = array(
@@ -83,17 +83,17 @@ class PostType {
 	 */
 	private static function register_taxonomy() {
 		$labels = array(
-			'name'              => _x( 'Entity Types', 'taxonomy general name', 'my-booking-engine' ),
-			'singular_name'     => _x( 'Entity Type', 'taxonomy singular name', 'my-booking-engine' ),
-			'search_items'      => __( 'Search Entity Types', 'my-booking-engine' ),
-			'all_items'         => __( 'All Entity Types', 'my-booking-engine' ),
-			'parent_item'       => __( 'Parent Entity Type', 'my-booking-engine' ),
-			'parent_item_colon' => __( 'Parent Entity Type:', 'my-booking-engine' ),
-			'edit_item'         => __( 'Edit Entity Type', 'my-booking-engine' ),
-			'update_item'       => __( 'Update Entity Type', 'my-booking-engine' ),
-			'add_new_item'      => __( 'Add New Entity Type', 'my-booking-engine' ),
-			'new_item_name'     => __( 'New Entity Type Name', 'my-booking-engine' ),
-			'menu_name'         => __( 'Categories / Types', 'my-booking-engine' ),
+			'name'              => _x( 'Listing Categories', 'taxonomy general name', 'my-booking-engine' ),
+			'singular_name'     => _x( 'Listing Category', 'taxonomy singular name', 'my-booking-engine' ),
+			'search_items'      => __( 'Search Categories', 'my-booking-engine' ),
+			'all_items'         => __( 'All Categories', 'my-booking-engine' ),
+			'parent_item'       => __( 'Parent Category', 'my-booking-engine' ),
+			'parent_item_colon' => __( 'Parent Category:', 'my-booking-engine' ),
+			'edit_item'         => __( 'Edit Category', 'my-booking-engine' ),
+			'update_item'       => __( 'Update Category', 'my-booking-engine' ),
+			'add_new_item'      => __( 'Add New Category', 'my-booking-engine' ),
+			'new_item_name'     => __( 'New Category Name', 'my-booking-engine' ),
+			'menu_name'         => __( 'Listing Categories', 'my-booking-engine' ),
 		);
 
 		$args = array(

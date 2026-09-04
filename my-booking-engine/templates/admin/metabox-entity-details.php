@@ -55,7 +55,46 @@ $days_of_week = array(
 );
 ?>
 
+<!-- Launch Wizard Banner in metabox -->
+<div class="mb-wizard-launch-bar" id="mb-wizard-launch-bar">
+	<div class="mb-wizard-launch-info">
+		<span class="mb-wizard-badge">⚡ GUIDED STEPPER WIZARD</span>
+		<h4><?php esc_html_e( 'Guided Listing Creation & Setup Wizard', 'my-booking-engine' ); ?></h4>
+		<p><?php esc_html_e( 'Configure models, pricing rules, geocoded coordinates, hours, and media in a focused full-screen popup modal.', 'my-booking-engine' ); ?></p>
+	</div>
+	<button type="button" class="button button-primary button-hero" id="mb-open-modal-wizard-btn">
+		✨ <?php esc_html_e( 'Launch Wizard Popup', 'my-booking-engine' ); ?>
+	</button>
+</div>
+
 <div class="mb-wizard-wrapper" id="mb-admin-wizard">
+	<div class="mb-wizard-inner-modal">
+		<!-- Modal Header (active in modal mode) -->
+		<div class="mb-wizard-modal-header" style="display:none;">
+			<div class="mb-wizard-modal-title">
+				<span class="mb-modal-icon">✨</span>
+				<div>
+					<strong><?php esc_html_e( 'Listing Setup Wizard', 'my-booking-engine' ); ?></strong>
+					<span class="mb-modal-sub"><?php esc_html_e( 'Step-by-step listing configurator', 'my-booking-engine' ); ?></span>
+				</div>
+			</div>
+			<div class="mb-wizard-modal-actions">
+				<button type="button" class="button button-secondary" id="mb-minimize-wizard-btn">
+					🗗 <?php esc_html_e( 'Minimize to Page', 'my-booking-engine' ); ?>
+				</button>
+				<button type="button" class="mb-wizard-modal-close" id="mb-close-wizard-x" title="<?php esc_attr_e( 'Close', 'my-booking-engine' ); ?>">&times;</button>
+			</div>
+		</div>
+
+		<!-- Scrollable Body for all 5 Steps -->
+		<div class="mb-wizard-scroll-body">
+			<!-- Quick Title row inside modal -->
+			<div class="mb-modal-quick-title-row" style="display:none; margin-bottom: 20px; padding: 14px 18px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+				<label for="mb_quick_title" style="display:block; font-weight:700; font-size:13px; color:#1e293b; margin-bottom:6px;">
+					<?php esc_html_e( 'Listing Title *', 'my-booking-engine' ); ?>
+				</label>
+				<input type="text" id="mb_quick_title" class="widefat" placeholder="<?php esc_attr_e( 'e.g. Beverly Hills Luxury Suite, Sunset Dental Clinic, Porsche 911 Rental...', 'my-booking-engine' ); ?>" value="<?php echo esc_attr( get_the_title( $post->ID ) ); ?>" style="font-size:15px; padding:8px 12px;">
+			</div>
 	<!-- Stepper Progress Header -->
 	<div class="mb-wizard-stepper">
 		<div class="mb-stepper-progress-track">
@@ -461,18 +500,26 @@ Please arrive 10 minutes before your scheduled appointment.", 'my-booking-engine
 
 	</div>
 
-	<!-- Wizard Navigation Footer -->
-	<div class="mb-wizard-footer">
-		<button type="button" class="button button-large mb-w-btn" id="mb-wiz-prev" style="display:none;">
-			← <?php esc_html_e( 'Previous Step', 'my-booking-engine' ); ?>
-		</button>
+		</div><!-- /.mb-wizard-scroll-body -->
 
-		<div class="mb-wizard-status-indicator">
-			<span id="mb-wiz-step-text"><?php esc_html_e( 'Step 1 of 5: Type & Design', 'my-booking-engine' ); ?></span>
+		<!-- Wizard Navigation Footer -->
+		<div class="mb-wizard-footer">
+			<button type="button" class="button button-large mb-w-btn" id="mb-wiz-prev" style="display:none;">
+				← <?php esc_html_e( 'Previous Step', 'my-booking-engine' ); ?>
+			</button>
+
+			<div class="mb-wizard-status-indicator">
+				<span id="mb-wiz-step-text"><?php esc_html_e( 'Step 1 of 5: Type & Design', 'my-booking-engine' ); ?></span>
+			</div>
+
+			<div class="mb-wizard-footer-right" style="display:flex; gap:10px;">
+				<button type="button" class="button button-primary button-large mb-w-btn" id="mb-wiz-next">
+					<?php esc_html_e( 'Next Step →', 'my-booking-engine' ); ?>
+				</button>
+				<button type="button" class="button button-primary button-large mb-w-btn" id="mb-wiz-publish-btn" style="display:none; background:#16a34a; border-color:#15803d;">
+					💾 <?php esc_html_e( 'Save & Publish Listing', 'my-booking-engine' ); ?>
+				</button>
+			</div>
 		</div>
-
-		<button type="button" class="button button-primary button-large mb-w-btn" id="mb-wiz-next">
-			<?php esc_html_e( 'Next Step →', 'my-booking-engine' ); ?>
-		</button>
-	</div>
-</div>
+	</div><!-- /.mb-wizard-inner-modal -->
+</div><!-- /.mb-wizard-wrapper -->

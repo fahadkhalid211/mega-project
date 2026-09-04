@@ -1,11 +1,10 @@
 === Booking Engine - Multi-Model Booking & Appointment System ===
 Contributors: bookingengine
-Donate link: https://example.com/donate
-Tags: booking, appointment, rental, hotel, car rental, events, woocommerce, postal code, zip code, geocoding, haversine, distance search
+Tags: booking, appointment, rental, hotel, calendar
 Requires at least: 5.8
-Tested up to: 6.7
+Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 

@@ -135,31 +135,43 @@
 							<p class="mb-step-desc">We will send your instant booking confirmation and voucher to this address.</p>
 							<div id="mb-step3-error" class="mb-funnel-alert mb-funnel-alert-danger" style="display:none;"></div>
 							<div class="mb-funnel-form-card">
-								<div class="mb-funnel-field">
-									<label class="mb-funnel-label" for="mb-funnel-name">Full Name <span class="mb-required">*</span></label>
-									<div class="mb-input-icon-wrap">
-										<span class="mb-input-icon">👤</span>
-										<input type="text" id="mb-funnel-name" class="mb-funnel-input" value="${this.customer.name || ''}" placeholder="e.g. Sarah Connor" required autocomplete="name">
+								<div class="mb-funnel-grid-2">
+									<div class="mb-funnel-field">
+										<label class="mb-funnel-label" for="mb-funnel-name">Full Name <span class="mb-required">*</span></label>
+										<div class="mb-input-icon-wrap">
+											<span class="mb-input-icon">👤</span>
+											<input type="text" id="mb-funnel-name" class="mb-funnel-input" value="${this.customer.name || ''}" placeholder="e.g. Sarah Connor" required autocomplete="name">
+										</div>
+										<span class="mb-field-error" id="mb-err-name"></span>
 									</div>
-									<span class="mb-field-error" id="mb-err-name"></span>
+
+									<div class="mb-funnel-field">
+										<label class="mb-funnel-label" for="mb-funnel-email">Email Address <span class="mb-required">*</span></label>
+										<div class="mb-input-icon-wrap">
+											<span class="mb-input-icon">✉️</span>
+											<input type="email" id="mb-funnel-email" class="mb-funnel-input" value="${this.customer.email || ''}" placeholder="sarah@example.com" required autocomplete="email">
+										</div>
+										<span class="mb-field-error" id="mb-err-email"></span>
+									</div>
 								</div>
 
-								<div class="mb-funnel-field" style="margin-top:14px;">
-									<label class="mb-funnel-label" for="mb-funnel-email">Email Address <span class="mb-required">*</span></label>
-									<div class="mb-input-icon-wrap">
-										<span class="mb-input-icon">✉️</span>
-										<input type="email" id="mb-funnel-email" class="mb-funnel-input" value="${this.customer.email || ''}" placeholder="sarah@example.com" required autocomplete="email">
+								<div class="mb-funnel-grid-2" style="margin-top:10px;">
+									<div class="mb-funnel-field">
+										<label class="mb-funnel-label" for="mb-funnel-phone">Phone Number <span class="mb-required">*</span></label>
+										<div class="mb-input-icon-wrap">
+											<span class="mb-input-icon">📞</span>
+											<input type="tel" id="mb-funnel-phone" class="mb-funnel-input" value="${this.customer.phone || ''}" placeholder="+1 (555) 234-5678" required autocomplete="tel">
+										</div>
+										<span class="mb-field-error" id="mb-err-phone"></span>
 									</div>
-									<span class="mb-field-error" id="mb-err-email"></span>
-								</div>
 
-								<div class="mb-funnel-field" style="margin-top:14px;">
-									<label class="mb-funnel-label" for="mb-funnel-phone">Phone Number <span class="mb-required">*</span></label>
-									<div class="mb-input-icon-wrap">
-										<span class="mb-input-icon">📞</span>
-										<input type="tel" id="mb-funnel-phone" class="mb-funnel-input" value="${this.customer.phone || ''}" placeholder="+1 (555) 234-5678" required autocomplete="tel">
+									<div class="mb-funnel-field">
+										<label class="mb-funnel-label" for="mb-funnel-notes-step3">Special Notes (Optional)</label>
+										<div class="mb-input-icon-wrap">
+											<span class="mb-input-icon">📝</span>
+											<input type="text" id="mb-funnel-notes-step3" class="mb-funnel-input" value="${this.customer.notes || ''}" placeholder="Arrival time, preferences...">
+										</div>
 									</div>
-									<span class="mb-field-error" id="mb-err-phone"></span>
 								</div>
 							</div>
 						</div>
@@ -346,13 +358,20 @@
 			const restUrl = (window.mbEngineData && window.mbEngineData.restUrl) ? window.mbEngineData.restUrl : '/wp-json/my-booking-engine/v1/';
 			const nonce = (window.mbEngineData && window.mbEngineData.nonce) ? window.mbEngineData.nonce : '';
 
+			const startDateVal = (this.selectedDates.startDate || new Date().toISOString().slice(0, 10));
+			const endDateVal = (this.selectedDates.endDate || this.selectedDates.startDate || new Date().toISOString().slice(0, 10));
+			const startFull = startDateVal.length > 10 ? startDateVal : (startDateVal + ' 10:00:00');
+			const endFull = endDateVal.length > 10 ? endDateVal : (endDateVal + ' 12:00:00');
+
 			const payload = {
 				entity_id: this.entityId,
 				customer_name: this.customer.name,
 				customer_email: this.customer.email,
 				customer_phone: this.customer.phone,
-				booking_start: (this.selectedDates.startDate || new Date().toISOString().slice(0, 10)) + ' 10:00:00',
-				booking_end: (this.selectedDates.endDate || this.selectedDates.startDate || new Date().toISOString().slice(0, 10)) + ' 12:00:00',
+				start_time: startFull,
+				end_time: endFull,
+				booking_start: startFull,
+				booking_end: endFull,
 				capacity: this.guests
 			};
 

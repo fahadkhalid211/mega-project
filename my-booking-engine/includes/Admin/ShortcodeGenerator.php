@@ -22,7 +22,7 @@ class ShortcodeGenerator {
 	 * @return void
 	 */
 	public static function render() {
-		 = get_posts(
+		$entities = get_posts(
 			array(
 				'post_type'      => 'mb_booking_entity',
 				'post_status'    => 'publish',

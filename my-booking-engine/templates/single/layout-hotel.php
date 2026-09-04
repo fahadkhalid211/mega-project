@@ -78,15 +78,24 @@ $loc_text       = $loc ? esc_html( trim( $loc->city . ', ' . $loc->postal_code .
 		<div class="mb-section mb-specs-card">
 			<div class="mb-spec-item">
 				<span class="mb-spec-icon">👥</span>
-				<span class="mb-spec-label"><?php echo esc_html( sprintf( __( 'Up to %d guests', 'my-booking-engine' ), $capacity ) ); ?></span>
+				<span class="mb-spec-label"><?php
+				/* translators: %d: maximum guests capacity */
+				echo esc_html( sprintf( __( 'Up to %d guests', 'my-booking-engine' ), $capacity ) );
+				?></span>
 			</div>
 			<div class="mb-spec-item">
 				<span class="mb-spec-icon">🕒</span>
-				<span class="mb-spec-label"><?php echo esc_html( sprintf( __( 'Check-in %s', 'my-booking-engine' ), $checkin ) ); ?></span>
+				<span class="mb-spec-label"><?php
+				/* translators: %s: check-in time */
+				echo esc_html( sprintf( __( 'Check-in %s', 'my-booking-engine' ), $checkin ) );
+				?></span>
 			</div>
 			<div class="mb-spec-item">
 				<span class="mb-spec-icon">🚪</span>
-				<span class="mb-spec-label"><?php echo esc_html( sprintf( __( 'Check-out %s', 'my-booking-engine' ), $checkout ) ); ?></span>
+				<span class="mb-spec-label"><?php
+				/* translators: %s: check-out time */
+				echo esc_html( sprintf( __( 'Check-out %s', 'my-booking-engine' ), $checkout ) );
+				?></span>
 			</div>
 			<div class="mb-spec-item">
 				<span class="mb-spec-icon">⭐</span>
@@ -221,7 +230,10 @@ $loc_text       = $loc ? esc_html( trim( $loc->city . ', ' . $loc->postal_code .
 					<label><?php esc_html_e( 'GUESTS', 'my-booking-engine' ); ?></label>
 					<select id="mb-select-guests" class="mb-form-select">
 						<?php for ( $g = 1; $g <= $capacity; $g++ ) : ?>
-							<option value="<?php echo esc_attr( $g ); ?>"><?php echo esc_html( sprintf( _n( '%d guest', '%d guests', $g, 'my-booking-engine' ), $g ) ); ?></option>
+							<option value="<?php echo esc_attr( $g ); ?>"><?php
+							/* translators: %d: number of guests */
+							echo esc_html( sprintf( _n( '%d guest', '%d guests', $g, 'my-booking-engine' ), $g ) );
+							?></option>
 						<?php endfor; ?>
 					</select>
 				</div>
