@@ -188,13 +188,23 @@ class Plugin {
 	 * @return void
 	 */
 	private function register_shortcodes() {
+		// Global Search & Directory (No ID required)
+		add_shortcode( 'mb_search', array( $this, 'render_search_filter_shortcode' ) );
+		add_shortcode( 'mb_booking_search', array( $this, 'render_search_filter_shortcode' ) );
 		add_shortcode( 'mb_search_filter', array( $this, 'render_search_filter_shortcode' ) );
+
+		// Direct Booking Card
 		add_shortcode( 'mb_booking_form', array( $this, 'render_booking_form_shortcode' ) );
+		add_shortcode( 'mb_booking_card', array( $this, 'render_booking_form_shortcode' ) );
+
+		// Marketplace Listings Grid & Catalog (No ID required)
+		add_shortcode( 'mb_listings', array( $this, 'render_entities_shortcode' ) );
+		add_shortcode( 'mb_catalog', array( $this, 'render_entities_shortcode' ) );
 		add_shortcode( 'mb_entities', array( $this, 'render_entities_shortcode' ) );
 	}
 
 	/**
-	 * Render [mb_search_filter] shortcode.
+	 * Render [mb_search] or [mb_search_filter] shortcode.
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return string Rendered HTML.
@@ -217,6 +227,7 @@ class Plugin {
 
 	/**
 	 * Render [mb_booking_form id="123"] shortcode.
+	 * Auto-detects current listing ID if omitted.
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return string Rendered HTML.
@@ -231,8 +242,26 @@ class Plugin {
 		);
 
 		$entity_id = absint( $atts['id'] );
+		if ( ! $entity_id && is_singular( 'mb_booking_entity' ) ) {
+			$entity_id = get_the_ID();
+		}
+
+		if ( ! $entity_id ) {
+			$latest = get_posts(
+				array(
+					'post_type'      => 'mb_booking_entity',
+					'post_status'    => 'publish',
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+				)
+			);
+			if ( ! empty( $latest ) ) {
+				$entity_id = $latest[0];
+			}
+		}
+
 		if ( ! $entity_id || 'mb_booking_entity' !== get_post_type( $entity_id ) ) {
-			return '<p class="mb-error">' . esc_html__( 'Invalid booking entity specified.', 'my-booking-engine' ) . '</p>';
+			return '<p class="mb-error">' . esc_html__( 'Please publish at least one listing or specify a valid listing ID.', 'my-booking-engine' ) . '</p>';
 		}
 
 		ob_start();
@@ -241,7 +270,8 @@ class Plugin {
 	}
 
 	/**
-	 * Render [mb_entities] grid shortcode.
+	 * Render [mb_listings] grid shortcode.
+	 * If type is omitted, displays interactive category filter tabs.
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return string Rendered HTML.
@@ -249,11 +279,12 @@ class Plugin {
 	public function render_entities_shortcode( $atts ) {
 		$atts = shortcode_atts(
 			array(
-				'type'  => '',
-				'limit' => 6,
+				'type'    => '',
+				'limit'   => 12,
+				'columns' => 3,
 			),
 			$atts,
-			'mb_entities'
+			'mb_listings'
 		);
 
 		$args = array(
@@ -263,11 +294,18 @@ class Plugin {
 		);
 
 		if ( ! empty( $atts['type'] ) ) {
-			$args['tax_query'] = array(
+			$type_val = sanitize_key( $atts['type'] );
+			$args['meta_query'] = array(
+				'relation' => 'OR',
 				array(
-					'taxonomy' => 'mb_entity_type',
-					'field'    => 'slug',
-					'terms'    => sanitize_text_field( $atts['type'] ),
+					'key'     => '_mb_visual_layout',
+					'value'   => $type_val,
+					'compare' => '=',
+				),
+				array(
+					'key'     => '_mb_model_type',
+					'value'   => $type_val,
+					'compare' => 'LIKE',
 				),
 			);
 		}
@@ -276,16 +314,28 @@ class Plugin {
 
 		ob_start();
 		if ( $query->have_posts() ) {
-			echo '<div class="mb-entities-grid">';
+			if ( empty( $atts['type'] ) ) {
+				?>
+				<div class="mb-category-pills-bar" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;">
+					<button type="button" class="mb-cat-pill is-active" data-filter="all"><?php esc_html_e( 'All Listings', 'my-booking-engine' ); ?></button>
+					<button type="button" class="mb-cat-pill" data-filter="hotel"><?php esc_html_e( '🏨 Hotels & Stays', 'my-booking-engine' ); ?></button>
+					<button type="button" class="mb-cat-pill" data-filter="rental"><?php esc_html_e( '🚗 Car Rentals', 'my-booking-engine' ); ?></button>
+					<button type="button" class="mb-cat-pill" data-filter="doctor"><?php esc_html_e( '🩺 Doctors & Clinics', 'my-booking-engine' ); ?></button>
+					<button type="button" class="mb-cat-pill" data-filter="salon"><?php esc_html_e( '✂️ Salons & Spas', 'my-booking-engine' ); ?></button>
+					<button type="button" class="mb-cat-pill" data-filter="hourly"><?php esc_html_e( '⏱️ Hourly Studios', 'my-booking-engine' ); ?></button>
+					<button type="button" class="mb-cat-pill" data-filter="shop"><?php esc_html_e( '🏪 Shops & Dining', 'my-booking-engine' ); ?></button>
+				</div>
+				<?php
+			}
+			echo '<div class="mb-entities-grid" id="mb-catalog-grid">';
 			while ( $query->have_posts() ) {
 				$query->the_post();
-				$entity_id = get_the_ID();
 				include MB_ENGINE_PATH . 'templates/frontend/entity-card.php';
 			}
 			echo '</div>';
 			wp_reset_postdata();
 		} else {
-			echo '<p>' . esc_html__( 'No booking entities found.', 'my-booking-engine' ) . '</p>';
+			echo '<p class="mb-no-results">' . esc_html__( 'No booking entities published yet.', 'my-booking-engine' ) . '</p>';
 		}
 		return ob_get_clean();
 	}
@@ -319,6 +369,21 @@ class Plugin {
 			array( 'mb-engine-calendar', 'mb-engine-leaflet' ),
 			MB_ENGINE_VERSION
 		);
+
+		// Dynamic Brand Color & Styling Variables
+		$theme_settings = get_option( 'mb_engine_settings', array() );
+		$primary_col    = ! empty( $theme_settings['primary_color'] ) ? sanitize_hex_color( $theme_settings['primary_color'] ) : '#2563eb';
+		$hover_col      = ! empty( $theme_settings['primary_hover'] ) ? sanitize_hex_color( $theme_settings['primary_hover'] ) : '#1d4ed8';
+		$accent_col     = ! empty( $theme_settings['accent_color'] ) ? sanitize_hex_color( $theme_settings['accent_color'] ) : '#f59e0b';
+		$radius_val     = isset( $theme_settings['border_radius'] ) ? absint( $theme_settings['border_radius'] ) : 8;
+
+		$custom_brand_css = ":root {
+			--mb-primary: {$primary_col};
+			--mb-primary-hover: {$hover_col};
+			--mb-accent: {$accent_col};
+			--mb-radius: {$radius_val}px;
+		}";
+		wp_add_inline_style( 'mb-engine-frontend', $custom_brand_css );
 
 		wp_enqueue_script(
 			'mb-engine-leaflet',

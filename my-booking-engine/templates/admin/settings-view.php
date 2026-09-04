@@ -16,6 +16,11 @@ $lock_duration     = isset( $settings['lock_duration'] ) ? $settings['lock_durat
 $enable_wc         = isset( $settings['enable_woocommerce'] ) ? $settings['enable_woocommerce'] : 'yes';
 $currency_symbol   = isset( $settings['currency_symbol'] ) ? $settings['currency_symbol'] : '$';
 $default_radius    = isset( $settings['search_default_rad'] ) ? $settings['search_default_rad'] : 25;
+
+$primary_color     = isset( $settings['primary_color'] ) ? $settings['primary_color'] : '#2563eb';
+$primary_hover     = isset( $settings['primary_hover'] ) ? $settings['primary_hover'] : '#1d4ed8';
+$accent_color      = isset( $settings['accent_color'] ) ? $settings['accent_color'] : '#f59e0b';
+$border_radius     = isset( $settings['border_radius'] ) ? $settings['border_radius'] : 8;
 ?>
 
 <div class="wrap mb-settings-wrap">
@@ -99,6 +104,65 @@ $default_radius    = isset( $settings['search_default_rad'] ) ? $settings['searc
 									<?php esc_html_e( 'Redirect bookings into WooCommerce cart and checkout funnel', 'my-booking-engine' ); ?>
 								</label>
 								<p class="description"><?php esc_html_e( 'When active, bookings leverage WooCommerce payment gateways (Stripe, PayPal, Apple Pay, etc.) and auto-confirm upon payment.', 'my-booking-engine' ); ?></p>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<div class="mb-card" style="margin-top:20px;">
+					<h2><?php esc_html_e( '3. Appearance, Branding & Color Customizer', 'my-booking-engine' ); ?></h2>
+					<p class="description"><?php esc_html_e( 'Customize primary brand colors, buttons, calendar highlights, and card styling across all frontend widgets.', 'my-booking-engine' ); ?></p>
+					
+					<!-- Palette Quick Presets -->
+					<div class="mb-palette-presets" style="margin:16px 0; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+						<span style="font-weight:600; font-size:12px; color:#64748b;"><?php esc_html_e( 'One-Click Palette Presets:', 'my-booking-engine' ); ?></span>
+						<button type="button" class="button mb-palette-btn" data-primary="#2563eb" data-hover="#1d4ed8" data-accent="#f59e0b">🔵 <?php esc_html_e( 'Modern Blue', 'my-booking-engine' ); ?></button>
+						<button type="button" class="button mb-palette-btn" data-primary="#ff385c" data-hover="#e00b41" data-accent="#00a699">🌺 <?php esc_html_e( 'Airbnb Coral', 'my-booking-engine' ); ?></button>
+						<button type="button" class="button mb-palette-btn" data-primary="#059669" data-hover="#047857" data-accent="#d97706">🌿 <?php esc_html_e( 'Emerald Spa', 'my-booking-engine' ); ?></button>
+						<button type="button" class="button mb-palette-btn" data-primary="#7c3aed" data-hover="#6d28d9" data-accent="#ec4899">👑 <?php esc_html_e( 'Royal Purple', 'my-booking-engine' ); ?></button>
+						<button type="button" class="button mb-palette-btn" data-primary="#0f172a" data-hover="#1e293b" data-accent="#f59e0b">🕶️ <?php esc_html_e( 'Luxury Obsidian', 'my-booking-engine' ); ?></button>
+					</div>
+
+					<table class="form-table">
+						<tr>
+							<th scope="row"><label for="mb_primary_color"><?php esc_html_e( 'Primary Brand Color', 'my-booking-engine' ); ?></label></th>
+							<td>
+								<div style="display:flex; align-items:center; gap:10px;">
+									<input type="color" id="mb_primary_color_picker" value="<?php echo esc_attr( $primary_color ); ?>" style="width:40px; height:36px; padding:0; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer;">
+									<input type="text" name="mb_engine_settings[primary_color]" id="mb_primary_color" value="<?php echo esc_attr( $primary_color ); ?>" class="small-text" style="font-family:monospace;">
+								</div>
+								<p class="description"><?php esc_html_e( 'Used for book buttons, active calendar dates, tabs, and filter accents.', 'my-booking-engine' ); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="mb_primary_hover"><?php esc_html_e( 'Primary Hover Color', 'my-booking-engine' ); ?></label></th>
+							<td>
+								<div style="display:flex; align-items:center; gap:10px;">
+									<input type="color" id="mb_primary_hover_picker" value="<?php echo esc_attr( $primary_hover ); ?>" style="width:40px; height:36px; padding:0; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer;">
+									<input type="text" name="mb_engine_settings[primary_hover]" id="mb_primary_hover" value="<?php echo esc_attr( $primary_hover ); ?>" class="small-text" style="font-family:monospace;">
+								</div>
+								<p class="description"><?php esc_html_e( 'Applied when hovering buttons and active clickable components.', 'my-booking-engine' ); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="mb_accent_color"><?php esc_html_e( 'Accent & Star Rating Color', 'my-booking-engine' ); ?></label></th>
+							<td>
+								<div style="display:flex; align-items:center; gap:10px;">
+									<input type="color" id="mb_accent_color_picker" value="<?php echo esc_attr( $accent_color ); ?>" style="width:40px; height:36px; padding:0; border:1px solid #cbd5e1; border-radius:4px; cursor:pointer;">
+									<input type="text" name="mb_engine_settings[accent_color]" id="mb_accent_color" value="<?php echo esc_attr( $accent_color ); ?>" class="small-text" style="font-family:monospace;">
+								</div>
+								<p class="description"><?php esc_html_e( 'Used for review stars, verified badges, and discount highlights.', 'my-booking-engine' ); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="mb_border_radius"><?php esc_html_e( 'Card & Button Corner Radius', 'my-booking-engine' ); ?></label></th>
+							<td>
+								<select name="mb_engine_settings[border_radius]" id="mb_border_radius" class="small-text">
+									<option value="4" <?php selected( $border_radius, 4 ); ?>><?php esc_html_e( '4px (Subtle / Sharp)', 'my-booking-engine' ); ?></option>
+									<option value="8" <?php selected( $border_radius, 8 ); ?>><?php esc_html_e( '8px (Modern Default)', 'my-booking-engine' ); ?></option>
+									<option value="12" <?php selected( $border_radius, 12 ); ?>><?php esc_html_e( '12px (Smooth Rounded)', 'my-booking-engine' ); ?></option>
+									<option value="16" <?php selected( $border_radius, 16 ); ?>><?php esc_html_e( '16px (High Curves)', 'my-booking-engine' ); ?></option>
+								</select>
 							</td>
 						</tr>
 					</table>

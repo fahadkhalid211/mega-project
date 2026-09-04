@@ -163,15 +163,41 @@
 			this.container.addEventListener('mouseover', (e) => {
 				if (this.mode !== 'range' || !this.startDate || this.endDate) return;
 				const dayCell = e.target.closest('.mb-cal-day-cell:not(.is-past):not(.is-empty)');
-				if (dayCell) {
+				if (dayCell && dayCell.dataset.date) {
 					const hovered = new Date(dayCell.dataset.date);
 					hovered.setHours(0, 0, 0, 0);
 					if (hovered >= this.startDate) {
 						this.hoverDate = hovered;
-						this.render();
+						this.updateHoverClasses();
 					}
 				}
 			});
+
+			this.container.addEventListener('mouseleave', () => {
+				if (this.mode === 'range' && this.startDate && !this.endDate) {
+					this.hoverDate = null;
+					this.updateHoverClasses();
+				}
+			});
+		}
+
+		updateHoverClasses() {
+			const cells = this.container.querySelectorAll('.mb-cal-day-cell[data-date]');
+			cells.forEach(cell => {
+				const d = new Date(cell.dataset.date);
+				d.setHours(0, 0, 0, 0);
+				if (this.startDate && !this.endDate && this.hoverDate && d > this.startDate && d <= this.hoverDate) {
+					cell.classList.add('mb-range-hover');
+				} else {
+					cell.classList.remove('mb-range-hover');
+				}
+			});
+
+			const summaryEl = this.container.querySelector('.mb-cal-selected-summary');
+			if (summaryEl && this.startDate && !this.endDate && this.hoverDate) {
+				const nights = Math.round((this.hoverDate - this.startDate) / 86400000);
+				summaryEl.textContent = `${this.formatDateYMD(this.startDate)} → ${this.formatDateYMD(this.hoverDate)} (${nights} night${nights !== 1 ? 's' : ''})`;
+			}
 		}
 
 		handleDayClick(dateStr) {
@@ -188,7 +214,7 @@
 
 			// Range mode logic
 			if (!this.startDate || (this.startDate && this.endDate)) {
-				// Starting new range
+				// Starting fresh range
 				this.startDate = picked;
 				this.endDate = null;
 				this.hoverDate = null;
@@ -196,10 +222,14 @@
 				if (picked < this.startDate) {
 					// User clicked earlier date -> make it new start date
 					this.startDate = picked;
+					this.endDate = null;
+					this.hoverDate = null;
 				} else if (picked.getTime() === this.startDate.getTime()) {
-					// Same date clicked twice
+					// Same date clicked twice -> 1 night stay
 					this.endDate = new Date(picked.getTime() + 86400000);
+					this.hoverDate = null;
 				} else {
+					// Later date clicked -> confirm end date!
 					this.endDate = picked;
 					this.hoverDate = null;
 				}
@@ -215,6 +245,10 @@
 				endDate: this.formatDateYMD(this.endDate),
 				nights: (this.startDate && this.endDate) ? Math.round((this.endDate - this.startDate) / 86400000) : 0,
 			};
+
+			this.container.dataset.startDate = detail.startDate || '';
+			this.container.dataset.endDate = detail.endDate || '';
+			this.container.dataset.nights = String(detail.nights);
 
 			// Custom DOM event
 			this.container.dispatchEvent(new CustomEvent('mb:date-selected', {

@@ -49,7 +49,7 @@ $price_unit_labels = array(
 );
 ?>
 
-<div class="mb-card-item mb-card-<?php echo esc_attr( $layout ); ?>" data-entity-id="<?php echo esc_attr( $entity_id ); ?>" data-model="<?php echo esc_attr( $model ); ?>" data-lat="<?php echo ( $loc && 0.0 !== floatval( $loc->latitude ) ) ? esc_attr( $loc->latitude ) : ''; ?>" data-lng="<?php echo ( $loc && 0.0 !== floatval( $loc->longitude ) ) ? esc_attr( $loc->longitude ) : ''; ?>">
+<div class="mb-card-item mb-card-<?php echo esc_attr( $layout ); ?>" data-entity-id="<?php echo esc_attr( $entity_id ); ?>" data-model="<?php echo esc_attr( $model ); ?>" data-layout="<?php echo esc_attr( $layout ); ?>" data-lat="<?php echo ( $loc && 0.0 !== floatval( $loc->latitude ) ) ? esc_attr( $loc->latitude ) : ''; ?>" data-lng="<?php echo ( $loc && 0.0 !== floatval( $loc->longitude ) ) ? esc_attr( $loc->longitude ) : ''; ?>">
 	<div class="mb-card-thumb-wrap">
 		<a href="<?php echo esc_url( get_permalink( $entity_id ) ); ?>" class="mb-thumb-link">
 			<img src="<?php echo esc_url( $thumb ); ?>" alt="<?php echo esc_attr( get_the_title( $entity_id ) ); ?>" class="mb-card-thumb" loading="lazy">

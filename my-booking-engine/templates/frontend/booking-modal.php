@@ -94,14 +94,23 @@ $tomorrow     = gmdate( 'Y-m-d', strtotime( '+1 day', current_time( 'timestamp' 
 		<!-- 4. CUSTOMER CONTACT DETAILS -->
 		<div class="mb-step mb-step-customer">
 			<h4><?php esc_html_e( 'Contact Information', 'my-booking-engine' ); ?></h4>
-			<div class="mb-form-group">
-				<input type="text" name="customer_name" id="mb_cust_name" placeholder="<?php esc_attr_e( 'Full Name *', 'my-booking-engine' ); ?>" required>
+			<div class="mb-funnel-field">
+				<div class="mb-input-icon-wrap">
+					<span class="mb-input-icon">👤</span>
+					<input type="text" name="customer_name" id="mb_cust_name" class="mb-funnel-input" placeholder="<?php esc_attr_e( 'Full Name *', 'my-booking-engine' ); ?>" required autocomplete="name">
+				</div>
 			</div>
-			<div class="mb-form-group">
-				<input type="email" name="customer_email" id="mb_cust_email" placeholder="<?php esc_attr_e( 'Email Address *', 'my-booking-engine' ); ?>" required>
+			<div class="mb-funnel-field" style="margin-top:12px;">
+				<div class="mb-input-icon-wrap">
+					<span class="mb-input-icon">✉️</span>
+					<input type="email" name="customer_email" id="mb_cust_email" class="mb-funnel-input" placeholder="<?php esc_attr_e( 'Email Address *', 'my-booking-engine' ); ?>" required autocomplete="email">
+				</div>
 			</div>
-			<div class="mb-form-group">
-				<input type="tel" name="customer_phone" id="mb_cust_phone" placeholder="<?php esc_attr_e( 'Phone Number (Optional)', 'my-booking-engine' ); ?>">
+			<div class="mb-funnel-field" style="margin-top:12px;">
+				<div class="mb-input-icon-wrap">
+					<span class="mb-input-icon">📞</span>
+					<input type="tel" name="customer_phone" id="mb_cust_phone" class="mb-funnel-input" placeholder="<?php esc_attr_e( 'Phone Number *', 'my-booking-engine' ); ?>" required autocomplete="tel">
+				</div>
 			</div>
 		</div>
 

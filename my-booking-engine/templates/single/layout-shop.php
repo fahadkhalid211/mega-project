@@ -52,18 +52,34 @@ $day_names = array(
 	</div>
 </div>
 
-<div class="mb-shop-mosaic">
+<!-- Shop Hero Photo Showcase Slider -->
+<div class="mb-hero-slider-wrap mb-shop-slider-wrap" id="mb-shop-slider">
 	<?php if ( ! empty( $gallery ) ) : ?>
-		<div class="mb-gallery-featured">
-			<img src="<?php echo esc_url( $gallery[0] ); ?>" alt="<?php echo esc_attr( $entity->get_title() ); ?>" />
-		</div>
-		<?php if ( count( $gallery ) > 1 ) : ?>
-			<div class="mb-gallery-thumbs">
-				<?php for ( $i = 1; $i < min( 5, count( $gallery ) ); $i++ ) : ?>
-					<div class="mb-thumb-item">
-						<img src="<?php echo esc_url( $gallery[ $i ] ); ?>" alt="<?php echo esc_attr( $entity->get_title() ); ?>" />
+		<div class="mb-hero-slider">
+			<div class="mb-slider-track">
+				<?php foreach ( $gallery as $idx => $img_url ) : ?>
+					<div class="mb-slider-slide <?php echo 0 === $idx ? 'is-active' : ''; ?>" data-slide="<?php echo esc_attr( $idx ); ?>">
+						<img src="<?php echo esc_url( $img_url ); ?>" alt="<?php echo esc_attr( $entity->get_title() . ' - Photo ' . ( $idx + 1 ) ); ?>" loading="<?php echo 0 === $idx ? 'eager' : 'lazy'; ?>" />
 					</div>
-				<?php endfor; ?>
+				<?php endforeach; ?>
+			</div>
+
+			<?php if ( count( $gallery ) > 1 ) : ?>
+				<button type="button" class="mb-slider-nav mb-slider-prev" aria-label="<?php esc_attr_e( 'Previous Image', 'my-booking-engine' ); ?>">‹</button>
+				<button type="button" class="mb-slider-nav mb-slider-next" aria-label="<?php esc_attr_e( 'Next Image', 'my-booking-engine' ); ?>">›</button>
+				<div class="mb-slider-counter">
+					<span class="mb-curr-slide">1</span> / <span class="mb-total-slides"><?php echo count( $gallery ); ?></span>
+				</div>
+			<?php endif; ?>
+		</div>
+
+		<?php if ( count( $gallery ) > 1 ) : ?>
+			<div class="mb-slider-thumbs">
+				<?php foreach ( $gallery as $idx => $img_url ) : ?>
+					<button type="button" class="mb-slider-thumb <?php echo 0 === $idx ? 'is-active' : ''; ?>" data-thumb="<?php echo esc_attr( $idx ); ?>">
+						<img src="<?php echo esc_url( $img_url ); ?>" alt="<?php echo esc_attr( 'Thumb ' . ( $idx + 1 ) ); ?>" />
+					</button>
+				<?php endforeach; ?>
 			</div>
 		<?php endif; ?>
 	<?php endif; ?>

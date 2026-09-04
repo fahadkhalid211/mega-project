@@ -92,7 +92,8 @@
 					return `
 						<div class="mb-step-view">
 							<h3 class="mb-step-title">Select Reservation Dates</h3>
-							<p class="mb-step-desc">Pick your check-in and check-out or appointment date.</p>
+							<p class="mb-step-desc">Pick your check-in and check-out dates on the interactive calendar below.</p>
+							<div id="mb-step1-error" class="mb-funnel-alert mb-funnel-alert-danger" style="display:none;"></div>
 							<div class="mb-funnel-calendar-wrap">
 								<div id="mb-funnel-calendar" data-entity-id="${this.entityId}" data-mode="range"></div>
 							</div>
@@ -101,69 +102,113 @@
 				case 2:
 					return `
 						<div class="mb-step-view">
-							<h3 class="mb-step-title">Party Size & Special Requests</h3>
-							<div class="mb-form-group">
-								<label for="mb-funnel-guests">Number of Guests / Spots</label>
-								<select id="mb-funnel-guests" class="mb-form-select">
-									<option value="1" ${this.guests === 1 ? 'selected' : ''}>1 person</option>
-									<option value="2" ${this.guests === 2 ? 'selected' : ''}>2 people</option>
-									<option value="3" ${this.guests === 3 ? 'selected' : ''}>3 people</option>
-									<option value="4" ${this.guests === 4 ? 'selected' : ''}>4+ people</option>
-								</select>
-							</div>
-							<div class="mb-form-group">
-								<label for="mb-funnel-notes">Special Requests / Notes</label>
-								<textarea id="mb-funnel-notes" class="mb-form-textarea" placeholder="Any specific requirements, dietary preferences, or arrival info...">${this.customer.notes || ''}</textarea>
+							<h3 class="mb-step-title">Guests & Trip Details</h3>
+							<p class="mb-step-desc">Specify the number of attendees and any special arrangements.</p>
+							<div id="mb-step2-error" class="mb-funnel-alert mb-funnel-alert-danger" style="display:none;"></div>
+							<div class="mb-funnel-form-card">
+								<div class="mb-funnel-field">
+									<label class="mb-funnel-label" for="mb-funnel-guests">Party Size / Spots</label>
+									<div class="mb-input-icon-wrap">
+										<span class="mb-input-icon">👥</span>
+										<select id="mb-funnel-guests" class="mb-funnel-select">
+											<option value="1" ${this.guests === 1 ? 'selected' : ''}>1 Guest</option>
+											<option value="2" ${this.guests === 2 ? 'selected' : ''}>2 Guests</option>
+											<option value="3" ${this.guests === 3 ? 'selected' : ''}>3 Guests</option>
+											<option value="4" ${this.guests === 4 ? 'selected' : ''}>4 Guests</option>
+											<option value="5" ${this.guests === 5 ? 'selected' : ''}>5+ Guests</option>
+										</select>
+									</div>
+								</div>
+								<div class="mb-funnel-field" style="margin-top:16px;">
+									<label class="mb-funnel-label" for="mb-funnel-notes">Special Requests & Notes (Optional)</label>
+									<div class="mb-input-icon-wrap">
+										<textarea id="mb-funnel-notes" class="mb-funnel-textarea" rows="3" placeholder="Estimated arrival time, dietary preferences, or accessibility needs...">${this.customer.notes || ''}</textarea>
+									</div>
+								</div>
 							</div>
 						</div>
 					`;
 				case 3:
 					return `
 						<div class="mb-step-view">
-							<h3 class="mb-step-title">Contact & Guest Details</h3>
-							<p class="mb-step-desc">Enter your contact information for instant confirmation and booking tickets.</p>
-							<div class="mb-form-group">
-								<label for="mb-funnel-name">Full Name *</label>
-								<input type="text" id="mb-funnel-name" class="mb-form-input" value="${this.customer.name || ''}" placeholder="Jane Doe" required>
-							</div>
-							<div class="mb-form-group">
-								<label for="mb-funnel-email">Email Address *</label>
-								<input type="email" id="mb-funnel-email" class="mb-form-input" value="${this.customer.email || ''}" placeholder="jane@example.com" required>
-							</div>
-							<div class="mb-form-group">
-								<label for="mb-funnel-phone">Phone Number</label>
-								<input type="tel" id="mb-funnel-phone" class="mb-form-input" value="${this.customer.phone || ''}" placeholder="+1 (555) 000-0000">
+							<h3 class="mb-step-title">Your Contact Information</h3>
+							<p class="mb-step-desc">We will send your instant booking confirmation and voucher to this address.</p>
+							<div id="mb-step3-error" class="mb-funnel-alert mb-funnel-alert-danger" style="display:none;"></div>
+							<div class="mb-funnel-form-card">
+								<div class="mb-funnel-field">
+									<label class="mb-funnel-label" for="mb-funnel-name">Full Name <span class="mb-required">*</span></label>
+									<div class="mb-input-icon-wrap">
+										<span class="mb-input-icon">👤</span>
+										<input type="text" id="mb-funnel-name" class="mb-funnel-input" value="${this.customer.name || ''}" placeholder="e.g. Sarah Connor" required autocomplete="name">
+									</div>
+									<span class="mb-field-error" id="mb-err-name"></span>
+								</div>
+
+								<div class="mb-funnel-field" style="margin-top:14px;">
+									<label class="mb-funnel-label" for="mb-funnel-email">Email Address <span class="mb-required">*</span></label>
+									<div class="mb-input-icon-wrap">
+										<span class="mb-input-icon">✉️</span>
+										<input type="email" id="mb-funnel-email" class="mb-funnel-input" value="${this.customer.email || ''}" placeholder="sarah@example.com" required autocomplete="email">
+									</div>
+									<span class="mb-field-error" id="mb-err-email"></span>
+								</div>
+
+								<div class="mb-funnel-field" style="margin-top:14px;">
+									<label class="mb-funnel-label" for="mb-funnel-phone">Phone Number <span class="mb-required">*</span></label>
+									<div class="mb-input-icon-wrap">
+										<span class="mb-input-icon">📞</span>
+										<input type="tel" id="mb-funnel-phone" class="mb-funnel-input" value="${this.customer.phone || ''}" placeholder="+1 (555) 234-5678" required autocomplete="tel">
+									</div>
+									<span class="mb-field-error" id="mb-err-phone"></span>
+								</div>
 							</div>
 						</div>
 					`;
 				case 4:
+					const nights = this.selectedDates.nights || 1;
 					return `
 						<div class="mb-step-view">
-							<h3 class="mb-step-title">Review & Confirm</h3>
+							<h3 class="mb-step-title">Review & Complete Reservation</h3>
+							<p class="mb-step-desc">Please review your reservation details before confirming.</p>
 							<div class="mb-review-summary-card">
 								<div class="mb-summary-line">
-									<span>Dates</span>
-									<strong>${this.selectedDates.startDate || 'Selected on arrival'} ${this.selectedDates.endDate ? '→ ' + this.selectedDates.endDate : ''}</strong>
+									<span class="mb-summary-label">📅 Dates</span>
+									<strong>${this.selectedDates.startDate || 'Selected'} ${this.selectedDates.endDate ? '→ ' + this.selectedDates.endDate : ''} (${nights} night${nights !== 1 ? 's' : ''})</strong>
 								</div>
 								<div class="mb-summary-line">
-									<span>Guests</span>
-									<strong>${this.guests}</strong>
+									<span class="mb-summary-label">👥 Party Size</span>
+									<strong>${this.guests} ${this.guests === 1 ? 'Person' : 'People'}</strong>
 								</div>
 								<div class="mb-summary-line">
-									<span>Guest Name</span>
+									<span class="mb-summary-label">👤 Guest Name</span>
 									<strong>${this.customer.name}</strong>
 								</div>
 								<div class="mb-summary-line">
-									<span>Email</span>
+									<span class="mb-summary-label">✉️ Email</span>
 									<strong>${this.customer.email}</strong>
 								</div>
+								<div class="mb-summary-line">
+									<span class="mb-summary-label">📞 Phone</span>
+									<strong>${this.customer.phone}</strong>
+								</div>
+								${this.customer.notes ? `
+								<div class="mb-summary-line">
+									<span class="mb-summary-label">📝 Notes</span>
+									<span>${this.customer.notes}</span>
+								</div>` : ''}
 								<hr class="mb-divider" />
 								<div class="mb-summary-line mb-summary-total">
-									<span>Status</span>
-									<strong style="color: #16a34a;">Ready for Reservation</strong>
+									<span>Reservation Status</span>
+									<strong style="color: #16a34a;">Guaranteed & Ready</strong>
 								</div>
 							</div>
-							<p class="mb-confirm-terms">By confirming, you agree to the booking cancellation terms and policies.</p>
+
+							<div class="mb-terms-agreement">
+								<label class="mb-terms-label">
+									<input type="checkbox" id="mb-agree-terms" checked>
+									<span>I agree to the cancellation terms, house rules, and verified booking policy.</span>
+								</label>
+							</div>
 						</div>
 					`;
 			}
@@ -175,19 +220,83 @@
 			const nextBtn = this.modal.querySelector('#mb-funnel-next');
 			if (nextBtn) {
 				nextBtn.addEventListener('click', () => {
-					if (this.currentStep === 3) {
-						const name = this.modal.querySelector('#mb-funnel-name').value.trim();
-						const email = this.modal.querySelector('#mb-funnel-email').value.trim();
-						if (!name || !email) {
-							alert('Please enter your full name and email address.');
+					// Step 1 Validation: Dates must be selected
+					if (this.currentStep === 1) {
+						const err1 = this.modal.querySelector('#mb-step1-error');
+						if (!this.selectedDates.startDate) {
+							err1.textContent = 'Please select a date on the calendar before proceeding.';
+							err1.style.display = 'block';
 							return;
 						}
+						// If in range mode and end date is missing
+						const calEl = this.modal.querySelector('#mb-funnel-calendar');
+						const mode = calEl ? calEl.dataset.mode : 'range';
+						if (mode === 'range' && !this.selectedDates.endDate) {
+							err1.textContent = 'Please select both check-in and check-out dates on the calendar.';
+							err1.style.display = 'block';
+							return;
+						}
+						err1.style.display = 'none';
+					}
+
+					// Step 2 Validation: Guests
+					if (this.currentStep === 2) {
+						const guestsEl = this.modal.querySelector('#mb-funnel-guests');
+						this.guests = guestsEl ? parseInt(guestsEl.value, 10) : 1;
+						const notesEl = this.modal.querySelector('#mb-funnel-notes');
+						this.customer.notes = notesEl ? notesEl.value.trim() : '';
+					}
+
+					// Step 3 Validation: Name, Email, Phone
+					if (this.currentStep === 3) {
+						const nameEl = this.modal.querySelector('#mb-funnel-name');
+						const emailEl = this.modal.querySelector('#mb-funnel-email');
+						const phoneEl = this.modal.querySelector('#mb-funnel-phone');
+						const err3 = this.modal.querySelector('#mb-step3-error');
+
+						const name = nameEl.value.trim();
+						const email = emailEl.value.trim();
+						const phone = phoneEl.value.trim();
+
+						let hasError = false;
+
+						// Reset field errors
+						nameEl.classList.remove('is-invalid');
+						emailEl.classList.remove('is-invalid');
+						phoneEl.classList.remove('is-invalid');
+						this.modal.querySelector('#mb-err-name').textContent = '';
+						this.modal.querySelector('#mb-err-email').textContent = '';
+						this.modal.querySelector('#mb-err-phone').textContent = '';
+
+						if (!name || name.length < 2) {
+							nameEl.classList.add('is-invalid');
+							this.modal.querySelector('#mb-err-name').textContent = 'Please enter your full name (minimum 2 characters).';
+							hasError = true;
+						}
+
+						const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+						if (!email || !emailRegex.test(email)) {
+							emailEl.classList.add('is-invalid');
+							this.modal.querySelector('#mb-err-email').textContent = 'Please enter a valid email address (e.g. name@domain.com).';
+							hasError = true;
+						}
+
+						if (!phone || phone.length < 5) {
+							phoneEl.classList.add('is-invalid');
+							this.modal.querySelector('#mb-err-phone').textContent = 'Please enter a valid contact phone number.';
+							hasError = true;
+						}
+
+						if (hasError) {
+							err3.textContent = 'Please complete all required fields highlighted in red below.';
+							err3.style.display = 'block';
+							return;
+						}
+
+						err3.style.display = 'none';
 						this.customer.name = name;
 						this.customer.email = email;
-						this.customer.phone = this.modal.querySelector('#mb-funnel-phone').value.trim();
-					} else if (this.currentStep === 2) {
-						this.guests = parseInt(this.modal.querySelector('#mb-funnel-guests').value, 10);
-						this.customer.notes = this.modal.querySelector('#mb-funnel-notes').value.trim();
+						this.customer.phone = phone;
 					}
 
 					this.currentStep++;
@@ -205,7 +314,14 @@
 
 			const submitBtn = this.modal.querySelector('#mb-funnel-submit');
 			if (submitBtn) {
-				submitBtn.addEventListener('click', () => this.submitBooking(submitBtn));
+				submitBtn.addEventListener('click', () => {
+					const agreeTerms = this.modal.querySelector('#mb-agree-terms');
+					if (agreeTerms && !agreeTerms.checked) {
+						alert('Please accept the cancellation policy and booking terms to complete your reservation.');
+						return;
+					}
+					this.submitBooking(submitBtn);
+				});
 			}
 
 			// Mount calendar if on Step 1

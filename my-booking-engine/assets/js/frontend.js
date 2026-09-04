@@ -12,6 +12,8 @@
 		initSearchFilters();
 		initSingleListingPage();
 		initReviewModal();
+		initHeroSliders();
+		initCategoryFilterPills();
 	});
 
 	/**
@@ -482,6 +484,128 @@
 			.replace(/>/g, '&gt;')
 			.replace(/"/g, '&quot;')
 			.replace(/'/g, '&#039;');
+	}
+
+	/**
+	 * Interactive Hero Photo Slider Controller.
+	 */
+	function initHeroSliders() {
+		document.querySelectorAll('.mb-hero-slider-wrap').forEach(wrap => {
+			const slides = wrap.querySelectorAll('.mb-slider-slide');
+			const thumbs = wrap.querySelectorAll('.mb-slider-thumb');
+			const prevBtn = wrap.querySelector('.mb-slider-prev');
+			const nextBtn = wrap.querySelector('.mb-slider-next');
+			const counterEl = wrap.querySelector('.mb-curr-slide');
+
+			if (!slides.length) return;
+
+			let currentIndex = 0;
+
+			function goToSlide(idx) {
+				if (idx < 0) idx = slides.length - 1;
+				if (idx >= slides.length) idx = 0;
+
+				currentIndex = idx;
+
+				slides.forEach((s, i) => {
+					if (i === currentIndex) {
+						s.classList.add('is-active');
+					} else {
+						s.classList.remove('is-active');
+					}
+				});
+
+				thumbs.forEach((t, i) => {
+					if (i === currentIndex) {
+						t.classList.add('is-active');
+						t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+					} else {
+						t.classList.remove('is-active');
+					}
+				});
+
+				if (counterEl) {
+					counterEl.textContent = String(currentIndex + 1);
+				}
+			}
+
+			if (prevBtn) {
+				prevBtn.addEventListener('click', e => {
+					e.preventDefault();
+					goToSlide(currentIndex - 1);
+				});
+			}
+
+			if (nextBtn) {
+				nextBtn.addEventListener('click', e => {
+					e.preventDefault();
+					goToSlide(currentIndex + 1);
+				});
+			}
+
+			thumbs.forEach(thumb => {
+				thumb.addEventListener('click', e => {
+					e.preventDefault();
+					const idx = parseInt(thumb.dataset.thumb, 10);
+					goToSlide(idx);
+				});
+			});
+
+			// Touch swipe gesture support
+			let startX = 0;
+			const sliderArea = wrap.querySelector('.mb-hero-slider');
+			if (sliderArea) {
+				sliderArea.addEventListener('touchstart', e => {
+					startX = e.touches[0].clientX;
+				}, { passive: true });
+
+				sliderArea.addEventListener('touchend', e => {
+					const diffX = e.changedTouches[0].clientX - startX;
+					if (Math.abs(diffX) > 40) {
+						if (diffX > 0) {
+							goToSlide(currentIndex - 1);
+						} else {
+							goToSlide(currentIndex + 1);
+						}
+					}
+				}, { passive: true });
+			}
+		});
+	}
+
+	/**
+	 * Interactive Category Pill Filtering for [mb_listings] grid.
+	 */
+	function initCategoryFilterPills() {
+		const pills = document.querySelectorAll('.mb-cat-pill');
+		if (!pills.length) return;
+
+		pills.forEach(pill => {
+			pill.addEventListener('click', function(e) {
+				e.preventDefault();
+				pills.forEach(p => p.classList.remove('is-active'));
+				this.classList.add('is-active');
+
+				const filter = this.dataset.filter;
+				const cards = document.querySelectorAll('#mb-catalog-grid .mb-card-item');
+
+				cards.forEach(card => {
+					if (filter === 'all') {
+						card.style.display = '';
+						return;
+					}
+					const layout = card.dataset.layout || '';
+					const model = card.dataset.model || '';
+					const classes = card.className || '';
+
+					if (layout === filter || model.includes(filter) || classes.includes('mb-card-' + filter)) {
+						card.style.display = '';
+					} else {
+						card.style.display = 'none';
+					}
+				});
+			});
+		});
 	}
 })();
 

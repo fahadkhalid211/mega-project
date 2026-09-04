@@ -8,27 +8,119 @@
 	'use strict';
 
 	$(document).ready(function() {
-		initMetaBoxTabs();
+		initAdminWizard();
 		initModelSwitcher();
 		initAdminGeocoding();
 		initSettingsPage();
 		initLayoutSelector();
 		initGalleryPicker();
+		initShortcodeGenerator();
 	});
 
 	/**
-	 * Tabbed navigation in meta box.
+	 * 5-Step Guided Listing Creation Wizard.
 	 */
-	function initMetaBoxTabs() {
-		$('.mb-tab-link').on('click', function(e) {
+	function initAdminWizard() {
+		const $wizard = $('#mb-admin-wizard');
+		if (!$wizard.length) return;
+
+		let currentStep = 1;
+		const totalSteps = 5;
+
+		const stepTitles = {
+			1: 'Step 1 of 5: Type & Design',
+			2: 'Step 2 of 5: Pricing & Rules',
+			3: 'Step 3 of 5: Location & Map',
+			4: 'Step 4 of 5: Operating Hours',
+			5: 'Step 5 of 5: Media & Policy'
+		};
+
+		function showStep(step) {
+			if (step < 1) step = 1;
+			if (step > totalSteps) step = totalSteps;
+
+			currentStep = step;
+
+			// Update Progress Bar
+			const pct = (currentStep / totalSteps) * 100;
+			$('#mb-stepper-bar').css('width', pct + '%');
+
+			// Update Stepper Nodes
+			$('.mb-step-node').each(function() {
+				const s = parseInt($(this).data('step'), 10);
+				$(this).removeClass('is-active is-completed');
+				if (s === currentStep) {
+					$(this).addClass('is-active');
+				} else if (s < currentStep) {
+					$(this).addClass('is-completed');
+				}
+			});
+
+			// Show Active Panel
+			$('.mb-wizard-step-panel').removeClass('is-active');
+			$('.mb-wizard-step-panel[data-panel="' + currentStep + '"]').addClass('is-active');
+
+			// Update Navigation Buttons & Status Text
+			$('#mb-wiz-step-text').text(stepTitles[currentStep] || ('Step ' + currentStep + ' of ' + totalSteps));
+
+			if (currentStep === 1) {
+				$('#mb-wiz-prev').hide();
+			} else {
+				$('#mb-wiz-prev').show();
+			}
+
+			if (currentStep === totalSteps) {
+				$('#mb-wiz-next').text('✓ Ready to Publish');
+			} else {
+				$('#mb-wiz-next').text('Next Step →');
+			}
+		}
+
+		// Next & Prev Buttons
+		$('#mb-wiz-next').on('click', function(e) {
 			e.preventDefault();
-			const targetId = $(this).attr('href');
+			if (currentStep < totalSteps) {
+				showStep(currentStep + 1);
+			} else {
+				// Focus the main WP publish button
+				$('#publish').focus().addClass('mb-pulse-highlight');
+				setTimeout(function() {
+					$('#publish').removeClass('mb-pulse-highlight');
+				}, 1500);
+			}
+		});
 
-			$('.mb-tab-link').removeClass('active');
-			$(this).addClass('active');
+		$('#mb-wiz-prev').on('click', function(e) {
+			e.preventDefault();
+			if (currentStep > 1) {
+				showStep(currentStep - 1);
+			}
+		});
 
-			$('.mb-tab-content').removeClass('active');
-			$(targetId).addClass('active');
+		// Stepper node click jump
+		$('.mb-step-node').on('click', function() {
+			const targetStep = parseInt($(this).data('step'), 10);
+			if (targetStep >= 1 && targetStep <= totalSteps) {
+				showStep(targetStep);
+			}
+		});
+
+		// Schedule Day Switcher Toggle
+		$('.mb-day-switch').on('change', function() {
+			const isOpen = $(this).is(':checked');
+			const $row = $(this).closest('.mb-schedule-row');
+			const $label = $row.find('.mb-switch-label');
+			const $times = $row.find('.mb-sched-times');
+
+			if (isOpen) {
+				$row.removeClass('is-closed').addClass('is-open');
+				$label.text('Open');
+				$times.css({ opacity: 1, 'pointer-events': 'auto' });
+			} else {
+				$row.removeClass('is-open').addClass('is-closed');
+				$label.text('Closed');
+				$times.css({ opacity: 0.4, 'pointer-events': 'none' });
+			}
 		});
 	}
 
@@ -63,8 +155,8 @@
 			}
 
 			mediaFrame = wp.media({
-				title: 'Select Listing Gallery Images',
-				button: { text: 'Use Selected Images' },
+				title: 'Select Listing Gallery Photos',
+				button: { text: 'Use Selected Photos' },
 				multiple: true
 			});
 
@@ -81,7 +173,7 @@
 						currentIds.push(idStr);
 
 						const thumbUrl = item.sizes && item.sizes.thumbnail ? item.sizes.thumbnail.url : item.url;
-						const $thumb = $('<div class="mb-gallery-thumb-item" style="width:72px; height:72px; border-radius:6px; overflow:hidden; border:1px solid #cbd5e1;"><img src="' + thumbUrl + '" style="width:100%; height:100%; object-fit:cover;"></div>');
+						const $thumb = $('<div class="mb-preview-thumb"><img src="' + thumbUrl + '"></div>');
 						$preview.append($thumb);
 					}
 				});
@@ -120,7 +212,6 @@
 			} else if (selectedModel === 'capacity_roster') {
 				$('.mb-field-capacity_roster').show();
 			} else {
-				// Default hourly/slot models.
 				$('.mb-field-hourly_slot').show();
 			}
 		}
@@ -151,15 +242,15 @@
 
 			$btn.prop('disabled', true);
 			$spinner.addClass('is-active');
-			$status.css('color', '#646970').text(window.mbAdminData.i18n.geocoding || 'Looking up...');
+			$status.css('color', '#646970').text(window.mbAdminData?.i18n?.geocoding || 'Looking up...');
 
 			$.ajax({
-				url: window.mbAdminData.ajaxUrl,
+				url: window.mbAdminData?.ajaxUrl || ajaxurl,
 				type: 'POST',
 				dataType: 'json',
 				data: {
 					action: 'mb_admin_geocode',
-					nonce: window.mbAdminData.nonce,
+					nonce: window.mbAdminData?.nonce,
 					postal_code: postal,
 					city: city,
 					country: country
@@ -171,32 +262,139 @@
 					if (response.success && response.data) {
 						$('#mb_latitude').val(response.data.lat);
 						$('#mb_longitude').val(response.data.lng);
-						$status.css('color', '#007017').text(window.mbAdminData.i18n.geocodeSuccess || 'Coordinates found!');
+						$status.css('color', '#007017').text(window.mbAdminData?.i18n?.geocodeSuccess || 'Coordinates found!');
 					} else {
-						$status.css('color', '#d63638').text(response.data?.message || window.mbAdminData.i18n.geocodeNotFound || 'Not found.');
+						$status.css('color', '#d63638').text(response.data?.message || window.mbAdminData?.i18n?.geocodeNotFound || 'Not found.');
 					}
 				},
 				error: function() {
 					$btn.prop('disabled', false);
 					$spinner.removeClass('is-active');
-					$status.css('color', '#d63638').text(window.mbAdminData.i18n.geocodeError || 'Geocoding request failed.');
+					$status.css('color', '#d63638').text(window.mbAdminData?.i18n?.geocodeError || 'Geocoding request failed.');
 				}
 			});
 		});
 	}
 
 	/**
-	 * Settings page dynamic provider toggles.
+	 * Settings page color sync and palette presets.
 	 */
 	function initSettingsPage() {
 		const $providerSelect = $('#mb_geocoder_provider');
-		if (!$providerSelect.length) return;
+		if ($providerSelect.length) {
+			$providerSelect.on('change', function() {
+				if ($(this).val() === 'google') {
+					$('#mb_google_key_row').show();
+				} else {
+					$('#mb_google_key_row').hide();
+				}
+			});
+		}
 
-		$providerSelect.on('change', function() {
-			if ($(this).val() === 'google') {
-				$('#mb_google_key_row').show();
+		// Two-way color picker input sync
+		function bindColorSync(pickerId, textId) {
+			$(pickerId).on('input change', function() {
+				$(textId).val($(this).val());
+			});
+			$(textId).on('input change', function() {
+				const val = $(this).val().trim();
+				if (/^#[0-9A-F]{6}$/i.test(val)) {
+					$(pickerId).val(val);
+				}
+			});
+		}
+
+		bindColorSync('#mb_primary_color_picker', '#mb_primary_color');
+		bindColorSync('#mb_primary_hover_picker', '#mb_primary_hover');
+		bindColorSync('#mb_accent_color_picker', '#mb_accent_color');
+
+		// One-click palette presets
+		$('.mb-palette-btn').on('click', function(e) {
+			e.preventDefault();
+			const p = $(this).data('primary');
+			const h = $(this).data('hover');
+			const a = $(this).data('accent');
+
+			if (p) {
+				$('#mb_primary_color').val(p);
+				$('#mb_primary_color_picker').val(p);
+			}
+			if (h) {
+				$('#mb_primary_hover').val(h);
+				$('#mb_primary_hover_picker').val(h);
+			}
+			if (a) {
+				$('#mb_accent_color').val(a);
+				$('#mb_accent_color_picker').val(a);
+			}
+		});
+	}
+
+	/**
+	 * Interactive Shortcode Generator.
+	 */
+	function initShortcodeGenerator() {
+		const $comp = $('#mb_sc_component');
+		if (!$comp.length) return;
+
+		function updateShortcode() {
+			const comp = $comp.val();
+			const limit = $('#mb_sc_limit').val();
+			const showMap = $('#mb_sc_show_map').val();
+			const cat = $('#mb_sc_category').val();
+			const entityId = $('#mb_sc_entity_id').val();
+
+			// Toggle field row visibilities
+			$('#mb_sc_category_row').toggle(comp === 'category');
+			$('#mb_sc_listing_row').toggle(comp === 'single_form');
+			$('#mb_sc_limit_row').toggle(comp !== 'single_form');
+			$('#mb_sc_map_row').toggle(comp === 'search');
+
+			let sc = '';
+			if (comp === 'search') {
+				sc = '[mb_search limit="' + limit + '" show_map="' + showMap + '"]';
+			} else if (comp === 'catalog') {
+				sc = '[mb_listings limit="' + limit + '"]';
+			} else if (comp === 'category') {
+				sc = '[mb_listings type="' + cat + '" limit="' + limit + '"]';
+			} else if (comp === 'single_form') {
+				sc = '[mb_booking_form id="' + entityId + '"]';
+			}
+
+			$('#mb_sc_result').val(sc);
+		}
+
+		$('#mb_sc_component, #mb_sc_limit, #mb_sc_show_map, #mb_sc_category, #mb_sc_entity_id').on('change input', updateShortcode);
+		updateShortcode();
+
+		// Copy Button
+		$('#mb_btn_copy_sc').on('click', function(e) {
+			e.preventDefault();
+			const text = $('#mb_sc_result').val();
+			if (navigator.clipboard && navigator.clipboard.writeText) {
+				navigator.clipboard.writeText(text).then(function() {
+					$('#mb_copy_status').fadeIn(200).delay(2500).fadeOut(300);
+				});
 			} else {
-				$('#mb_google_key_row').hide();
+				$('#mb_sc_result').select();
+				document.execCommand('copy');
+				$('#mb_copy_status').fadeIn(200).delay(2500).fadeOut(300);
+			}
+		});
+
+		// Quick Copy Buttons
+		$('.mb-quick-copy').on('click', function(e) {
+			e.preventDefault();
+			const $btn = $(this);
+			const sc = $btn.data('sc');
+			if (navigator.clipboard && navigator.clipboard.writeText) {
+				navigator.clipboard.writeText(sc).then(function() {
+					const orig = $btn.text();
+					$btn.text('✓ Copied!').prop('disabled', true);
+					setTimeout(function() {
+						$btn.text(orig).prop('disabled', false);
+					}, 2000);
+				});
 			}
 		});
 	}

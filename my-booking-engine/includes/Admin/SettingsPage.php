@@ -63,6 +63,19 @@ class SettingsPage {
 		$radius = isset( $input['search_default_rad'] ) ? absint( $input['search_default_rad'] ) : 25;
 		$sanitized['search_default_rad'] = max( 1, min( 500, $radius ) );
 
+		// Brand Appearance & Color Customizer
+		$primary = isset( $input['primary_color'] ) ? sanitize_hex_color( $input['primary_color'] ) : '#2563eb';
+		$sanitized['primary_color'] = $primary ? $primary : '#2563eb';
+
+		$hover = isset( $input['primary_hover'] ) ? sanitize_hex_color( $input['primary_hover'] ) : '#1d4ed8';
+		$sanitized['primary_hover'] = $hover ? $hover : '#1d4ed8';
+
+		$accent = isset( $input['accent_color'] ) ? sanitize_hex_color( $input['accent_color'] ) : '#f59e0b';
+		$sanitized['accent_color'] = $accent ? $accent : '#f59e0b';
+
+		$radius_val = isset( $input['border_radius'] ) ? absint( $input['border_radius'] ) : 8;
+		$sanitized['border_radius'] = max( 0, min( 30, $radius_val ) );
+
 		return $sanitized;
 	}
 

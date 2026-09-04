@@ -46,6 +46,16 @@ class AdminMenu {
 			array( __CLASS__, 'render_bookings_page' )
 		);
 
+		// Submenu: Shortcode Builder.
+		add_submenu_page(
+			$parent_slug,
+			__( 'Shortcode Builder', 'my-booking-engine' ),
+			__( 'Shortcode Builder', 'my-booking-engine' ),
+			'manage_options',
+			'mb-shortcodes',
+			array( 'MyBookingEngine\Admin\ShortcodeGenerator', 'render' )
+		);
+
 		// Submenu: Settings.
 		add_submenu_page(
 			$parent_slug,
