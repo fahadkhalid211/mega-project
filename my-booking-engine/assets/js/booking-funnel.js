@@ -680,8 +680,8 @@
 			.then(res => res.json())
 			.then(data => {
 				if (data.success) {
-					if (data.checkout_url) {
-						window.location.href = data.checkout_url;
+					if (data.redirect_url) {
+						window.location.href = data.redirect_url;
 					} else {
 						this.modal.querySelector('#mb-funnel-step-content').innerHTML = `
 							<div class="mb-success-view">

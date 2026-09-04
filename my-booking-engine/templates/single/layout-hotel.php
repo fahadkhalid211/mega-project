@@ -124,13 +124,6 @@ $loc_text       = $loc ? esc_html( trim( $loc->city . ', ' . $loc->postal_code .
 			</div>
 		</div>
 
-		<!-- Interactive Range Calendar -->
-		<div class="mb-section mb-calendar-section">
-			<h2 class="mb-section-title"><?php esc_html_e( 'Select Dates & Check Availability', 'my-booking-engine' ); ?></h2>
-			<p class="mb-section-subtitle"><?php esc_html_e( 'Choose your check-in and check-out dates to see exact pricing and availability.', 'my-booking-engine' ); ?></p>
-			<div class="mb-calendar-widget" data-entity-id="<?php echo esc_attr( $post_id ); ?>" data-model="hotel_room" data-mode="range"></div>
-		</div>
-
 		<!-- Map Section -->
 		<?php if ( $loc ) : ?>
 			<div class="mb-section mb-map-section">

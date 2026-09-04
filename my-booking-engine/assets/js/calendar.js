@@ -46,6 +46,14 @@
 			return `${year}-${month}-${day}`;
 		}
 
+		// Parse a 'YYYY-MM-DD' string as a LOCAL date. new Date('YYYY-MM-DD')
+		// parses as UTC midnight, which normalizes to the previous local day in
+		// negative UTC-offset timezones — use this everywhere instead.
+		parseLocalDate(dateStr) {
+			const [y, m, d] = dateStr.split('-').map(Number);
+			return new Date(y, m - 1, d);
+		}
+
 		render() {
 			const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 			const weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
@@ -91,15 +99,23 @@
 					classes.push('is-today');
 				}
 
-				// Check range highlighting
-				if (this.startDate && cellDate.getTime() === this.startDate.getTime()) {
-					classes.push('mb-range-start');
-				}
-				if (this.endDate && cellDate.getTime() === this.endDate.getTime()) {
-					classes.push('mb-range-end');
-				}
-				if (this.startDate && this.endDate && cellDate > this.startDate && cellDate < this.endDate) {
-					classes.push('mb-in-range');
+				// Check range highlighting. In 'single' mode there is no range —
+				// the picked day gets a full round marker instead of the
+				// half-pill range-start/range-end shapes.
+				if (this.mode === 'single') {
+					if (this.startDate && cellDate.getTime() === this.startDate.getTime()) {
+						classes.push('mb-single-selected');
+					}
+				} else {
+					if (this.startDate && cellDate.getTime() === this.startDate.getTime()) {
+						classes.push('mb-range-start');
+					}
+					if (this.endDate && cellDate.getTime() === this.endDate.getTime()) {
+						classes.push('mb-range-end');
+					}
+					if (this.startDate && this.endDate && cellDate > this.startDate && cellDate < this.endDate) {
+						classes.push('mb-in-range');
+					}
 				}
 
 				// Hover range preview (when start is selected but not end)
@@ -164,7 +180,7 @@
 				if (this.mode !== 'range' || !this.startDate || this.endDate) return;
 				const dayCell = e.target.closest('.mb-cal-day-cell:not(.is-past):not(.is-empty)');
 				if (dayCell && dayCell.dataset.date) {
-					const hovered = new Date(dayCell.dataset.date);
+					const hovered = this.parseLocalDate(dayCell.dataset.date);
 					hovered.setHours(0, 0, 0, 0);
 					if (hovered >= this.startDate) {
 						this.hoverDate = hovered;
@@ -184,7 +200,7 @@
 		updateHoverClasses() {
 			const cells = this.container.querySelectorAll('.mb-cal-day-cell[data-date]');
 			cells.forEach(cell => {
-				const d = new Date(cell.dataset.date);
+				const d = this.parseLocalDate(cell.dataset.date);
 				d.setHours(0, 0, 0, 0);
 				if (this.startDate && !this.endDate && this.hoverDate && d > this.startDate && d <= this.hoverDate) {
 					cell.classList.add('mb-range-hover');
@@ -201,7 +217,7 @@
 		}
 
 		handleDayClick(dateStr) {
-			const picked = new Date(dateStr);
+			const picked = this.parseLocalDate(dateStr);
 			picked.setHours(0, 0, 0, 0);
 
 			if (this.mode === 'single') {

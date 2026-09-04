@@ -98,13 +98,22 @@ $mb_border_radius     = isset( $settings['border_radius'] ) ? $settings['border_
 							</td>
 						</tr>
 						<tr>
-							<th scope="row"><label for="mb_enable_woocommerce"><?php esc_html_e( 'WooCommerce Payment Bridge', 'my-booking-engine' ); ?></label></th>
+							<th scope="row"><label for="mb_enable_woocommerce"><?php esc_html_e( 'Connect WooCommerce Checkout', 'my-booking-engine' ); ?></label></th>
 							<td>
+								<?php if ( class_exists( 'WooCommerce' ) ) : ?>
+									<span style="display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:#dcfce7;color:#166534;margin-bottom:8px;">✓ <?php esc_html_e( 'WooCommerce detected', 'my-booking-engine' ); ?></span>
+								<?php else : ?>
+									<span style="display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:#fef2f2;color:#b91c1c;margin-bottom:8px;">✕ <?php esc_html_e( 'WooCommerce not installed/active', 'my-booking-engine' ); ?></span>
+								<?php endif; ?>
+								<br>
 								<label>
-									<input type="checkbox" name="mb_engine_settings[enable_woocommerce]" id="mb_enable_woocommerce" value="yes" <?php checked( $mb_enable_wc, 'yes' ); ?>>
+									<input type="checkbox" name="mb_engine_settings[enable_woocommerce]" id="mb_enable_woocommerce" value="yes" <?php checked( $mb_enable_wc, 'yes' ); ?> <?php disabled( ! class_exists( 'WooCommerce' ) ); ?>>
 									<?php esc_html_e( 'Redirect bookings into WooCommerce cart and checkout funnel', 'my-booking-engine' ); ?>
 								</label>
-								<p class="description"><?php esc_html_e( 'When active, bookings leverage WooCommerce payment gateways (Stripe, PayPal, Apple Pay, etc.) and auto-confirm upon payment.', 'my-booking-engine' ); ?></p>
+								<p class="description"><?php esc_html_e( 'When active, bookings leverage WooCommerce payment gateways (Stripe, PayPal, Apple Pay, etc.) and auto-confirm upon payment. When off, bookings are confirmed directly by the plugin instead.', 'my-booking-engine' ); ?></p>
+								<?php if ( ! class_exists( 'WooCommerce' ) ) : ?>
+									<p class="description" style="color:#b91c1c;"><?php esc_html_e( 'Install and activate WooCommerce to enable this option.', 'my-booking-engine' ); ?></p>
+								<?php endif; ?>
 							</td>
 						</tr>
 					</table>

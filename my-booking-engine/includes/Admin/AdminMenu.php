@@ -192,8 +192,14 @@ class AdminMenu {
 	 * @return void
 	 */
 	public static function render_bookings_page() {
-		$table = new BookingsListTable();
-		$table->prepare_items();
+		try {
+			$table = new BookingsListTable();
+			$table->prepare_items();
+		} catch ( \Throwable $e ) {
+			echo '<div class="wrap"><h1>' . esc_html__( 'Bookings & Reservations', 'my-booking-engine' ) . '</h1>';
+			echo '<div class="notice notice-error"><p>' . esc_html__( 'The bookings table could not be loaded:', 'my-booking-engine' ) . ' ' . esc_html( $e->getMessage() ) . '</p></div></div>';
+			return;
+		}
 		?>
 		<div class="wrap">
 			<h1 class="wp-heading-inline"><?php esc_html_e( 'Bookings & Reservations', 'my-booking-engine' ); ?></h1>

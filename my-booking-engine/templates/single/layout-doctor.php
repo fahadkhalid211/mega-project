@@ -98,17 +98,6 @@ $loc_text     = $loc ? esc_html( trim( $loc->city . ', ' . $loc->postal_code . '
 			</div>
 		</div>
 
-		<!-- Appointment Slots Calendar -->
-		<div class="mb-section mb-calendar-section">
-			<h2 class="mb-section-title"><?php esc_html_e( 'Select Appointment Date & Time', 'my-booking-engine' ); ?></h2>
-			<p class="mb-section-subtitle"><?php esc_html_e( 'Choose a day on the calendar to view real-time open consultation slots.', 'my-booking-engine' ); ?></p>
-			<div class="mb-calendar-widget" data-entity-id="<?php echo esc_attr( $post_id ); ?>" data-model="hourly_slot" data-mode="single"></div>
-			<div class="mb-slots-container" id="mb-clinic-slots" style="display:none;">
-				<h4 class="mb-slots-title"><?php esc_html_e( 'Available Times for Selected Date:', 'my-booking-engine' ); ?></h4>
-				<div class="mb-slots-grid"></div>
-			</div>
-		</div>
-
 		<!-- Clinic Location Map -->
 		<?php if ( $loc ) : ?>
 			<div class="mb-section mb-map-section">

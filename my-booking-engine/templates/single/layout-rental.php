@@ -126,13 +126,6 @@ $loc_text     = $loc ? esc_html( trim( $loc->city . ', ' . $loc->postal_code . '
 			</div>
 		</div>
 
-		<!-- Range Highlight Calendar -->
-		<div class="mb-section mb-calendar-section">
-			<h2 class="mb-section-title"><?php esc_html_e( 'Rental Availability', 'my-booking-engine' ); ?></h2>
-			<p class="mb-section-subtitle"><?php esc_html_e( 'Select your trip start and return dates.', 'my-booking-engine' ); ?></p>
-			<div class="mb-calendar-widget" data-entity-id="<?php echo esc_attr( $post_id ); ?>" data-model="daily_booking" data-mode="range"></div>
-		</div>
-
 		<!-- Pickup Location -->
 		<?php if ( $loc ) : ?>
 			<div class="mb-section mb-map-section">

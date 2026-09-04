@@ -119,7 +119,7 @@ $default_type = 'hourly';
 		<div id="mb-app-alert" class="mb-app-alert" style="display:none;"></div>
 
 		<!-- Type Picker -->
-		<div class="mb-app-card mb-app-card-types">
+		<div class="mb-app-card mb-app-card-types" id="mb-app-type-picker">
 			<h2 class="mb-app-section-title"><?php esc_html_e( 'What are you listing?', 'my-booking-engine' ); ?></h2>
 			<p class="mb-app-section-desc"><?php esc_html_e( "Pick the closest match. We'll set smart defaults for pricing, duration, and hours automatically — you can fine-tune anything afterward.", 'my-booking-engine' ); ?></p>
 
@@ -207,7 +207,10 @@ $default_type = 'hourly';
 
 			<div class="mb-app-card">
 				<h3><?php esc_html_e( 'Booking Engine Algorithm & Rules', 'my-booking-engine' ); ?></h3>
-				<p class="description"><?php esc_html_e( 'Already set automatically based on the type you picked above — change it only if needed.', 'my-booking-engine' ); ?></p>
+				<p class="description">
+					<?php esc_html_e( 'Already set automatically based on the type you picked above.', 'my-booking-engine' ); ?>
+					<a href="#mb-app-type-picker" id="mb-app-change-type-link"><?php esc_html_e( 'Change listing type/design ↑', 'my-booking-engine' ); ?></a>
+				</p>
 
 				<select name="mb_model_type" id="mb_model_type" class="widefat mb-model-switcher" style="margin-top:10px; padding:8px 12px; font-weight:600;">
 					<option value="hourly_slot"><?php esc_html_e( 'Hourly / Slot Appointments', 'my-booking-engine' ); ?></option>

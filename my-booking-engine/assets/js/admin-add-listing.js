@@ -100,7 +100,7 @@
 			toggleScheduleRow($(this).closest('.mb-schedule-row'), $(this).is(':checked'));
 		});
 
-		// Advanced Settings reveal, animated
+		// Advanced Settings reveal
 		const $advToggle = $('#mb-app-advanced-toggle');
 		const $advPanel = $('#mb-app-advanced-panel');
 		$advToggle.on('click', function() {
@@ -108,9 +108,7 @@
 			$advPanel.toggleClass('is-open', !isOpen);
 			$advToggle.attr('aria-expanded', String(!isOpen)).toggleClass('is-open', !isOpen);
 			if (!isOpen) {
-				$advPanel.css('max-height', $advPanel.prop('scrollHeight') + 'px');
-			} else {
-				$advPanel.css('max-height', '0px');
+				$advPanel[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 			}
 		});
 

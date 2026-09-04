@@ -232,7 +232,7 @@ class MetaBoxes {
 		// schedule, gallery, etc. straight from this same $_POST payload.
 		wp_send_json_success(
 			array(
-				'redirect' => get_edit_post_link( $post_id, 'raw' ),
+				'redirect' => get_permalink( $post_id ),
 				'post_id'  => $post_id,
 			)
 		);

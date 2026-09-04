@@ -90,17 +90,6 @@ $loc_text     = $loc ? esc_html( trim( $loc->city . ', ' . $loc->postal_code . '
 			</div>
 		</div>
 
-		<!-- Time Slot Calendar Picker -->
-		<div class="mb-section mb-calendar-section">
-			<h2 class="mb-section-title"><?php esc_html_e( 'Select Date & Available Time Slot', 'my-booking-engine' ); ?></h2>
-			<p class="mb-section-subtitle"><?php esc_html_e( 'Pick a date to browse real-time open time slots.', 'my-booking-engine' ); ?></p>
-			<div class="mb-calendar-widget" data-entity-id="<?php echo esc_attr( $post_id ); ?>" data-model="hourly_slot" data-mode="single"></div>
-			<div class="mb-slots-container" id="mb-hourly-slots" style="display:none;">
-				<h4 class="mb-slots-title"><?php esc_html_e( 'Open slots:', 'my-booking-engine' ); ?></h4>
-				<div class="mb-slots-grid"></div>
-			</div>
-		</div>
-
 		<!-- Map -->
 		<?php if ( $loc ) : ?>
 			<div class="mb-section mb-map-section">
