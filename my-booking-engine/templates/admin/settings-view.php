@@ -1,0 +1,135 @@
+<?php
+/**
+ * Admin Settings Template.
+ *
+ * @package MyBookingEngine
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+$distance_unit     = isset( $settings['distance_unit'] ) ? $settings['distance_unit'] : 'km';
+$geocoder_provider = isset( $settings['geocoder_provider'] ) ? $settings['geocoder_provider'] : 'nominatim';
+$google_api_key    = isset( $settings['google_api_key'] ) ? $settings['google_api_key'] : '';
+$lock_duration     = isset( $settings['lock_duration'] ) ? $settings['lock_duration'] : 10;
+$enable_wc         = isset( $settings['enable_woocommerce'] ) ? $settings['enable_woocommerce'] : 'yes';
+$currency_symbol   = isset( $settings['currency_symbol'] ) ? $settings['currency_symbol'] : '$';
+$default_radius    = isset( $settings['search_default_rad'] ) ? $settings['search_default_rad'] : 25;
+?>
+
+<div class="wrap mb-settings-wrap">
+	<h1><?php esc_html_e( 'Booking Engine Settings', 'my-booking-engine' ); ?></h1>
+	<hr class="wp-header-end">
+
+	<?php if ( isset( $_GET['settings-updated'] ) && 'true' === $_GET['settings-updated'] ) : ?>
+		<div class="notice notice-success is-dismissible">
+			<p><?php esc_html_e( 'Settings saved successfully.', 'my-booking-engine' ); ?></p>
+		</div>
+	<?php endif; ?>
+
+	<div class="mb-settings-grid">
+		<!-- Left: Main Settings Form -->
+		<div class="mb-settings-main">
+			<form method="post" action="options.php">
+				<?php settings_fields( 'mb_engine_settings_group' ); ?>
+
+				<div class="mb-card">
+					<h2><?php esc_html_e( '1. Geolocation & Spatial Search', 'my-booking-engine' ); ?></h2>
+					<table class="form-table">
+						<tr>
+							<th scope="row"><label for="mb_geocoder_provider"><?php esc_html_e( 'Geocoding Service', 'my-booking-engine' ); ?></label></th>
+							<td>
+								<select name="mb_engine_settings[geocoder_provider]" id="mb_geocoder_provider" class="regular-text">
+									<option value="nominatim" <?php selected( $geocoder_provider, 'nominatim' ); ?>><?php esc_html_e( 'OpenStreetMap (Nominatim) - Free / Zero API Key Required', 'my-booking-engine' ); ?></option>
+									<option value="google" <?php selected( $geocoder_provider, 'google' ); ?>><?php esc_html_e( 'Google Maps Geocoding API', 'my-booking-engine' ); ?></option>
+								</select>
+								<p class="description"><?php esc_html_e( 'Nominatim works out of the box with zero setup. Select Google Maps if you possess a Google Cloud API key.', 'my-booking-engine' ); ?></p>
+							</td>
+						</tr>
+						<tr id="mb_google_key_row" style="<?php echo ( 'google' === $geocoder_provider ) ? '' : 'display:none;'; ?>">
+							<th scope="row"><label for="mb_google_api_key"><?php esc_html_e( 'Google Maps API Key', 'my-booking-engine' ); ?></label></th>
+							<td>
+								<input type="password" name="mb_engine_settings[google_api_key]" id="mb_google_api_key" value="<?php echo esc_attr( $google_api_key ); ?>" class="regular-text">
+								<p class="description"><?php esc_html_e( 'Enter your Google Geocoding API Key enabled with Geocoding API.', 'my-booking-engine' ); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="mb_distance_unit"><?php esc_html_e( 'Distance Unit of Measurement', 'my-booking-engine' ); ?></label></th>
+							<td>
+								<select name="mb_engine_settings[distance_unit]" id="mb_distance_unit">
+									<option value="km" <?php selected( $distance_unit, 'km' ); ?>><?php esc_html_e( 'Kilometers (km)', 'my-booking-engine' ); ?></option>
+									<option value="miles" <?php selected( $distance_unit, 'miles' ); ?>><?php esc_html_e( 'Miles (mi)', 'my-booking-engine' ); ?></option>
+								</select>
+								<p class="description"><?php esc_html_e( 'Unit used for Haversine spatial radius calculations.', 'my-booking-engine' ); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="mb_search_default_rad"><?php esc_html_e( 'Default Search Radius', 'my-booking-engine' ); ?></label></th>
+							<td>
+								<input type="number" name="mb_engine_settings[search_default_rad]" id="mb_search_default_rad" value="<?php echo esc_attr( $default_radius ); ?>" min="1" max="500" class="small-text">
+								<p class="description"><?php esc_html_e( 'Default distance radius loaded in search filter sliders.', 'my-booking-engine' ); ?></p>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<div class="mb-card" style="margin-top:20px;">
+					<h2><?php esc_html_e( '2. Booking Engine & Mutex Concurrency', 'my-booking-engine' ); ?></h2>
+					<table class="form-table">
+						<tr>
+							<th scope="row"><label for="mb_lock_duration"><?php esc_html_e( 'Checkout Lock Duration (Minutes)', 'my-booking-engine' ); ?></label></th>
+							<td>
+								<input type="number" name="mb_engine_settings[lock_duration]" id="mb_lock_duration" value="<?php echo esc_attr( $lock_duration ); ?>" min="2" max="60" class="small-text">
+								<p class="description"><?php esc_html_e( 'How long a selected time slot is locked while the customer fills out the form or is in the WooCommerce checkout funnel.', 'my-booking-engine' ); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="mb_currency_symbol"><?php esc_html_e( 'Currency Symbol', 'my-booking-engine' ); ?></label></th>
+							<td>
+								<input type="text" name="mb_engine_settings[currency_symbol]" id="mb_currency_symbol" value="<?php echo esc_attr( $currency_symbol ); ?>" class="small-text">
+								<p class="description"><?php esc_html_e( 'Currency symbol displayed on frontend cards and slot modals (e.g. $, €, £, ¥).', 'my-booking-engine' ); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="mb_enable_woocommerce"><?php esc_html_e( 'WooCommerce Payment Bridge', 'my-booking-engine' ); ?></label></th>
+							<td>
+								<label>
+									<input type="checkbox" name="mb_engine_settings[enable_woocommerce]" id="mb_enable_woocommerce" value="yes" <?php checked( $enable_wc, 'yes' ); ?>>
+									<?php esc_html_e( 'Redirect bookings into WooCommerce cart and checkout funnel', 'my-booking-engine' ); ?>
+								</label>
+								<p class="description"><?php esc_html_e( 'When active, bookings leverage WooCommerce payment gateways (Stripe, PayPal, Apple Pay, etc.) and auto-confirm upon payment.', 'my-booking-engine' ); ?></p>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<?php submit_button( __( 'Save All Changes', 'my-booking-engine' ) ); ?>
+			</form>
+		</div>
+
+		<!-- Right: Freemium / Pro Features Spotlight -->
+		<div class="mb-settings-sidebar">
+			<div class="mb-card mb-pro-box">
+				<div class="mb-pro-badge"><?php esc_html_e( 'PRO ADD-ONS READY', 'my-booking-engine' ); ?></div>
+				<h3><?php esc_html_e( 'Unlock Premium Features', 'my-booking-engine' ); ?></h3>
+				<p><?php esc_html_e( 'Ready for the Pro extension available on ThemeForest & CodeCanyon:', 'my-booking-engine' ); ?></p>
+				<ul class="mb-pro-list">
+					<li><span class="dashicons dashicons-yes"></span> <strong><?php esc_html_e( '2-Way Google Calendar Sync', 'my-booking-engine' ); ?></strong> - Real-time auto-export & import without delay.</li>
+					<li><span class="dashicons dashicons-yes"></span> <strong><?php esc_html_e( '2-Way iCal Airbnb & VRBO Sync', 'my-booking-engine' ); ?></strong> - Never double-book vacation properties.</li>
+					<li><span class="dashicons dashicons-yes"></span> <strong><?php esc_html_e( 'Twilio & WhatsApp SMS Reminders', 'my-booking-engine' ); ?></strong> - Instant notification alerts to customers & staff.</li>
+					<li><span class="dashicons dashicons-yes"></span> <strong><?php esc_html_e( 'Multi-Vendor & Staff Calendars', 'my-booking-engine' ); ?></strong> - Dedicated dashboards for individual therapists or staff.</li>
+					<li><span class="dashicons dashicons-yes"></span> <strong><?php esc_html_e( 'Custom Fields & Form Builder', 'my-booking-engine' ); ?></strong> - Add custom file uploads, questionnaires, and checkboxes.</li>
+				</ul>
+				<a href="#" class="button button-primary button-hero mb-pro-cta"><?php esc_html_e( 'View Pro Extensions & Licensing', 'my-booking-engine' ); ?></a>
+			</div>
+
+			<div class="mb-card" style="margin-top:20px;">
+				<h3><?php esc_html_e( 'Shortcodes Quick Reference', 'my-booking-engine' ); ?></h3>
+				<p><code>[mb_search_filter]</code><br><small><?php esc_html_e( 'Embeds the postal code radius search and filter grid.', 'my-booking-engine' ); ?></small></p>
+				<p><code>[mb_booking_form id="123"]</code><br><small><?php esc_html_e( 'Embeds the direct booking card for a specific entity.', 'my-booking-engine' ); ?></small></p>
+				<p><code>[mb_entities type="rental" limit="6"]</code><br><small><?php esc_html_e( 'Displays a responsive grid of published entities.', 'my-booking-engine' ); ?></small></p>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,63 @@
+# Copyright (C) 2026 Booking Engine Team
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Booking Engine - Multi-Model Booking & Appointment System 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/my-booking-engine\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-04T00:00:00+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.8.1\n"
+"X-Domain: my-booking-engine\n"
+
+#: my-booking-engine.php:5
+msgid "Booking Engine - Multi-Model Booking & Appointment System"
+msgstr ""
+
+#: my-booking-engine.php:6
+msgid "High-performance booking system supporting hourly appointments, day rentals, night stays, and capacity events with worldwide postal code radius search and WooCommerce checkout."
+msgstr ""
+
+#: includes/Admin/PostType.php:38
+msgid "Booking Entities"
+msgstr ""
+
+#: includes/Admin/PostType.php:39
+msgid "Booking Entity"
+msgstr ""
+
+#: includes/Admin/PostType.php:42
+msgid "Add New Booking Entity (Service, Rental, Property, Event)"
+msgstr ""
+
+#: includes/Admin/PostType.php:97
+msgid "Hourly Appointment"
+msgstr ""
+
+#: includes/Admin/PostType.php:98
+msgid "Day Rental (Car/Gear)"
+msgstr ""
+
+#: includes/Admin/PostType.php:99
+msgid "Night Stay (Property/Hotel)"
+msgstr ""
+
+#: includes/Admin/PostType.php:100
+msgid "Capacity Event / Tour"
+msgstr ""
+
+#: templates/frontend/search-filters.php:32
+msgid "Enter Postal / ZIP Code or City"
+msgstr ""
+
+#: templates/frontend/search-filters.php:66
+msgid "Find Available"
+msgstr ""
+
+#: templates/frontend/search-filters.php:75
+msgid "Distance Radius:"
+msgstr ""

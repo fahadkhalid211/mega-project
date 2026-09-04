@@ -1,0 +1,12 @@
+parameters:
+    level: 6
+    paths:
+        - my-booking-engine.php
+        - includes/
+        - templates/
+    excludePaths:
+        - vendor/
+        - node_modules/
+    bootstrapFiles:
+        - my-booking-engine.php
+    checkMissingIterableValueType: false
