@@ -281,6 +281,16 @@ class AdminMenu {
 				?>
 			</form>
 		</div>
+
+		<div id="mb-booking-details-overlay" class="mb-booking-details-overlay" style="display:none;">
+			<div class="mb-booking-details-panel" role="dialog" aria-modal="true">
+				<div class="mb-booking-details-header">
+					<h2><?php esc_html_e( 'Booking Details', 'my-booking-engine' ); ?></h2>
+					<button type="button" class="mb-booking-details-close" aria-label="<?php esc_attr_e( 'Close', 'my-booking-engine' ); ?>">&times;</button>
+				</div>
+				<div class="mb-booking-details-body" id="mb-booking-details-body"></div>
+			</div>
+		</div>
 		<?php
 	}
 }

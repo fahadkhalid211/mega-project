@@ -792,8 +792,10 @@
 }
 
 #wpbody-content .mb-app-shell {
-	max-width: 980px;
-	margin: 10px auto 60px auto;
+	max-width: 1600px;
+	width: 100%;
+	box-sizing: border-box;
+	margin: 10px 0 60px 0;
 	animation: mbAppFadeUp 0.35s ease;
 }
 
@@ -1106,3 +1108,177 @@
 
 
 
+
+/* =========================================================================
+   Bookings list — themed status pills, row actions, details panel.
+   ========================================================================= */
+
+.mb-status-pill {
+	display: inline-block;
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 700;
+	color: #fff;
+	letter-spacing: 0.01em;
+}
+
+.mb-status-confirmed { background: #007017; }
+.mb-status-pending   { background: var(--mb-accent, #dba617); }
+.mb-status-cancelled { background: #d63638; }
+.mb-status-completed { background: var(--mb-primary, #2271b1); }
+
+.mb-booking-view-link {
+	background: none;
+	border: none;
+	padding: 0;
+	margin: 0;
+	font-weight: 600;
+	color: var(--mb-primary, #2271b1);
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.mb-booking-view-link:hover {
+	color: var(--mb-primary-hover, #135e96);
+	text-decoration: underline;
+}
+
+.mb-booking-edit-listing {
+	color: #8c8f94;
+	text-decoration: none;
+	vertical-align: middle;
+}
+
+.mb-booking-edit-listing:hover {
+	color: var(--mb-primary, #2271b1);
+}
+
+.mb-row-actions {
+	display: flex;
+	gap: 8px;
+}
+
+.mb-row-action {
+	display: inline-block;
+	padding: 4px 12px;
+	border-radius: var(--mb-radius, 8px);
+	font-size: 12px;
+	font-weight: 700;
+	text-decoration: none;
+	border: 1px solid transparent;
+}
+
+.mb-row-action-approve {
+	color: #007017;
+	background: #ecfdf3;
+	border-color: #b7ebc6;
+}
+
+.mb-row-action-approve:hover {
+	background: #007017;
+	color: #fff;
+}
+
+.mb-row-action-cancel {
+	color: #d63638;
+	background: #fef2f2;
+	border-color: #fecaca;
+}
+
+.mb-row-action-cancel:hover {
+	background: #d63638;
+	color: #fff;
+}
+
+.mb-booking-details-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(15, 23, 42, 0.55);
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+}
+
+.mb-booking-details-panel {
+	background: #fff;
+	border-radius: var(--mb-radius, 12px);
+	width: 100%;
+	max-width: 480px;
+	max-height: 85vh;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.35);
+}
+
+.mb-booking-details-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 18px 22px;
+	background: linear-gradient(135deg, var(--mb-primary, #2563eb) 0%, var(--mb-primary-hover, #1e40af) 100%);
+}
+
+.mb-booking-details-header h2 {
+	margin: 0;
+	color: #fff;
+	font-size: 16px;
+}
+
+.mb-booking-details-close {
+	background: rgba(255,255,255,0.15);
+	border: none;
+	color: #fff;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	font-size: 18px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.mb-booking-details-close:hover {
+	background: rgba(255,255,255,0.3);
+}
+
+.mb-booking-details-body {
+	padding: 22px;
+	overflow-y: auto;
+}
+
+.mb-detail-row {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 10px 0;
+	border-bottom: 1px solid #f1f5f9;
+	font-size: 13px;
+}
+
+.mb-detail-row span:first-child {
+	color: #64748b;
+	font-weight: 600;
+}
+
+.mb-detail-row span:last-child {
+	color: #1e293b;
+	text-align: right;
+}
+
+.mb-detail-actions {
+	display: flex;
+	gap: 10px;
+	margin-top: 20px;
+}
+
+.mb-detail-actions a {
+	flex: 1;
+	text-align: center;
+	padding: 10px;
+	border-radius: var(--mb-radius, 8px);
+	font-weight: 700;
+	text-decoration: none;
+}

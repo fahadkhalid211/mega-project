@@ -118,10 +118,21 @@ class BookingsListTable extends \WP_List_Table {
 		$title = get_the_title( $item->entity_id );
 		$edit  = get_edit_post_link( $item->entity_id );
 
+		$out = sprintf(
+			'<button type="button" class="mb-booking-view-link" data-booking-id="%d">%s</button>',
+			absint( $item->id ),
+			esc_html( $title )
+		);
+
 		if ( $edit ) {
-			return sprintf( '<a href="%s"><strong>%s</strong></a>', esc_url( $edit ), esc_html( $title ) );
+			$out .= sprintf(
+				' <a href="%s" class="mb-booking-edit-listing" title="%s"><span class="dashicons dashicons-edit"></span></a>',
+				esc_url( $edit ),
+				esc_attr__( 'Edit listing', 'my-booking-engine' )
+			);
 		}
-		return esc_html( $title );
+
+		return $out;
 	}
 
 	/**
@@ -171,17 +182,9 @@ class BookingsListTable extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_status( $item ) {
-		$colors = array(
-			'confirmed' => '#007017',
-			'pending'   => '#dba617',
-			'cancelled' => '#d63638',
-			'completed' => '#2271b1',
-		);
-		$color  = $colors[ $item->status ] ?? '#8c8f94';
-
 		return sprintf(
-			'<span style="display:inline-block;padding:3px 8px;border-radius:3px;font-size:11px;font-weight:bold;color:#fff;background:%s;">%s</span>',
-			esc_attr( $color ),
+			'<span class="mb-status-pill mb-status-%s">%s</span>',
+			esc_attr( sanitize_html_class( $item->status ) ),
 			esc_html( ucfirst( $item->status ) )
 		);
 	}
@@ -219,13 +222,48 @@ class BookingsListTable extends \WP_List_Table {
 
 		$actions = array();
 		if ( 'confirmed' !== $item->status ) {
-			$actions[] = sprintf( '<a href="%s" style="color:#007017;font-weight:600;">%s</a>', esc_url( $confirm_url ), esc_html__( 'Confirm', 'my-booking-engine' ) );
+			$actions[] = sprintf( '<a href="%s" class="mb-row-action mb-row-action-approve">%s</a>', esc_url( $confirm_url ), esc_html__( 'Approve', 'my-booking-engine' ) );
 		}
 		if ( 'cancelled' !== $item->status ) {
-			$actions[] = sprintf( '<a href="%s" style="color:#d63638;" onclick="return confirm(\'%s\');">%s</a>', esc_url( $cancel_url ), esc_js( __( 'Are you sure you want to cancel this booking?', 'my-booking-engine' ) ), esc_html__( 'Cancel', 'my-booking-engine' ) );
+			$actions[] = sprintf( '<a href="%s" class="mb-row-action mb-row-action-cancel" onclick="return confirm(\'%s\');">%s</a>', esc_url( $cancel_url ), esc_js( __( 'Are you sure you want to cancel this booking?', 'my-booking-engine' ) ), esc_html__( 'Cancel', 'my-booking-engine' ) );
 		}
 
-		return implode( ' | ', $actions );
+		return '<div class="mb-row-actions">' . implode( '', $actions ) . '</div>';
+	}
+
+	/**
+	 * Render a single row, attaching the full booking payload as a data
+	 * attribute so the details panel can render without another request.
+	 *
+	 * @param object $item Row item.
+	 * @return void
+	 */
+	public function single_row( $item ) {
+		$settings = get_option( 'mb_engine_settings', array() );
+		$sym      = $settings['currency_symbol'] ?? '$';
+
+		$payload = array(
+			'id'             => absint( $item->id ),
+			'entityTitle'    => get_the_title( $item->entity_id ),
+			'customerName'   => $item->customer_name,
+			'customerEmail'  => $item->customer_email,
+			'customerPhone'  => $item->customer_phone,
+			'bookingStart'   => $item->booking_start,
+			'bookingEnd'     => $item->booking_end,
+			'capacityBooked' => $item->capacity_booked,
+			'totalPrice'     => $sym . number_format( (float) $item->total_price, 2 ),
+			'status'         => $item->status,
+			'confirmUrl'     => wp_nonce_url( admin_url( 'admin.php?page=mb-bookings&action=confirm&booking_id=' . absint( $item->id ) ), 'mb_booking_action' ),
+			'cancelUrl'      => wp_nonce_url( admin_url( 'admin.php?page=mb-bookings&action=cancel&booking_id=' . absint( $item->id ) ), 'mb_booking_action' ),
+		);
+
+		printf(
+			'<tr class="mb-booking-row" data-booking-id="%d" data-booking-payload="%s">',
+			absint( $item->id ),
+			esc_attr( wp_json_encode( $payload ) )
+		);
+		$this->single_row_columns( $item );
+		echo '</tr>';
 	}
 
 	/**

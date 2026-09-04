@@ -525,6 +525,22 @@ class Plugin {
 			MB_ENGINE_VERSION
 		);
 
+		$theme_settings = get_option( 'mb_engine_settings', array() );
+		$primary_col    = ! empty( $theme_settings['primary_color'] ) ? sanitize_hex_color( $theme_settings['primary_color'] ) : '#2563eb';
+		$hover_col      = ! empty( $theme_settings['primary_hover'] ) ? sanitize_hex_color( $theme_settings['primary_hover'] ) : '#1d4ed8';
+		$accent_col     = ! empty( $theme_settings['accent_color'] ) ? sanitize_hex_color( $theme_settings['accent_color'] ) : '#f59e0b';
+		$radius_val     = isset( $theme_settings['border_radius'] ) ? absint( $theme_settings['border_radius'] ) : 8;
+
+		wp_add_inline_style(
+			'mb-engine-admin',
+			":root {
+				--mb-primary: {$primary_col};
+				--mb-primary-hover: {$hover_col};
+				--mb-accent: {$accent_col};
+				--mb-radius: {$radius_val}px;
+			}"
+		);
+
 		wp_enqueue_script(
 			'mb-engine-admin',
 			MB_ENGINE_URL . 'assets/js/admin.js',

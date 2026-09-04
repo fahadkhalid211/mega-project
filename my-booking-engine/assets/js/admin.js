@@ -453,4 +453,77 @@
 		});
 	}
 
+	/**
+	 * Bookings admin page: view-details modal (customer + booking info,
+	 * with Approve / Cancel actions) instead of routing to the listing
+	 * editor when the entity title is clicked.
+	 */
+	function initBookingDetailsModal() {
+		const $overlay = $('#mb-booking-details-overlay');
+		if (!$overlay.length) return;
+
+		const $body = $('#mb-booking-details-body');
+		const i18n = (window.mbAdminData && window.mbAdminData.i18n) || {};
+
+		function fieldRow(label, value) {
+			return '<div class="mb-detail-row"><span>' + label + '</span><span>' + value + '</span></div>';
+		}
+
+		function escapeHtml(str) {
+			return $('<div>').text(str == null ? '' : str).html();
+		}
+
+		function openDetails(payload) {
+			let html = '';
+			html += fieldRow('Listing', escapeHtml(payload.entityTitle));
+			html += fieldRow('Customer', escapeHtml(payload.customerName));
+			html += fieldRow('Email', '<a href="mailto:' + escapeHtml(payload.customerEmail) + '">' + escapeHtml(payload.customerEmail) + '</a>');
+			if (payload.customerPhone) {
+				html += fieldRow('Phone', escapeHtml(payload.customerPhone));
+			}
+			html += fieldRow('Start', escapeHtml(payload.bookingStart));
+			html += fieldRow('End', escapeHtml(payload.bookingEnd));
+			html += fieldRow('Spots', escapeHtml(payload.capacityBooked));
+			html += fieldRow('Total', escapeHtml(payload.totalPrice));
+			html += fieldRow('Status', '<span class="mb-status-pill mb-status-' + payload.status + '">' + escapeHtml(payload.status.charAt(0).toUpperCase() + payload.status.slice(1)) + '</span>');
+
+			let actions = '<div class="mb-detail-actions">';
+			if (payload.status !== 'confirmed') {
+				actions += '<a href="' + payload.confirmUrl + '" class="mb-row-action mb-row-action-approve">Approve</a>';
+			}
+			if (payload.status !== 'cancelled') {
+				actions += '<a href="' + payload.cancelUrl + '" class="mb-row-action mb-row-action-cancel" onclick="return confirm(\'Are you sure you want to cancel this booking?\');">Cancel</a>';
+			}
+			actions += '</div>';
+
+			$body.html(html + actions);
+			$overlay.css('display', 'flex');
+		}
+
+		function closeDetails() {
+			$overlay.css('display', 'none');
+			$body.empty();
+		}
+
+		$(document).on('click', '.mb-booking-view-link', function () {
+			const $row = $(this).closest('tr.mb-booking-row');
+			const payload = $row.data('booking-payload');
+			if (payload) {
+				openDetails(payload);
+			}
+		});
+
+		$overlay.on('click', function (e) {
+			if (e.target === this) closeDetails();
+		});
+		$(document).on('click', '.mb-booking-details-close', closeDetails);
+		$(document).on('keydown', function (e) {
+			if (e.key === 'Escape') closeDetails();
+		});
+	}
+
+	$(function () {
+		initBookingDetailsModal();
+	});
+
 })(jQuery);
