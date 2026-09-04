@@ -25,7 +25,7 @@ class AdminMenu {
 	 */
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'register_admin_menus' ) );
-		add_action( 'admin_menu', array( __CLASS__, 'hide_add_listing_submenu' ), 999 );
+		add_action( 'admin_head', array( __CLASS__, 'hide_add_listing_menu_item' ) );
 		add_action( 'admin_init', array( __CLASS__, 'handle_booking_actions' ) );
 		add_action( 'load-post-new.php', array( __CLASS__, 'redirect_legacy_add_new' ) );
 	}
@@ -56,10 +56,18 @@ class AdminMenu {
 	 * Keep the "Add New Listing" builder reachable by URL without showing a
 	 * second, redundant "Add New" entry next to WordPress's own submenu.
 	 *
+	 * IMPORTANT: this hides the menu item with CSS rather than calling
+	 * remove_submenu_page(). Removing the submenu entry also strips the
+	 * record WordPress uses to look up which capability guards the page,
+	 * which makes the page itself inaccessible ("Sorry, you are not
+	 * allowed to access this page") even for admins. CSS-hiding keeps the
+	 * page fully registered and accessible while just not showing the
+	 * duplicate link.
+	 *
 	 * @return void
 	 */
-	public static function hide_add_listing_submenu() {
-		remove_submenu_page( 'edit.php?post_type=mb_booking_entity', 'mb-add-listing' );
+	public static function hide_add_listing_menu_item() {
+		echo '<style>#adminmenu a[href*="page=mb-add-listing"] { display: none; }</style>';
 	}
 
 	/**
