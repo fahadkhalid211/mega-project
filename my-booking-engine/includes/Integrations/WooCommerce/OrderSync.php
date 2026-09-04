@@ -58,7 +58,7 @@ class OrderSync {
 			$customer_email = $order->get_billing_email();
 			$customer_phone = $order->get_billing_phone();
 
-			Booking::create(
+			$booking_id = Booking::create(
 				array(
 					'entity_id'       => absint( $entity_id ),
 					'customer_id'     => absint( $customer_id ),
@@ -73,6 +73,10 @@ class OrderSync {
 					'total_price'     => floatval( $price ),
 				)
 			);
+
+			if ( $booking_id ) {
+				do_action( 'mb_engine_booking_created', $booking_id );
+			}
 		}
 	}
 

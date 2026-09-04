@@ -16,6 +16,9 @@ use MyBookingEngine\Api\SearchEndpoint;
 use MyBookingEngine\Api\SlotsEndpoint;
 use MyBookingEngine\Api\BookingEndpoint;
 use MyBookingEngine\Api\ReviewsEndpoint;
+use MyBookingEngine\Notifications\Mailer;
+use MyBookingEngine\Notifications\ReminderScheduler;
+use MyBookingEngine\Frontend\CustomerDashboard;
 use MyBookingEngine\Presentation\TemplateLoader;
 use MyBookingEngine\Integrations\WooCommerce\ProductType as WcProductType;
 use MyBookingEngine\Integrations\WooCommerce\CartManager as WcCartManager;
@@ -86,9 +89,16 @@ class Plugin {
 					'enable_woocommerce'  => 'yes',
 					'currency_symbol'     => '$',
 					'search_default_rad'  => 25,
+					'reminders'           => array(
+						'1_hour' => 'yes',
+						'1_day'  => 'yes',
+						'1_week' => 'no',
+					),
 				)
 			);
 		}
+
+		ReminderScheduler::maybe_schedule();
 	}
 
 	/**
@@ -98,6 +108,7 @@ class Plugin {
 	 */
 	public static function deactivate() {
 		flush_rewrite_rules();
+		ReminderScheduler::unschedule();
 	}
 
 	/**
@@ -115,6 +126,13 @@ class Plugin {
 			MetaBoxes::init();
 			SettingsPage::init();
 		}
+
+		// Booking email notifications and reminder scheduling.
+		Mailer::init();
+		ReminderScheduler::init();
+
+		// Customer-facing account dashboard ([mb_my_bookings]).
+		CustomerDashboard::init();
 
 		// Single listing & archive template router.
 		TemplateLoader::init();

@@ -86,6 +86,13 @@ class SettingsPage {
 		$radius_val = isset( $input['border_radius'] ) ? absint( $input['border_radius'] ) : 8;
 		$sanitized['border_radius'] = max( 0, min( 30, $radius_val ) );
 
+		// Booking Reminder Schedule
+		$reminder_types = array( '1_hour', '1_day', '1_week' );
+		$sanitized['reminders'] = array();
+		foreach ( $reminder_types as $type ) {
+			$sanitized['reminders'][ $type ] = ( isset( $input['reminders'][ $type ] ) && 'yes' === $input['reminders'][ $type ] ) ? 'yes' : 'no';
+		}
+
 		return $sanitized;
 	}
 

@@ -181,13 +181,15 @@ class Booking {
 		$table = Schema::get_bookings_table();
 
 		$defaults = array(
-			'entity_id' => 0,
-			'status'    => '',
-			'search'    => '',
-			'orderby'   => 'id',
-			'order'     => 'DESC',
-			'per_page'  => 20,
-			'page'      => 1,
+			'entity_id'      => 0,
+			'customer_id'    => 0,
+			'customer_email' => '',
+			'status'         => '',
+			'search'         => '',
+			'orderby'        => 'id',
+			'order'          => 'DESC',
+			'per_page'       => 20,
+			'page'           => 1,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -198,6 +200,16 @@ class Booking {
 		if ( ! empty( $args['entity_id'] ) ) {
 			$where[]  = 'entity_id = %d';
 			$params[] = absint( $args['entity_id'] );
+		}
+
+		if ( ! empty( $args['customer_id'] ) ) {
+			$where[]  = 'customer_id = %d';
+			$params[] = absint( $args['customer_id'] );
+		}
+
+		if ( ! empty( $args['customer_email'] ) ) {
+			$where[]  = 'customer_email = %s';
+			$params[] = sanitize_email( $args['customer_email'] );
 		}
 
 		if ( ! empty( $args['status'] ) ) {
@@ -236,6 +248,72 @@ class Booking {
 		return array(
 			'items' => is_array( $items ) ? $items : array(),
 			'total' => $total,
+		);
+	}
+
+	/**
+	 * Find confirmed bookings whose start time falls within a window —
+	 * used by the reminder scheduler to find bookings due a nudge.
+	 *
+	 * @param string $window_start Datetime (Y-m-d H:i:s).
+	 * @param string $window_end Datetime (Y-m-d H:i:s).
+	 * @return array
+	 */
+	public static function get_upcoming_between( $window_start, $window_end ) {
+		global $wpdb;
+
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$wpdb->prefix}mb_bookings
+				WHERE status = 'confirmed'
+				  AND booking_start >= %s
+				  AND booking_start < %s",
+				$window_start,
+				$window_end
+			)
+		);
+	}
+
+	/**
+	 * Check whether a given reminder type has already been sent for a booking.
+	 *
+	 * @param int    $booking_id Booking ID.
+	 * @param string $reminder_type Reminder type key (e.g. '1_hour').
+	 * @return bool
+	 */
+	public static function reminder_already_sent( $booking_id, $reminder_type ) {
+		global $wpdb;
+		$table = Schema::get_reminders_table();
+
+		$found = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT id FROM {$table} WHERE booking_id = %d AND reminder_type = %s LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				absint( $booking_id ),
+				sanitize_key( $reminder_type )
+			)
+		);
+
+		return ! empty( $found );
+	}
+
+	/**
+	 * Record that a reminder was sent, so it is never sent twice.
+	 *
+	 * @param int    $booking_id Booking ID.
+	 * @param string $reminder_type Reminder type key.
+	 * @return void
+	 */
+	public static function log_reminder_sent( $booking_id, $reminder_type ) {
+		global $wpdb;
+		$table = Schema::get_reminders_table();
+
+		$wpdb->query(
+			$wpdb->prepare(
+				"INSERT IGNORE INTO {$table} (booking_id, reminder_type, sent_at) VALUES (%d, %s, %s)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				absint( $booking_id ),
+				sanitize_key( $reminder_type ),
+				current_time( 'mysql' )
+			)
 		);
 	}
 }

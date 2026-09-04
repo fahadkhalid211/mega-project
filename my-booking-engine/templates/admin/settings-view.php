@@ -21,6 +21,11 @@ $mb_primary_color     = isset( $settings['primary_color'] ) ? $settings['primary
 $mb_primary_hover     = isset( $settings['primary_hover'] ) ? $settings['primary_hover'] : '#1d4ed8';
 $mb_accent_color      = isset( $settings['accent_color'] ) ? $settings['accent_color'] : '#f59e0b';
 $mb_border_radius     = isset( $settings['border_radius'] ) ? $settings['border_radius'] : 8;
+
+$mb_reminders = isset( $settings['reminders'] ) && is_array( $settings['reminders'] ) ? $settings['reminders'] : array();
+$mb_rem_1h    = isset( $mb_reminders['1_hour'] ) ? $mb_reminders['1_hour'] : 'yes';
+$mb_rem_1d    = isset( $mb_reminders['1_day'] ) ? $mb_reminders['1_day'] : 'yes';
+$mb_rem_1w    = isset( $mb_reminders['1_week'] ) ? $mb_reminders['1_week'] : 'no';
 ?>
 
 <div class="wrap mb-settings-wrap">
@@ -178,6 +183,31 @@ $mb_border_radius     = isset( $settings['border_radius'] ) ? $settings['border_
 					</table>
 				</div>
 
+				<div class="mb-card" style="margin-top:20px;">
+					<h2><?php esc_html_e( '4. Automatic Reminder Emails', 'my-booking-engine' ); ?></h2>
+					<p class="description"><?php esc_html_e( 'Automatically email customers ahead of their booking. Runs hourly in the background — no setup needed beyond toggling the windows you want.', 'my-booking-engine' ); ?></p>
+					<table class="form-table">
+						<tr>
+							<th scope="row"><?php esc_html_e( 'Reminder Windows', 'my-booking-engine' ); ?></th>
+							<td>
+								<label style="display:block; margin-bottom:10px;">
+									<input type="checkbox" name="mb_engine_settings[reminders][1_hour]" value="yes" <?php checked( $mb_rem_1h, 'yes' ); ?>>
+									<?php esc_html_e( '1 hour before the booking starts', 'my-booking-engine' ); ?>
+								</label>
+								<label style="display:block; margin-bottom:10px;">
+									<input type="checkbox" name="mb_engine_settings[reminders][1_day]" value="yes" <?php checked( $mb_rem_1d, 'yes' ); ?>>
+									<?php esc_html_e( '1 day before the booking starts', 'my-booking-engine' ); ?>
+								</label>
+								<label style="display:block;">
+									<input type="checkbox" name="mb_engine_settings[reminders][1_week]" value="yes" <?php checked( $mb_rem_1w, 'yes' ); ?>>
+									<?php esc_html_e( '1 week before the booking starts', 'my-booking-engine' ); ?>
+								</label>
+								<p class="description"><?php esc_html_e( 'Only confirmed bookings receive reminders. Each customer gets a reminder at most once per enabled window.', 'my-booking-engine' ); ?></p>
+							</td>
+						</tr>
+					</table>
+				</div>
+
 				<?php submit_button( __( 'Save All Changes', 'my-booking-engine' ) ); ?>
 			</form>
 		</div>
@@ -203,6 +233,7 @@ $mb_border_radius     = isset( $settings['border_radius'] ) ? $settings['border_
 				<p><code>[mb_search_filter]</code><br><small><?php esc_html_e( 'Embeds the postal code radius search and filter grid.', 'my-booking-engine' ); ?></small></p>
 				<p><code>[mb_booking_form id="123"]</code><br><small><?php esc_html_e( 'Embeds the direct booking card for a specific entity.', 'my-booking-engine' ); ?></small></p>
 				<p><code>[mb_entities type="rental" limit="6"]</code><br><small><?php esc_html_e( 'Displays a responsive grid of published entities.', 'my-booking-engine' ); ?></small></p>
+				<p><code>[mb_my_bookings]</code><br><small><?php esc_html_e( 'Customer login + dashboard to view their current and past bookings. Place on its own page (e.g. "My Account").', 'my-booking-engine' ); ?></small></p>
 			</div>
 		</div>
 	</div>

@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Schema {
 
-	const DB_VERSION = '1.1.0';
+	const DB_VERSION = '1.2.0';
 
 	/**
 	 * Get locations table name with WP prefix.
@@ -59,6 +59,16 @@ class Schema {
 	}
 
 	/**
+	 * Get reminder log table name with WP prefix.
+	 *
+	 * @return string
+	 */
+	public static function get_reminders_table() {
+		global $wpdb;
+		return $wpdb->prefix . 'mb_reminders_log';
+	}
+
+	/**
 	 * Run dbDelta database installation and migrations.
 	 *
 	 * @return void
@@ -76,6 +86,7 @@ class Schema {
 		$availabilities_table = self::get_availabilities_table();
 		$bookings_table       = self::get_bookings_table();
 		$reviews_table        = self::get_reviews_table();
+		$reminders_table      = self::get_reminders_table();
 
 		// Notice: dbDelta requires two spaces after PRIMARY KEY and lowercase types.
 		$sql_locations = "CREATE TABLE {$locations_table} (
@@ -149,10 +160,20 @@ class Schema {
 			KEY status (status)
 		) {$charset_collate};";
 
+		$sql_reminders = "CREATE TABLE {$reminders_table} (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			booking_id bigint(20) unsigned NOT NULL,
+			reminder_type varchar(20) NOT NULL,
+			sent_at datetime NOT NULL,
+			PRIMARY KEY  (id),
+			UNIQUE KEY booking_reminder (booking_id,reminder_type)
+		) {$charset_collate};";
+
 		dbDelta( $sql_locations );
 		dbDelta( $sql_availabilities );
 		dbDelta( $sql_bookings );
 		dbDelta( $sql_reviews );
+		dbDelta( $sql_reminders );
 
 		// Backfill postal_code_clean for any existing rows if empty.
 		$wpdb->query( "UPDATE {$wpdb->prefix}mb_locations SET postal_code_clean = UPPER(REPLACE(REPLACE(REPLACE(postal_code, ' ', ''), '-', ''), '.', '')) WHERE postal_code_clean = '' AND postal_code != ''" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery

@@ -11,6 +11,7 @@ use MyBookingEngine\Booking\MutexLock;
 use MyBookingEngine\Booking\SlotEngine;
 use MyBookingEngine\Models\BookingEntity;
 use MyBookingEngine\Models\Booking;
+use MyBookingEngine\Accounts\CustomerAccounts;
 use MyBookingEngine\Integrations\WooCommerce\ProductType as WcProductType;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -194,10 +195,19 @@ class BookingEndpoint extends RestController {
 			);
 		}
 
+		// Resolve (or auto-create) a WordPress account for this customer so
+		// they can log in later to see their bookings. Skipped for logged-in
+		// users, who already have an account.
+		$customer_id = get_current_user_id();
+		if ( ! $customer_id ) {
+			$account     = CustomerAccounts::get_or_create_customer( $customer_name, $customer_email );
+			$customer_id = $account['user_id'];
+		}
+
 		$booking_id = Booking::create(
 			array(
 				'entity_id'       => $entity_id,
-				'customer_id'     => get_current_user_id(),
+				'customer_id'     => $customer_id,
 				'customer_name'   => $customer_name,
 				'customer_email'  => $customer_email,
 				'customer_phone'  => $customer_phone,
@@ -219,6 +229,8 @@ class BookingEndpoint extends RestController {
 				500
 			);
 		}
+
+		do_action( 'mb_engine_booking_created', $booking_id );
 
 		return rest_ensure_response(
 			array(
