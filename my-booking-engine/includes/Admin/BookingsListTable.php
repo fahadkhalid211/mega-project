@@ -246,6 +246,16 @@ class BookingsListTable extends \WP_List_Table {
 	 * @return void
 	 */
 	public function prepare_items() {
+		// WP_List_Table normally derives this lazily, but on some admin
+		// page setups (a custom top-level/submenu page rendered outside
+		// the native edit.php screen) it never gets initialized, so the
+		// table renders its shell (count, bulk actions) with zero columns.
+		// Set it explicitly so rows always have something to draw into.
+		$columns               = $this->get_columns();
+		$hidden                = array();
+		$sortable              = $this->get_sortable_columns();
+		$this->_column_headers = array( $columns, $hidden, $sortable );
+
 		$per_page     = 20;
 		$current_page = $this->get_pagenum();
 

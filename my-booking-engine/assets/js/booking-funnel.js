@@ -19,6 +19,11 @@
 			this.selectedSlot = null;
 			this.liveTotal = null;
 			this.slotsLoading = false;
+			// True only once the server has actually confirmed the current
+			// date/range or slot is bookable — separate from selectedDates
+			// being set, which just reflects the calendar click and must
+			// not by itself unblock the Next button.
+			this.availabilityConfirmed = false;
 			this.guests = 1;
 			this.customer = { name: '', email: '', phone: '', notes: '' };
 			this.init();
@@ -50,6 +55,7 @@
 			this.selectedDates = { startDate: null, endDate: null, nights: 1 };
 			this.selectedSlot = null;
 			this.liveTotal = null;
+			this.availabilityConfirmed = false;
 
 			let overlay = document.getElementById('mb-funnel-modal');
 			if (!overlay) {
@@ -239,7 +245,9 @@
 		handleDateSelection(detail) {
 			this.selectedDates = detail;
 			this.selectedSlot = null;
+			this.availabilityConfirmed = false;
 			const panel = this.modal.querySelector('#mb-funnel-slots-panel');
+			this.clearStep1Error();
 
 			if (!detail.startDate) {
 				this.liveTotal = null;
@@ -256,8 +264,12 @@
 
 				this.fetchAvailability(detail.startDate).then((data) => {
 					if (!panel || !this.modal) return;
-					if (!data || !data.available || !data.slots || !data.slots.length) {
-						panel.innerHTML = `<p class="mb-slots-empty">${(data && data.reason) || 'No available time slots for this date.'}</p>`;
+					if (!data) {
+						panel.innerHTML = this.availabilityErrorHtml('Could not check availability. Please try again.');
+						return;
+					}
+					if (!data.available || !data.slots || !data.slots.length) {
+						panel.innerHTML = `<p class="mb-slots-empty">${data.reason || 'No available time slots for this date.'}</p>`;
 						return;
 					}
 					panel.innerHTML = `<div class="mb-slots-grid-inline">${data.slots.map((slot, i) => `
@@ -288,7 +300,7 @@
 			this.fetchAvailability(detail.startDate, detail.endDate).then((data) => {
 				if (!panel || !this.modal) return;
 				if (!data) {
-					panel.innerHTML = '<p class="mb-slots-empty">Could not check availability. Please try again.</p>';
+					panel.innerHTML = this.availabilityErrorHtml('Could not check availability. Please try again.');
 					return;
 				}
 				if (!data.is_available) {
@@ -305,10 +317,27 @@
 						<div class="mb-trip-summary-badge is-available">✓ Available for your dates</div>
 					</div>
 				`;
+				this.availabilityConfirmed = true;
 				this.liveTotal = data.total_price;
 				this.selectedDates.nights = count;
 				this.refreshPriceCard();
 			});
+		}
+
+		/**
+		 * Shared markup for a failed availability check, with a retry
+		 * action instead of a dead end — re-runs the same check for
+		 * whatever dates are currently selected.
+		 */
+		availabilityErrorHtml(message) {
+			return `<p class="mb-slots-empty">${message} <button type="button" class="mb-btn-link mb-retry-availability">Try again</button></p>`;
+		}
+
+		clearStep1Error() {
+			const err1 = this.modal && this.modal.querySelector('#mb-step1-error');
+			if (err1) {
+				err1.style.display = 'none';
+			}
 		}
 
 		selectSlot(index) {
@@ -321,6 +350,7 @@
 			this.selectedSlot = slot;
 			this.selectedDates.endDate = this.selectedDates.startDate;
 			this.liveTotal = slot.price;
+			this.availabilityConfirmed = true;
 
 			panel.querySelectorAll('.mb-slot-chip').forEach((chip, i) => {
 				chip.classList.toggle('is-selected', i === index);
@@ -527,6 +557,10 @@
 							err1.textContent = 'Please select both check-in and check-out dates on the calendar.';
 							err1.style.display = 'block';
 							return;
+						} else if (!this.availabilityConfirmed) {
+							err1.textContent = 'Please wait for availability to be confirmed before continuing — if the check failed, use "Try again".';
+							err1.style.display = 'block';
+							return;
 						} else {
 							err1.style.display = 'none';
 						}
@@ -631,12 +665,17 @@
 				}
 
 				// Delegate clicks on dynamically-rendered time-slot chips
+				// and the "Try again" retry link shown on a failed check.
 				const slotsPanel = this.modal.querySelector('#mb-funnel-slots-panel');
 				if (slotsPanel) {
 					slotsPanel.addEventListener('click', (e) => {
 						const chip = e.target.closest('.mb-slot-chip');
 						if (chip && !chip.disabled) {
 							this.selectSlot(parseInt(chip.dataset.slotIndex, 10));
+							return;
+						}
+						if (e.target.closest('.mb-retry-availability')) {
+							this.handleDateSelection(this.selectedDates);
 						}
 					});
 				}

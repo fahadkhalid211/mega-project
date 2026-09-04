@@ -159,7 +159,7 @@ $loc_text     = $loc ? esc_html( trim( $loc->city . ', ' . $loc->postal_code . '
 				<strong id="mb-salon-total-price"><?php echo esc_html( $currency_sym ); ?>0.00</strong>
 			</div>
 
-			<button type="button" class="mb-btn mb-btn-primary mb-btn-block mb-btn-reserve" id="mb-start-booking-btn" data-entity-id="<?php echo esc_attr( $post_id ); ?>" data-model="<?php echo esc_attr( $entity->get_model_type() ); ?>">
+			<button type="button" class="mb-btn mb-btn-primary mb-btn-reserve" id="mb-start-booking-btn" data-entity-id="<?php echo esc_attr( $post_id ); ?>" data-model="<?php echo esc_attr( $entity->get_model_type() ); ?>">
 				<?php esc_html_e( 'Select Date & Time', 'my-booking-engine' ); ?>
 			</button>
 		</div>

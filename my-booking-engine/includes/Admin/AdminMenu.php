@@ -28,6 +28,7 @@ class AdminMenu {
 		add_action( 'admin_head', array( __CLASS__, 'hide_add_listing_menu_item' ) );
 		add_action( 'admin_init', array( __CLASS__, 'handle_booking_actions' ) );
 		add_action( 'load-post-new.php', array( __CLASS__, 'redirect_legacy_add_new' ) );
+		add_action( 'load-post.php', array( __CLASS__, 'redirect_legacy_edit' ) );
 	}
 
 	/**
@@ -53,6 +54,34 @@ class AdminMenu {
 	}
 
 	/**
+	 * Same idea as redirect_legacy_add_new(), but for editing an existing
+	 * listing: WordPress always links row actions / "Edit" at post.php,
+	 * which normally opens the native metabox screen. Send that to our
+	 * custom Edit Listing app page instead, so admins never have to touch
+	 * WordPress meta boxes to manage a listing.
+	 *
+	 * @return void
+	 */
+	public static function redirect_legacy_edit() {
+		if ( ! isset( $_GET['post'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		$post_id = absint( wp_unslash( $_GET['post'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( ! $post_id || 'mb_booking_entity' !== get_post_type( $post_id ) ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=mb-edit-listing&post_id=' . $post_id ) );
+		exit;
+	}
+
+	/**
 	 * Keep the "Add New Listing" builder reachable by URL without showing a
 	 * second, redundant "Add New" entry next to WordPress's own submenu.
 	 *
@@ -67,7 +96,7 @@ class AdminMenu {
 	 * @return void
 	 */
 	public static function hide_add_listing_menu_item() {
-		echo '<style>#adminmenu a[href*="page=mb-add-listing"] { display: none; }</style>';
+		echo '<style>#adminmenu a[href*="page=mb-add-listing"], #adminmenu a[href*="page=mb-edit-listing"] { display: none; }</style>';
 	}
 
 	/**
@@ -88,6 +117,18 @@ class AdminMenu {
 			'publish_posts',
 			'mb-add-listing',
 			array( __CLASS__, 'render_add_listing_page' )
+		);
+
+		// Hidden page: the same app-styled builder in edit mode, reached
+		// via redirect_legacy_edit() whenever someone opens an existing
+		// listing — replaces the native WordPress meta-box edit screen.
+		add_submenu_page(
+			$parent_slug,
+			__( 'Edit Listing', 'my-booking-engine' ),
+			__( 'Edit Listing', 'my-booking-engine' ),
+			'edit_posts',
+			'mb-edit-listing',
+			array( __CLASS__, 'render_edit_listing_page' )
 		);
 
 		// Submenu: Bookings & Reservations.
@@ -132,6 +173,26 @@ class AdminMenu {
 		if ( ! current_user_can( 'publish_posts' ) ) {
 			wp_die( esc_html__( 'You do not have permission to create listings.', 'my-booking-engine' ) );
 		}
+		include MB_ENGINE_PATH . 'templates/admin/add-listing-app.php';
+	}
+
+	/**
+	 * Render the same app-styled builder in edit mode for an existing
+	 * listing, identified by ?post_id= in the URL.
+	 *
+	 * @return void
+	 */
+	public static function render_edit_listing_page() {
+		$edit_entity_id = isset( $_GET['post_id'] ) ? absint( wp_unslash( $_GET['post_id'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( ! $edit_entity_id || 'mb_booking_entity' !== get_post_type( $edit_entity_id ) ) {
+			wp_die( esc_html__( 'Listing not found.', 'my-booking-engine' ) );
+		}
+
+		if ( ! current_user_can( 'edit_post', $edit_entity_id ) ) {
+			wp_die( esc_html__( 'You do not have permission to edit this listing.', 'my-booking-engine' ) );
+		}
+
 		include MB_ENGINE_PATH . 'templates/admin/add-listing-app.php';
 	}
 

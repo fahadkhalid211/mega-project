@@ -131,6 +131,34 @@ class MetaBoxes {
 		$policy = isset( $_POST['mb_policy'] ) ? sanitize_textarea_field( wp_unslash( $_POST['mb_policy'] ) ) : '';
 		update_post_meta( $post_id, '_mb_policy', $policy );
 
+		// Services & Add-ons (salon-style listings: haircuts, treatments,
+		// extras). Sent from the app-page JS as a JSON array of rows.
+		if ( isset( $_POST['mb_services'] ) ) {
+			$decoded = json_decode( wp_unslash( $_POST['mb_services'] ), true ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$clean   = array();
+
+			if ( is_array( $decoded ) ) {
+				foreach ( $decoded as $row ) {
+					if ( empty( $row['name'] ) ) {
+						continue;
+					}
+					$clean[] = array(
+						'id'          => ! empty( $row['id'] ) ? sanitize_key( $row['id'] ) : 'svc_' . uniqid(),
+						'name'        => sanitize_text_field( $row['name'] ),
+						'duration'    => isset( $row['duration'] ) ? absint( $row['duration'] ) : 0,
+						'price'       => isset( $row['price'] ) ? floatval( $row['price'] ) : 0.0,
+						'description' => isset( $row['description'] ) ? sanitize_textarea_field( $row['description'] ) : '',
+					);
+				}
+			}
+
+			if ( ! empty( $clean ) ) {
+				update_post_meta( $post_id, '_mb_services', $clean );
+			} else {
+				delete_post_meta( $post_id, '_mb_services' );
+			}
+		}
+
 		// 2. Custom Location Table Synchronization.
 		$postal_code = isset( $_POST['mb_postal_code'] ) ? sanitize_text_field( wp_unslash( $_POST['mb_postal_code'] ) ) : '';
 		$city        = isset( $_POST['mb_city'] ) ? sanitize_text_field( wp_unslash( $_POST['mb_city'] ) ) : '';
@@ -193,9 +221,10 @@ class MetaBoxes {
 	}
 
 	/**
-	 * AJAX handler for the "Add New Listing" quick-create wizard modal.
-	 * Creates the listing post and, via the save_post_mb_booking_entity
-	 * hook, immediately saves every wizard field from the same request.
+	 * AJAX handler for the "Add New Listing" / "Edit Listing" app pages.
+	 * Creates (or, when mb_post_id is present, updates) the listing post
+	 * and, via the save_post_mb_booking_entity hook, immediately saves
+	 * every field from the same request.
 	 *
 	 * @return void
 	 */
@@ -204,7 +233,14 @@ class MetaBoxes {
 			wp_send_json_error( array( 'message' => __( 'Security check failed. Please refresh the page and try again.', 'my-booking-engine' ) ), 403 );
 		}
 
-		if ( ! current_user_can( 'publish_posts' ) ) {
+		$existing_id = isset( $_POST['mb_post_id'] ) ? absint( wp_unslash( $_POST['mb_post_id'] ) ) : 0;
+		$is_edit     = $existing_id > 0 && 'mb_booking_entity' === get_post_type( $existing_id );
+
+		if ( $is_edit ) {
+			if ( ! current_user_can( 'edit_post', $existing_id ) ) {
+				wp_send_json_error( array( 'message' => __( 'You do not have permission to edit this listing.', 'my-booking-engine' ) ), 403 );
+			}
+		} elseif ( ! current_user_can( 'publish_posts' ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission to create listings.', 'my-booking-engine' ) ), 403 );
 		}
 
@@ -214,26 +250,44 @@ class MetaBoxes {
 			wp_send_json_error( array( 'message' => __( 'Please enter a listing title before publishing.', 'my-booking-engine' ) ) );
 		}
 
-		$post_id = wp_insert_post(
-			array(
-				'post_type'   => 'mb_booking_entity',
-				'post_title'  => $title,
-				'post_status' => 'publish',
-			),
-			true
+		// Description is a native post field (post_content), not postmeta,
+		// so it has to be passed to wp_insert_post()/wp_update_post()
+		// directly rather than saved inside save_meta_box_data().
+		$description = isset( $_POST['mb_description'] ) ? wp_kses_post( wp_unslash( $_POST['mb_description'] ) ) : '';
+
+		$postarr = array(
+			'post_type'    => 'mb_booking_entity',
+			'post_title'   => $title,
+			'post_content' => $description,
+			'post_status'  => 'publish',
 		);
 
-		if ( is_wp_error( $post_id ) || ! $post_id ) {
-			wp_send_json_error( array( 'message' => __( 'Could not create the listing. Please try again.', 'my-booking-engine' ) ) );
+		if ( $is_edit ) {
+			$postarr['ID'] = $existing_id;
+			$post_id       = wp_update_post( $postarr, true );
+		} else {
+			$post_id = wp_insert_post( $postarr, true );
 		}
 
-		// wp_insert_post() fires save_post_mb_booking_entity, which runs
-		// self::save_meta_box_data( $post_id ) and reads pricing, location,
-		// schedule, gallery, etc. straight from this same $_POST payload.
+		if ( is_wp_error( $post_id ) || ! $post_id ) {
+			wp_send_json_error(
+				array(
+					'message' => $is_edit
+						? __( 'Could not update the listing. Please try again.', 'my-booking-engine' )
+						: __( 'Could not create the listing. Please try again.', 'my-booking-engine' ),
+				)
+			);
+		}
+
+		// wp_insert_post()/wp_update_post() fire save_post_mb_booking_entity,
+		// which runs self::save_meta_box_data( $post_id ) and reads pricing,
+		// location, schedule, gallery, services, etc. straight from this
+		// same $_POST payload.
 		wp_send_json_success(
 			array(
 				'redirect' => get_permalink( $post_id ),
 				'post_id'  => $post_id,
+				'is_edit'  => $is_edit,
 			)
 		);
 	}

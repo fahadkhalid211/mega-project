@@ -18,16 +18,22 @@
 		const $root = $('#mb-app-add-listing');
 		if (!$root.length) return;
 
-		applyTypeDefaults($root.find('.mb-app-type-card.selected'));
+		const isEditMode = $root.data('mode') === 'edit';
+		const publishBtnHtml = isEditMode ? '💾 Update Listing' : '🚀 Publish Listing';
+
+		applyTypeDefaults($root.find('.mb-app-type-card.selected'), isEditMode);
+		renderExistingGallery();
+		initServicesCard(isEditMode);
 
 		// Type card selection -> smart defaults
 		$('.mb-app-type-card').on('click', function() {
-			applyTypeDefaults($(this));
+			applyTypeDefaults($(this), false);
 		});
 
-		function applyTypeDefaults($card) {
+		function applyTypeDefaults($card, isInitialLoad) {
 			if (!$card.length) return;
 
+			const type     = $card.data('type');
 			const model    = $card.data('model');
 			const price    = $card.data('price');
 			const slot     = $card.data('slot');
@@ -44,23 +50,67 @@
 			$('#mb-app-smart-banner').addClass('is-pulsing');
 			setTimeout(() => $('#mb-app-smart-banner').removeClass('is-pulsing'), 500);
 
-			if (model) {
-				$('#mb_model_type').val(model).trigger('change');
-			}
-			if (price !== undefined && price !== '' && !$('#mb_base_price').data('user-edited')) {
-				$('#mb_base_price').val(price);
-			}
-			if (slot) $('#mb_slot_duration').val(slot);
-			if (before !== undefined && before !== '') $('#mb_buffer_before').val(before);
-			if (after !== undefined && after !== '') $('#mb_buffer_after').val(after);
-			if (min) $('#mb_min_duration').val(min);
-			if (max) $('#mb_max_duration').val(max);
-			if (checkin) $('#mb_checkin_time').val(checkin);
-			if (checkout) $('#mb_checkout_time').val(checkout);
+			// On an existing listing (edit mode, first load) don't clobber
+			// its saved settings just because its type card is "selected" —
+			// only apply defaults when the admin actively picks a new type.
+			if (!isInitialLoad || !isEditMode) {
+				if (model) {
+					$('#mb_model_type').val(model).trigger('change');
+				}
+				if (price !== undefined && price !== '' && !$('#mb_base_price').data('user-edited')) {
+					$('#mb_base_price').val(price);
+				}
+				if (slot) $('#mb_slot_duration').val(slot);
+				if (before !== undefined && before !== '') $('#mb_buffer_before').val(before);
+				if (after !== undefined && after !== '') $('#mb_buffer_after').val(after);
+				if (min) $('#mb_min_duration').val(min);
+				if (max) $('#mb_max_duration').val(max);
+				if (checkin) $('#mb_checkin_time').val(checkin);
+				if (checkout) $('#mb_checkout_time').val(checkout);
 
-			if (schedule && SCHEDULE_PRESETS[schedule]) {
-				applySchedulePreset(SCHEDULE_PRESETS[schedule]);
+				if (schedule && SCHEDULE_PRESETS[schedule]) {
+					applySchedulePreset(SCHEDULE_PRESETS[schedule]);
+				}
 			}
+
+			updateDefaultsSummary($card);
+			toggleServicesCard(type);
+		}
+
+		// Live one-line recap of what the current type/settings mean, so
+		// admins can see at a glance what "smart defaults" actually set.
+		function updateDefaultsSummary($card) {
+			const $summary = $('#mb-app-defaults-summary');
+			if (!$summary.length) return;
+
+			const model = $('#mb_model_type').val();
+			const price = $('#mb_base_price').val();
+			const currency = (window.mbEngineData && window.mbEngineData.currencySymbol) || '$';
+			let bits = [];
+
+			if (price) bits.push(currency + parseFloat(price).toFixed(2) + ' base price');
+
+			if (model === 'hourly_slot') {
+				const slot = $('#mb_slot_duration').val();
+				if (slot) bits.push(slot + '-minute sessions');
+			} else if (model === 'day_rental' || model === 'night_stay') {
+				const min = $('#mb_min_duration').val();
+				const max = $('#mb_max_duration').val();
+				if (min && max) bits.push(min + '–' + max + (model === 'night_stay' ? ' night stay' : ' day rental'));
+			} else if (model === 'capacity_roster') {
+				bits.push('fixed-schedule event');
+			}
+
+			const openDays = $('.mb-schedule-row.is-open').length;
+			if (openDays) bits.push(openDays + ' day' + (openDays !== 1 ? 's' : '') + ' open per week');
+
+			$summary.text(bits.length ? bits.join(' · ') : '');
+		}
+
+		// Services & Add-ons card is only relevant for menu-driven listing
+		// types (currently: Salon & Spa).
+		function toggleServicesCard(type) {
+			$('#mb-app-services-card').toggle(type === 'salon');
 		}
 
 		// Track manual price edits so re-selecting a type doesn't clobber a
@@ -93,11 +143,21 @@
 			$row.toggleClass('is-open', isOpen).toggleClass('is-closed', !isOpen);
 			$label.text(isOpen ? 'Open' : 'Closed');
 			$times.css({ opacity: isOpen ? 1 : 0.4, 'pointer-events': isOpen ? 'auto' : 'none' });
+			updateDefaultsSummary();
 		}
 
 		// Manual day-switch toggling
 		$(document).on('change', '.mb-day-switch', function() {
 			toggleScheduleRow($(this).closest('.mb-schedule-row'), $(this).is(':checked'));
+		});
+
+		// Keep the summary line in sync with manual edits too, not just
+		// type-card clicks and schedule toggles.
+		$('#mb_base_price, #mb_slot_duration, #mb_min_duration, #mb_max_duration').on('input change', function() {
+			updateDefaultsSummary();
+		});
+		$('#mb_model_type').on('change', function() {
+			updateDefaultsSummary();
 		});
 
 		// Advanced Settings reveal
@@ -135,7 +195,9 @@
 				return;
 			}
 
-			$btn.prop('disabled', true).addClass('is-loading').html('Publishing…');
+			syncServicesToHiddenField();
+
+			$btn.prop('disabled', true).addClass('is-loading').html(isEditMode ? 'Saving…' : 'Publishing…');
 
 			const payload = $form.serialize() +
 				'&action=mb_quick_create_listing' +
@@ -144,21 +206,123 @@
 			$.post(window.mbAdminData?.ajaxUrl || ajaxurl, payload)
 				.done(function(response) {
 					if (response && response.success && response.data && response.data.redirect) {
-						$btn.removeClass('is-loading').html('✓ Published!');
+						$btn.removeClass('is-loading').html(isEditMode ? '✓ Updated!' : '✓ Published!');
 						window.location.href = response.data.redirect;
 						return;
 					}
-					showAlert((response && response.data && response.data.message) || 'Could not publish the listing. Please try again.');
-					$btn.prop('disabled', false).removeClass('is-loading').html('🚀 Publish Listing');
+					showAlert((response && response.data && response.data.message) || 'Could not save the listing. Please try again.');
+					$btn.prop('disabled', false).removeClass('is-loading').html(publishBtnHtml);
 				})
 				.fail(function() {
-					showAlert('Network error while publishing. Please try again.');
-					$btn.prop('disabled', false).removeClass('is-loading').html('🚀 Publish Listing');
+					showAlert('Network error while saving. Please try again.');
+					$btn.prop('disabled', false).removeClass('is-loading').html(publishBtnHtml);
 				});
 		});
 
 		function showAlert(message) {
 			$('#mb-app-alert').text(message).slideDown(150);
+		}
+
+		/**
+		 * Existing gallery photos (edit mode): render thumbnail previews
+		 * from the URLs the server embedded on #mb_gallery_preview, so an
+		 * admin editing a listing sees its current photos immediately
+		 * instead of an empty picker.
+		 */
+		function renderExistingGallery() {
+			const $preview = $('#mb_gallery_preview');
+			if (!$preview.length) return;
+
+			let urls = [];
+			try {
+				urls = JSON.parse($preview.attr('data-existing') || '[]');
+			} catch (err) {
+				urls = [];
+			}
+
+			urls.forEach(function(url) {
+				$preview.append('<div class="mb-preview-thumb"><img src="' + url + '"></div>');
+			});
+		}
+
+		/**
+		 * Services & Add-ons card: renders existing rows (edit mode),
+		 * lets the admin add/remove rows, and keeps the hidden JSON field
+		 * in sync so it submits with the rest of the form.
+		 */
+		function initServicesCard() {
+			const $rows = $('#mb-services-rows');
+			const $hidden = $('#mb_services_json');
+			if (!$rows.length || !$hidden.length) return;
+
+			let services = [];
+			try {
+				services = JSON.parse($hidden.val() || '[]');
+			} catch (err) {
+				services = [];
+			}
+
+			if (services.length) {
+				services.forEach(function(svc) {
+					addServiceRow(svc);
+				});
+			} else {
+				addServiceRow();
+			}
+
+			$('#mb_btn_add_service').on('click', function(e) {
+				e.preventDefault();
+				addServiceRow();
+			});
+
+			$rows.on('click', '.mb-service-remove', function(e) {
+				e.preventDefault();
+				$(this).closest('.mb-service-row').remove();
+				syncServicesToHiddenField();
+			});
+
+			$rows.on('input change', 'input, textarea', function() {
+				syncServicesToHiddenField();
+			});
+
+			function addServiceRow(svc) {
+				svc = svc || { name: '', duration: '', price: '', description: '' };
+				const $row = $(
+					'<div class="mb-service-row" style="display:flex; gap:10px; align-items:flex-start; margin-bottom:12px; padding:12px; border:1px solid #e5e7eb; border-radius:6px;">' +
+						'<div style="flex:2;"><label>Service Name</label><input type="text" class="widefat mb-svc-name" placeholder="e.g. Haircut" value="' + escapeAttr(svc.name) + '"></div>' +
+						'<div style="flex:1;"><label>Duration (min)</label><input type="number" class="widefat mb-svc-duration" min="0" step="5" value="' + escapeAttr(svc.duration) + '"></div>' +
+						'<div style="flex:1;"><label>Price</label><input type="number" class="widefat mb-svc-price" min="0" step="0.01" value="' + escapeAttr(svc.price) + '"></div>' +
+						'<div style="flex:2;"><label>Description</label><input type="text" class="widefat mb-svc-desc" placeholder="Optional" value="' + escapeAttr(svc.description) + '"></div>' +
+						'<button type="button" class="button button-link-delete mb-service-remove" style="margin-top:22px;" title="Remove">&times;</button>' +
+					'</div>'
+				);
+				$rows.append($row);
+				syncServicesToHiddenField();
+			}
+		}
+
+		function syncServicesToHiddenField() {
+			const $hidden = $('#mb_services_json');
+			if (!$hidden.length) return;
+
+			const services = [];
+			$('#mb-services-rows .mb-service-row').each(function() {
+				const $row = $(this);
+				const name = $row.find('.mb-svc-name').val().trim();
+				if (!name) return;
+				services.push({
+					name: name,
+					duration: $row.find('.mb-svc-duration').val(),
+					price: $row.find('.mb-svc-price').val(),
+					description: $row.find('.mb-svc-desc').val()
+				});
+			});
+
+			$hidden.val(JSON.stringify(services));
+		}
+
+		function escapeAttr(val) {
+			return String(val === undefined || val === null ? '' : val).replace(/"/g, '&quot;');
 		}
 	});
 

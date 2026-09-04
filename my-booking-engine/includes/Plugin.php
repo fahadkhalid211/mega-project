@@ -162,6 +162,22 @@ class Plugin {
 		if ( get_option( 'mb_engine_db_version' ) !== Schema::DB_VERSION ) {
 			Schema::install();
 		}
+
+		// Self-heal stale permalinks: if the plugin version changed since
+		// the last flush (e.g. updated via zip upload, not a full
+		// deactivate/reactivate cycle), our REST routes can 404 with an
+		// HTML response instead of JSON — which surfaces to visitors as
+		// "Error connecting to booking service." Flushing once per version
+		// bump avoids that without a manual permalink re-save.
+		if ( get_option( 'mb_engine_flushed_version' ) !== MB_ENGINE_VERSION ) {
+			global $wp_rewrite;
+			if ( ! is_object( $wp_rewrite ) ) {
+				require_once ABSPATH . WPINC . '/class-wp-rewrite.php';
+				$wp_rewrite = new \WP_Rewrite();
+			}
+			flush_rewrite_rules();
+			update_option( 'mb_engine_flushed_version', MB_ENGINE_VERSION );
+		}
 	}
 
 	/**
@@ -484,7 +500,7 @@ class Plugin {
 		$param_post_type  = isset( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$param_page       = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		$is_add_listing_page = ( 'mb-add-listing' === $param_page );
+		$is_add_listing_page = ( 'mb-add-listing' === $param_page || 'mb-edit-listing' === $param_page );
 
 		$is_mb_post_type = ( 'mb_booking_entity' === $screen_post_type )
 			|| ( isset( $post->post_type ) && 'mb_booking_entity' === $post->post_type )

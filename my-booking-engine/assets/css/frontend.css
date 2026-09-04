@@ -217,11 +217,17 @@ button:focus-visible {
 .mb-btn-primary {
 	background: var(--mb-primary);
 	color: #fff;
-	width: 100%;
 }
 
 .mb-btn-primary:hover {
 	background: var(--mb-primary-hover);
+}
+
+/* Opt-in full-width modifier — .mb-btn-primary alone no longer forces
+   width:100%, since that made buttons like Book Now / Continue look
+   stretched and out of place outside sticky footers. */
+.mb-btn-block {
+	width: 100%;
 }
 
 .mb-btn-link {
