@@ -139,9 +139,6 @@
 				.then(({ ok, status, body }) => {
 					if (!ok || !body || !body.success) {
 						console.warn('[MB Engine] availability check failed', { status, body });
-						if (body && body.debug && body.debug.output) {
-							console.warn('[MB Engine] PHP output:', body.debug.output);
-						}
 						return null;
 					}
 					return body.data;

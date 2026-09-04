@@ -85,38 +85,20 @@ class SlotsEndpoint extends RestController {
 			);
 		}
 
-		// Never let a fatal — or even just a printed PHP warning/notice —
-		// leak into the response body: that alone corrupts otherwise-valid
-		// JSON (still HTTP 200) and the frontend can only report "invalid
-		// JSON" with no clue what was actually wrong. Buffer everything
-		// SlotEngine outputs, strip it, and surface it as data instead.
-		ob_start();
+		// Never let a fatal in the slot-calculation chain surface as an
+		// HTML error page — the frontend can't parse that as JSON and
+		// just shows "could not check availability" with no clue why.
+		// Catch it and return the real message instead.
 		try {
 			$result = SlotEngine::get_slots( $entity_id, $date, $end_date, $session_token );
-			$stray_output = ob_get_clean();
 		} catch ( \Throwable $e ) {
-			$stray_output = ob_get_clean();
 			return new \WP_REST_Response(
 				array(
 					'success' => false,
 					'message' => $e->getMessage(),
 					'debug'   => array(
-						'file'   => $e->getFile(),
-						'line'   => $e->getLine(),
-						'output' => $stray_output,
-					),
-				),
-				500
-			);
-		}
-
-		if ( ! empty( $stray_output ) ) {
-			return new \WP_REST_Response(
-				array(
-					'success' => false,
-					'message' => __( 'A PHP warning/notice was emitted while calculating availability.', 'my-booking-engine' ),
-					'debug'   => array(
-						'output' => $stray_output,
+						'file' => $e->getFile(),
+						'line' => $e->getLine(),
 					),
 				),
 				500
