@@ -103,6 +103,67 @@
 			$('.mb-modal-quick-title-row').hide();
 		});
 
+		// --- Add New Listing: open the wizard right here as a modal instead
+		// of navigating to post-new.php. Intercept every link that would
+		// otherwise send the admin to the "Add New" screen for this CPT
+		// (the page-title-action button, the admin bar "New" item, and any
+		// empty-state "Add your first listing" link).
+		const $quickForm = $('#mb-quick-create-form');
+		if ($quickForm.length) {
+			$(document).on('click', 'a', function(e) {
+				const href = $(this).attr('href') || '';
+				if (href.indexOf('post-new.php') === -1 || href.indexOf('post_type=mb_booking_entity') === -1) {
+					return;
+				}
+				e.preventDefault();
+
+				$('#mb-minimize-wizard-btn').html('✕ ' + 'Cancel');
+				$('#mb-wiz-publish-btn').show().prop('disabled', false).html('💾 Save & Publish Listing');
+				showStep(1);
+				$('#mb-admin-wizard').addClass('is-modal');
+				$('.mb-wizard-modal-header').show();
+				$('.mb-modal-quick-title-row').show();
+				$('#mb_quick_title').val('').focus();
+			});
+		}
+
+		/**
+		 * Submit the quick-create wizard via AJAX: creates the listing post
+		 * and saves every wizard field (pricing, location, schedule, media,
+		 * policy) in the same request, then jumps to the new listing's full
+		 * edit screen.
+		 */
+		function submitQuickCreateListing() {
+			const quickTitle = $('#mb_quick_title').val().trim();
+
+			if (!quickTitle) {
+				alert('Please enter a listing title before publishing.');
+				$('#mb_quick_title').focus();
+				return;
+			}
+
+			const $btn = $('#mb-wiz-publish-btn');
+			$btn.prop('disabled', true).text('Publishing...');
+
+			const payload = $quickForm.serialize() +
+				'&action=mb_quick_create_listing' +
+				'&mb_quick_title=' + encodeURIComponent(quickTitle);
+
+			$.post(window.mbAdminData?.ajaxUrl || ajaxurl, payload)
+				.done(function(response) {
+					if (response && response.success && response.data && response.data.redirect) {
+						window.location.href = response.data.redirect;
+						return;
+					}
+					alert((response && response.data && response.data.message) || 'Could not create the listing. Please try again.');
+					$btn.prop('disabled', false).html('💾 Save & Publish Listing');
+				})
+				.fail(function() {
+					alert('Network error while creating the listing. Please try again.');
+					$btn.prop('disabled', false).html('💾 Save & Publish Listing');
+				});
+		}
+
 		// Synchronize Quick Title with WordPress Title input
 		$('#mb_quick_title').on('input change', function() {
 			const val = $(this).val();
@@ -135,6 +196,15 @@
 		// Save & Publish Button inside Wizard Modal
 		$('#mb-wiz-publish-btn').on('click', function(e) {
 			e.preventDefault();
+
+			// Quick-create context (Add New Listing opened as a modal on the
+			// list screen): no WordPress post-editor form exists yet, so
+			// save via AJAX instead of trying to trigger a #publish button.
+			if ($quickForm.length) {
+				submitQuickCreateListing();
+				return;
+			}
+
 			const quickTitle = $('#mb_quick_title').val().trim();
 			if (quickTitle && !$('#title').val()) {
 				$('#title').val(quickTitle);

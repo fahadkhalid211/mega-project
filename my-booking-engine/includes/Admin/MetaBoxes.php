@@ -28,6 +28,7 @@ class MetaBoxes {
 		add_action( 'add_meta_boxes', array( __CLASS__, 'register_meta_boxes' ) );
 		add_action( 'save_post_mb_booking_entity', array( __CLASS__, 'save_meta_box_data' ) );
 		add_action( 'wp_ajax_mb_admin_geocode', array( __CLASS__, 'ajax_geocode_location' ) );
+		add_action( 'wp_ajax_mb_quick_create_listing', array( __CLASS__, 'ajax_quick_create_listing' ) );
 	}
 
 	/**
@@ -189,5 +190,51 @@ class MetaBoxes {
 		} else {
 			wp_send_json_error( array( 'message' => __( 'Could not find coordinates for this location.', 'my-booking-engine' ) ) );
 		}
+	}
+
+	/**
+	 * AJAX handler for the "Add New Listing" quick-create wizard modal.
+	 * Creates the listing post and, via the save_post_mb_booking_entity
+	 * hook, immediately saves every wizard field from the same request.
+	 *
+	 * @return void
+	 */
+	public static function ajax_quick_create_listing() {
+		if ( ! isset( $_POST['mb_entity_meta_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['mb_entity_meta_nonce'] ) ), 'mb_save_entity_meta' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Security check failed. Please refresh the page and try again.', 'my-booking-engine' ) ), 403 );
+		}
+
+		if ( ! current_user_can( 'publish_posts' ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to create listings.', 'my-booking-engine' ) ), 403 );
+		}
+
+		$title = isset( $_POST['mb_quick_title'] ) ? sanitize_text_field( wp_unslash( $_POST['mb_quick_title'] ) ) : '';
+
+		if ( empty( $title ) ) {
+			wp_send_json_error( array( 'message' => __( 'Please enter a listing title before publishing.', 'my-booking-engine' ) ) );
+		}
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => 'mb_booking_entity',
+				'post_title'  => $title,
+				'post_status' => 'publish',
+			),
+			true
+		);
+
+		if ( is_wp_error( $post_id ) || ! $post_id ) {
+			wp_send_json_error( array( 'message' => __( 'Could not create the listing. Please try again.', 'my-booking-engine' ) ) );
+		}
+
+		// wp_insert_post() fires save_post_mb_booking_entity, which runs
+		// self::save_meta_box_data( $post_id ) and reads pricing, location,
+		// schedule, gallery, etc. straight from this same $_POST payload.
+		wp_send_json_success(
+			array(
+				'redirect' => get_edit_post_link( $post_id, 'raw' ),
+				'post_id'  => $post_id,
+			)
+		);
 	}
 }

@@ -26,6 +26,42 @@ class AdminMenu {
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'register_admin_menus' ) );
 		add_action( 'admin_init', array( __CLASS__, 'handle_booking_actions' ) );
+		add_action( 'admin_footer-edit.php', array( __CLASS__, 'render_quick_create_modal' ) );
+	}
+
+	/**
+	 * Output the "Add New Listing" guided wizard as a ready-to-open modal
+	 * directly on the Listings list screen, so admins never have to leave
+	 * the page to start a new listing. JavaScript (admin.js) intercepts the
+	 * native "Add New" link and opens this modal instead of navigating to
+	 * post-new.php. The form posts to an AJAX handler that creates the post
+	 * and saves every wizard field in one step.
+	 *
+	 * @return void
+	 */
+	public static function render_quick_create_modal() {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+
+		if ( ! $screen || 'mb_booking_entity' !== $screen->post_type ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'publish_posts' ) ) {
+			return;
+		}
+
+		// Build a blank stand-in post so the shared wizard template (which
+		// expects a real $post/$location/$availabilities in scope) renders
+		// with sensible defaults.
+		$post           = new \WP_Post( (object) array( 'ID' => 0, 'post_title' => '', 'post_type' => 'mb_booking_entity' ) );
+		$location       = null;
+		$availabilities = array();
+		?>
+		<form id="mb-quick-create-form" method="post">
+			<?php wp_nonce_field( 'mb_save_entity_meta', 'mb_entity_meta_nonce' ); ?>
+			<?php include MB_ENGINE_PATH . 'templates/admin/metabox-entity-details.php'; ?>
+		</form>
+		<?php
 	}
 
 	/**

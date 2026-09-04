@@ -374,9 +374,27 @@
 .mb-wizard-card {
 	background: #ffffff;
 	border: 1px solid #e2e8f0;
-	border-radius: 8px;
+	border-radius: 10px;
 	padding: 20px 22px;
 	box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+	transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.mb-wizard-card:hover {
+	border-color: #cbd5e1;
+	box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.mb-wizard-body input[type="text"]:focus,
+.mb-wizard-body input[type="number"]:focus,
+.mb-wizard-body input[type="date"]:focus,
+.mb-wizard-body input[type="time"]:focus,
+.mb-wizard-body input[type="datetime-local"]:focus,
+.mb-wizard-body select:focus,
+.mb-wizard-body textarea:focus {
+	border-color: #2563eb;
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+	outline: none;
 }
 
 .mb-wizard-card h4 {
@@ -618,6 +636,60 @@
 	margin: 0;
 	font-size: 13px;
 	color: #3b82f6;
+}
+
+/* --- Quick-Create Wizard on the Listings list screen (Add New Listing) --- */
+/* The wizard markup is always present in the DOM on the list screen so it
+   can pop open instantly, but must stay invisible until JS adds .is-modal
+   (clicking "Add New Listing"). This does not affect the metabox context on
+   post.php / post-new.php, where the wizard should render normally. */
+body.post-type-mb_booking_entity.edit-php .mb-wizard-wrapper:not(.is-modal),
+body.post-type-mb_booking_entity.edit-php .mb-wizard-launch-bar {
+	display: none !important;
+}
+
+#mb-quick-create-form {
+	margin: 0;
+}
+
+/* Mobile: guided wizard modal becomes a full-screen sheet, matches the
+   frontend funnel modal treatment for a consistent, no-scroll-conflict,
+   adaptive experience on small screens. */
+@media (max-width: 782px) {
+	#mb-admin-wizard.is-modal {
+		padding: 0 !important;
+	}
+	#mb-admin-wizard.is-modal .mb-wizard-inner-modal {
+		max-width: 100%;
+		width: 100%;
+		height: 100%;
+		max-height: 100%;
+		border-radius: 0;
+	}
+	#mb-admin-wizard.is-modal .mb-wizard-modal-header {
+		padding: 14px 16px;
+	}
+	#mb-admin-wizard.is-modal .mb-wizard-scroll-body {
+		padding: 18px 16px;
+	}
+	#mb-admin-wizard.is-modal .mb-wizard-footer {
+		padding: 14px 16px;
+		flex-wrap: wrap;
+		gap: 10px;
+	}
+	.mb-wizard-footer-right {
+		width: 100%;
+	}
+	.mb-wizard-footer-right .mb-w-btn {
+		flex: 1;
+	}
+	.mb-layout-cards-grid {
+		grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+	}
+	.mb-wizard-grid-2,
+	.mb-wizard-grid-3 {
+		grid-template-columns: 1fr !important;
+	}
 }
 
 /* When in popup modal mode */

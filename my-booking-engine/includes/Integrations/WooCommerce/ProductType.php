@@ -40,45 +40,14 @@ class ProductType {
 	/**
 	 * Register the WC_Product_Booking_Entity class if WooCommerce is active.
 	 *
+	 * PHP does not allow a class to be declared inside another class's
+	 * method body, so the actual declaration lives at the bottom of this
+	 * file, guarded so it only loads once WooCommerce's WC_Product exists.
+	 *
 	 * @return void
 	 */
 	public static function register_wc_product_class() {
-		if ( ! class_exists( 'WC_Product' ) || class_exists( 'WC_Product_Booking_Entity' ) ) {
-			return;
-		}
-
-		/**
-		 * Class WC_Product_Booking_Entity
-		 */
-		class WC_Product_Booking_Entity extends \WC_Product {
-
-			/**
-			 * Get internal product type.
-			 *
-			 * @return string
-			 */
-			public function get_type() {
-				return 'booking_entity';
-			}
-
-			/**
-			 * Booking products are virtual by default.
-			 *
-			 * @return bool
-			 */
-			public function is_virtual() {
-				return true;
-			}
-
-			/**
-			 * Booking products are sold individually (1 slot per cart line).
-			 *
-			 * @return bool
-			 */
-			public function is_sold_individually() {
-				return true;
-			}
-		}
+		mb_engine_register_wc_product_booking_entity_class();
 	}
 
 	/**
@@ -116,5 +85,54 @@ class ProductType {
 		}
 
 		return 0;
+	}
+}
+
+/**
+ * Declare the WC_Product_Booking_Entity class at file scope.
+ *
+ * A class cannot be declared inside another class's method body (PHP fatal
+ * error: "Class declarations may not be nested"), so this lazy-loader lives
+ * outside the ProductType class and is only invoked once WooCommerce is
+ * confirmed active.
+ *
+ * @return void
+ */
+function mb_engine_register_wc_product_booking_entity_class() {
+	if ( ! class_exists( 'WC_Product' ) || class_exists( 'WC_Product_Booking_Entity' ) ) {
+		return;
+	}
+
+	/**
+	 * Class WC_Product_Booking_Entity
+	 */
+	class WC_Product_Booking_Entity extends \WC_Product {
+
+		/**
+		 * Get internal product type.
+		 *
+		 * @return string
+		 */
+		public function get_type() {
+			return 'booking_entity';
+		}
+
+		/**
+		 * Booking products are virtual by default.
+		 *
+		 * @return bool
+		 */
+		public function is_virtual() {
+			return true;
+		}
+
+		/**
+		 * Booking products are sold individually (1 slot per cart line).
+		 *
+		 * @return bool
+		 */
+		public function is_sold_individually() {
+			return true;
+		}
 	}
 }

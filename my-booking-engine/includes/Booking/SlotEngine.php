@@ -351,6 +351,8 @@ class SlotEngine {
 				$total      += $rate;
 				$current_ts += 86400;
 			}
+		}
+
 		if ( $total <= 0 ) {
 			$total = $base_price;
 		}

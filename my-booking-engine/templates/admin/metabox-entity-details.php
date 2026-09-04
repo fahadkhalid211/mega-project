@@ -93,7 +93,7 @@ $days_of_week = array(
 				<label for="mb_quick_title" style="display:block; font-weight:700; font-size:13px; color:#1e293b; margin-bottom:6px;">
 					<?php esc_html_e( 'Listing Title *', 'my-booking-engine' ); ?>
 				</label>
-				<input type="text" id="mb_quick_title" class="widefat" placeholder="<?php esc_attr_e( 'e.g. Beverly Hills Luxury Suite, Sunset Dental Clinic, Porsche 911 Rental...', 'my-booking-engine' ); ?>" value="<?php echo esc_attr( get_the_title( $post->ID ) ); ?>" style="font-size:15px; padding:8px 12px;">
+				<input type="text" id="mb_quick_title" class="widefat" placeholder="<?php esc_attr_e( 'e.g. Beverly Hills Luxury Suite, Sunset Dental Clinic, Porsche 911 Rental...', 'my-booking-engine' ); ?>" value="<?php echo esc_attr( $post->ID ? get_the_title( $post->ID ) : '' ); ?>" style="font-size:15px; padding:8px 12px;">
 			</div>
 	<!-- Stepper Progress Header -->
 	<div class="mb-wizard-stepper">
