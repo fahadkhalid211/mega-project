@@ -638,23 +638,7 @@
 	color: #3b82f6;
 }
 
-/* --- Quick-Create Wizard on the Listings list screen (Add New Listing) --- */
-/* The wizard markup is always present in the DOM on the list screen so it
-   can pop open instantly, but must stay invisible until JS adds .is-modal
-   (clicking "Add New Listing"). This does not affect the metabox context on
-   post.php / post-new.php, where the wizard should render normally. */
-body.post-type-mb_booking_entity.edit-php .mb-wizard-wrapper:not(.is-modal),
-body.post-type-mb_booking_entity.edit-php .mb-wizard-launch-bar {
-	display: none !important;
-}
-
-#mb-quick-create-form {
-	margin: 0;
-}
-
-/* Mobile: guided wizard modal becomes a full-screen sheet, matches the
-   frontend funnel modal treatment for a consistent, no-scroll-conflict,
-   adaptive experience on small screens. */
+/* --- Mobile: guided wizard modal (edit-existing-listing metabox) --- */
 @media (max-width: 782px) {
 	#mb-admin-wizard.is-modal {
 		padding: 0 !important;
@@ -797,5 +781,297 @@ body.post-type-mb_booking_entity.edit-php .mb-wizard-launch-bar {
 	margin-top: 0;
 	border-top: 1px solid #e2e8f0;
 }
+
+/* =========================================================================
+   "Add New Listing" app page — a dedicated, non-WordPress-chrome screen.
+   ========================================================================= */
+
+@keyframes mbAppFadeUp {
+	from { opacity: 0; transform: translateY(14px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+#wpbody-content .mb-app-shell {
+	max-width: 980px;
+	margin: 10px auto 60px auto;
+	animation: mbAppFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mb-app-header {
+	background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+	border-radius: 16px;
+	padding: 26px 30px;
+	box-shadow: 0 14px 30px -10px rgba(37, 99, 235, 0.45);
+	margin-bottom: 22px;
+}
+
+.mb-app-header-inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.mb-app-brand {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.mb-app-brand-icon {
+	font-size: 30px;
+}
+
+.mb-app-brand strong {
+	display: block;
+	font-size: 20px;
+	color: #ffffff;
+	font-weight: 800;
+	letter-spacing: -0.01em;
+}
+
+.mb-app-brand span {
+	display: block;
+	font-size: 13px;
+	color: #dbeafe;
+	margin-top: 2px;
+}
+
+.mb-app-close {
+	width: 38px;
+	height: 38px;
+	border-radius: 50%;
+	background: rgba(255,255,255,0.12);
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 22px;
+	line-height: 1;
+	text-decoration: none;
+	transition: background-color 0.15s ease;
+	flex-shrink: 0;
+}
+
+.mb-app-close:hover {
+	background: rgba(255,255,255,0.25);
+	color: #fff;
+}
+
+.mb-app-body {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	padding-bottom: 90px; /* keep content clear of the sticky footer */
+}
+
+.mb-app-card {
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 16px;
+	padding: 28px;
+	box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.mb-app-section-title {
+	margin: 0 0 6px 0;
+	font-size: 19px;
+	font-weight: 800;
+	color: #0f172a;
+}
+
+.mb-app-section-desc {
+	margin: 0 0 18px 0;
+	font-size: 13.5px;
+	color: #64748b;
+	line-height: 1.5;
+}
+
+.mb-app-card h3 {
+	margin: 0 0 8px 0;
+	font-size: 16px;
+	font-weight: 700;
+	color: #0f172a;
+}
+
+.mb-app-grid-2 {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 18px;
+}
+
+.mb-app-grid-3 {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 16px;
+}
+
+.mb-app-geocode-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 18px;
+	padding-top: 18px;
+	border-top: 1px solid #f1f5f9;
+}
+
+.mb-app-geocode-row #mb_geocode_status {
+	font-weight: 700;
+	font-size: 13px;
+}
+
+/* Smart-defaults banner */
+.mb-app-smart-banner {
+	display: flex;
+	align-items: flex-start;
+	gap: 14px;
+	background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+	border: 1px solid #bfdbfe;
+	border-radius: 14px;
+	padding: 16px 20px;
+	transition: transform 0.25s ease;
+}
+
+.mb-app-smart-banner.is-pulsing {
+	transform: scale(1.015);
+}
+
+.mb-app-smart-icon {
+	font-size: 22px;
+	line-height: 1;
+	margin-top: 2px;
+}
+
+.mb-app-smart-banner strong {
+	font-size: 14px;
+	color: #1e3a8a;
+}
+
+.mb-app-smart-banner p {
+	margin: 4px 0 0 0;
+	font-size: 12.5px;
+	color: #3b82f6;
+}
+
+/* Type cards: reuse .mb-layout-card, add a subtle "pop" on select */
+.mb-app-type-card .mb-layout-card-inner {
+	transition: all 0.2s ease, transform 0.2s ease;
+}
+
+.mb-app-type-card.selected .mb-layout-card-inner {
+	transform: translateY(-2px);
+}
+
+/* Advanced settings: animated collapse/expand */
+.mb-app-advanced-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+	padding: 14px 20px;
+	font-size: 14px;
+	font-weight: 700;
+	color: #1e293b;
+	cursor: pointer;
+	transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.mb-app-advanced-toggle:hover {
+	background: #f1f5f9;
+	border-color: #cbd5e1;
+}
+
+.mb-app-toggle-caret {
+	transition: transform 0.25s ease;
+	font-size: 16px;
+	color: #64748b;
+}
+
+.mb-app-advanced-toggle.is-open .mb-app-toggle-caret {
+	transform: rotate(180deg);
+}
+
+.mb-app-advanced-panel {
+	max-height: 0;
+	overflow: hidden;
+	opacity: 0;
+	transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.mb-app-advanced-panel.is-open {
+	opacity: 1;
+}
+
+/* Sticky publish bar */
+.mb-app-sticky-footer {
+	position: sticky;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 12px;
+	background: rgba(255, 255, 255, 0.92);
+	backdrop-filter: blur(6px);
+	border-top: 1px solid #e2e8f0;
+	padding: 16px 4px;
+	margin-top: -70px;
+	z-index: 5;
+}
+
+.mb-app-publish-btn {
+	background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+	border: none !important;
+	box-shadow: 0 10px 24px -8px rgba(37, 99, 235, 0.55);
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mb-app-publish-btn:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 14px 30px -8px rgba(37, 99, 235, 0.6);
+}
+
+.mb-app-publish-btn.is-loading {
+	opacity: 0.75;
+	cursor: wait;
+}
+
+.mb-app-alert {
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+	color: #b91c1c;
+	border-radius: 10px;
+	padding: 12px 16px;
+	font-size: 13.5px;
+	font-weight: 600;
+}
+
+@media (max-width: 782px) {
+	.mb-app-grid-2,
+	.mb-app-grid-3 {
+		grid-template-columns: 1fr;
+	}
+	.mb-app-header {
+		padding: 20px;
+	}
+	.mb-app-card {
+		padding: 20px;
+	}
+	.mb-app-sticky-footer {
+		flex-wrap: wrap;
+		justify-content: stretch;
+	}
+	.mb-app-sticky-footer .button {
+		flex: 1;
+		text-align: center;
+	}
+}
+
 
 

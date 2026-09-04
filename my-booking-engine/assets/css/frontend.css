@@ -1367,6 +1367,12 @@ button:focus-visible {
 	flex-direction: column;
 	overflow: hidden;
 	box-sizing: border-box;
+	animation: mbFunnelPopIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes mbFunnelPopIn {
+	from { opacity: 0; transform: translateY(18px) scale(0.98); }
+	to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .mb-funnel-header {
@@ -1493,35 +1499,38 @@ button:focus-visible {
 	border-top: 1px solid var(--mb-border);
 }
 
-/* --- Step 1: Modern Inline Two-Column Split (calendar + slots/price) --- */
+/* --- Step 1: Inline calendar + slots/price, LatePoint-style: light,
+   airy, generous radius and whitespace instead of dense/dark panels --- */
 .mb-funnel-split {
 	display: grid;
-	grid-template-columns: 1fr 320px;
-	gap: 24px;
+	grid-template-columns: 1.15fr 300px;
+	gap: 28px;
 	align-items: start;
 }
 
 .mb-funnel-calendar-wrap {
 	background: #fff;
-	border: 1px solid var(--mb-border);
-	border-radius: var(--mb-radius);
-	padding: 16px;
+	border: 1px solid #f1f5f9;
+	border-radius: var(--mb-radius-lg);
+	padding: 20px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
 }
 
 .mb-funnel-split-right {
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: 14px;
 	position: sticky;
 	top: 0;
 }
 
 .mb-funnel-slots-panel {
-	background: #f8fafc;
-	border: 1px solid var(--mb-border);
-	border-radius: var(--mb-radius);
-	padding: 16px;
+	background: #fff;
+	border: 1px solid #f1f5f9;
+	border-radius: var(--mb-radius-lg);
+	padding: 18px;
 	min-height: 100px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
 }
 
 .mb-slots-placeholder,
@@ -1531,7 +1540,7 @@ button:focus-visible {
 	font-size: 13px;
 	color: var(--mb-text-muted);
 	text-align: center;
-	padding: 12px 4px;
+	padding: 20px 4px;
 }
 
 .mb-slots-empty {
@@ -1541,37 +1550,45 @@ button:focus-visible {
 .mb-slots-grid-inline {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
-	gap: 8px;
+	gap: 10px;
 	max-height: 320px;
 	overflow-y: auto;
 	padding-right: 2px;
 }
 
+/* Pill-shaped time slots, LatePoint-style */
 .mb-slot-chip {
-	background: #fff;
-	border: 1px solid var(--mb-border);
-	border-radius: var(--mb-radius-sm);
-	padding: 10px 6px;
+	background: #f8fafc;
+	border: 1px solid #f1f5f9;
+	border-radius: 999px;
+	padding: 11px 10px;
 	font-size: 13px;
-	font-weight: 600;
+	font-weight: 700;
 	color: var(--mb-text);
 	cursor: pointer;
-	transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+	transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
 }
 
 .mb-slot-chip:hover:not(.is-disabled) {
 	border-color: var(--mb-primary);
+	background: #eff6ff;
 	color: var(--mb-primary);
+}
+
+.mb-slot-chip:active:not(.is-disabled) {
+	transform: scale(0.97);
 }
 
 .mb-slot-chip.is-selected {
 	background: var(--mb-primary);
 	border-color: var(--mb-primary);
 	color: #fff;
+	box-shadow: 0 6px 14px -4px rgba(37, 99, 235, 0.5);
 }
 
 .mb-slot-chip.is-disabled {
-	background: #f1f5f9;
+	background: #f8fafc;
+	border-color: #f1f5f9;
 	color: #cbd5e1;
 	cursor: not-allowed;
 	text-decoration: line-through;
@@ -1582,14 +1599,15 @@ button:focus-visible {
 	justify-content: space-between;
 	align-items: center;
 	font-size: 14px;
-	font-weight: 600;
-	margin-bottom: 10px;
+	font-weight: 700;
+	color: var(--mb-text);
+	margin-bottom: 12px;
 }
 
 .mb-trip-summary-badge {
 	font-size: 12px;
 	font-weight: 700;
-	padding: 6px 10px;
+	padding: 8px 12px;
 	border-radius: 999px;
 	text-align: center;
 }
@@ -1599,12 +1617,15 @@ button:focus-visible {
 	color: #166534;
 }
 
-/* Live, sticky price card — updates instantly as calendar/slot selection changes */
+/* Live, sticky price card — light, accent-colored, LatePoint-style summary
+   panel instead of a dark contrasting block. */
 .mb-live-price-card {
-	background: #0f172a;
-	color: #fff;
+	background: linear-gradient(165deg, #eff6ff 0%, #ffffff 60%);
+	border: 1px solid #dbeafe;
+	color: var(--mb-text);
 	border-radius: var(--mb-radius-lg);
 	padding: 20px;
+	transition: box-shadow 0.2s ease;
 }
 
 .mb-price-card-row {
@@ -1613,26 +1634,31 @@ button:focus-visible {
 	align-items: center;
 	gap: 12px;
 	font-size: 13px;
-	color: #cbd5e1;
+	color: var(--mb-text-muted);
 	padding: 6px 0;
 }
 
 .mb-price-card-row strong {
-	color: #fff;
+	color: var(--mb-text);
 	font-weight: 700;
 	text-align: right;
 }
 
 .mb-price-card-total {
-	border-top: 1px solid rgba(255,255,255,0.15);
+	border-top: 1px dashed #bfdbfe;
 	margin-top: 6px;
-	padding-top: 12px;
-	font-size: 15px;
+	padding-top: 14px;
+	font-size: 14px;
 }
 
 .mb-price-card-total strong {
-	font-size: 22px;
-	color: #4ade80;
+	font-size: 24px;
+	color: var(--mb-primary);
+	transition: transform 0.2s ease;
+}
+
+.mb-price-card-total strong.is-updated {
+	transform: scale(1.08);
 }
 
 .mb-price-card-hint {
@@ -1640,6 +1666,25 @@ button:focus-visible {
 	font-size: 11.5px;
 	color: #94a3b8;
 	line-height: 1.4;
+}
+
+/* Step-change animation: fades + slides the new step in every time */
+@keyframes mbStepEnter {
+	from { opacity: 0; transform: translateY(10px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+.mb-step-view {
+	animation: mbStepEnter 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mb-step-dot,
+.mb-step-line {
+	transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+.mb-step-dot.is-active {
+	transform: scale(1.1);
 }
 
 @media (max-width: 900px) {

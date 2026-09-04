@@ -25,24 +25,22 @@ class AdminMenu {
 	 */
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'register_admin_menus' ) );
+		add_action( 'admin_menu', array( __CLASS__, 'hide_add_listing_submenu' ), 999 );
 		add_action( 'admin_init', array( __CLASS__, 'handle_booking_actions' ) );
-		add_action( 'admin_footer-edit.php', array( __CLASS__, 'render_quick_create_modal' ) );
+		add_action( 'load-post-new.php', array( __CLASS__, 'redirect_legacy_add_new' ) );
 	}
 
 	/**
-	 * Output the "Add New Listing" guided wizard as a ready-to-open modal
-	 * directly on the Listings list screen, so admins never have to leave
-	 * the page to start a new listing. JavaScript (admin.js) intercepts the
-	 * native "Add New" link and opens this modal instead of navigating to
-	 * post-new.php. The form posts to an AJAX handler that creates the post
-	 * and saves every wizard field in one step.
+	 * WordPress always generates a default "Add New" link pointing at
+	 * post-new.php for any public post type. Rather than fight that link
+	 * (which proved unreliable to intercept client-side), redirect it
+	 * server-side — every path to "Add New Listing" ends up on our custom,
+	 * fully app-styled listing builder instead of the native post editor.
 	 *
 	 * @return void
 	 */
-	public static function render_quick_create_modal() {
-		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-
-		if ( ! $screen || 'mb_booking_entity' !== $screen->post_type ) {
+	public static function redirect_legacy_add_new() {
+		if ( ! isset( $_GET['post_type'] ) || 'mb_booking_entity' !== sanitize_key( wp_unslash( $_GET['post_type'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
 
@@ -50,18 +48,18 @@ class AdminMenu {
 			return;
 		}
 
-		// Build a blank stand-in post so the shared wizard template (which
-		// expects a real $post/$location/$availabilities in scope) renders
-		// with sensible defaults.
-		$post           = new \WP_Post( (object) array( 'ID' => 0, 'post_title' => '', 'post_type' => 'mb_booking_entity' ) );
-		$location       = null;
-		$availabilities = array();
-		?>
-		<form id="mb-quick-create-form" method="post">
-			<?php wp_nonce_field( 'mb_save_entity_meta', 'mb_entity_meta_nonce' ); ?>
-			<?php include MB_ENGINE_PATH . 'templates/admin/metabox-entity-details.php'; ?>
-		</form>
-		<?php
+		wp_safe_redirect( admin_url( 'admin.php?page=mb-add-listing' ) );
+		exit;
+	}
+
+	/**
+	 * Keep the "Add New Listing" builder reachable by URL without showing a
+	 * second, redundant "Add New" entry next to WordPress's own submenu.
+	 *
+	 * @return void
+	 */
+	public static function hide_add_listing_submenu() {
+		remove_submenu_page( 'edit.php?post_type=mb_booking_entity', 'mb-add-listing' );
 	}
 
 	/**
@@ -71,6 +69,18 @@ class AdminMenu {
 	 */
 	public static function register_admin_menus() {
 		$parent_slug = 'edit.php?post_type=mb_booking_entity';
+
+		// Hidden page: the app-styled "Add New Listing" builder. Registered
+		// as a submenu (so it inherits capability checks + the WP admin
+		// frame) but removed from the visible menu by hide_add_listing_submenu().
+		add_submenu_page(
+			$parent_slug,
+			__( 'Add New Listing', 'my-booking-engine' ),
+			__( 'Add New Listing', 'my-booking-engine' ),
+			'publish_posts',
+			'mb-add-listing',
+			array( __CLASS__, 'render_add_listing_page' )
+		);
 
 		// Submenu: Bookings & Reservations.
 		add_submenu_page(
@@ -101,6 +111,20 @@ class AdminMenu {
 			'mb-settings',
 			array( 'MyBookingEngine\Admin\SettingsPage', 'render' )
 		);
+	}
+
+	/**
+	 * Render the app-styled "Add New Listing" builder — a dedicated page
+	 * with none of the standard WordPress postbox/metabox chrome, similar
+	 * in spirit to the guided setup screens in Amelia/LatePoint.
+	 *
+	 * @return void
+	 */
+	public static function render_add_listing_page() {
+		if ( ! current_user_can( 'publish_posts' ) ) {
+			wp_die( esc_html__( 'You do not have permission to create listings.', 'my-booking-engine' ) );
+		}
+		include MB_ENGINE_PATH . 'templates/admin/add-listing-app.php';
 	}
 
 	/**

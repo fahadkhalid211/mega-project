@@ -466,6 +466,8 @@ class Plugin {
 		$param_post_type  = isset( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$param_page       = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
+		$is_add_listing_page = ( 'mb-add-listing' === $param_page );
+
 		$is_mb_post_type = ( 'mb_booking_entity' === $screen_post_type )
 			|| ( isset( $post->post_type ) && 'mb_booking_entity' === $post->post_type )
 			|| ( 'mb_booking_entity' === $param_post_type );
@@ -478,7 +480,7 @@ class Plugin {
 			return;
 		}
 
-		if ( $is_mb_post_type ) {
+		if ( $is_mb_post_type || $is_add_listing_page ) {
 			wp_enqueue_media();
 		}
 
@@ -496,6 +498,16 @@ class Plugin {
 			MB_ENGINE_VERSION,
 			true
 		);
+
+		if ( $is_add_listing_page ) {
+			wp_enqueue_script(
+				'mb-engine-admin-add-listing',
+				MB_ENGINE_URL . 'assets/js/admin-add-listing.js',
+				array( 'jquery', 'mb-engine-admin' ),
+				MB_ENGINE_VERSION,
+				true
+			);
+		}
 
 		wp_localize_script(
 			'mb-engine-admin',

@@ -201,6 +201,11 @@
 			const card = this.modal.querySelector('#mb-live-price-card');
 			if (card) {
 				card.innerHTML = this.priceCardInnerHtml();
+				const totalEl = card.querySelector('.mb-price-card-total strong');
+				if (totalEl) {
+					totalEl.classList.add('is-updated');
+					setTimeout(() => totalEl.classList.remove('is-updated'), 220);
+				}
 			}
 		}
 
