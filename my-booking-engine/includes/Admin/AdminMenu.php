@@ -205,6 +205,14 @@ class AdminMenu {
 			<h1 class="wp-heading-inline"><?php esc_html_e( 'Bookings & Reservations', 'my-booking-engine' ); ?></h1>
 			<hr class="wp-header-end">
 
+			<?php if ( ! empty( $table->db_error ) ) : ?>
+				<div class="notice notice-error"><p>
+					<strong><?php esc_html_e( 'Database error while loading bookings:', 'my-booking-engine' ); ?></strong>
+					<?php echo esc_html( $table->db_error ); ?>
+					— <?php esc_html_e( 'try deactivating and reactivating the plugin to repair the bookings table.', 'my-booking-engine' ); ?>
+				</p></div>
+			<?php endif; ?>
+
 			<form method="post" action="">
 				<?php
 				$table->search_box( __( 'Search Bookings', 'my-booking-engine' ), 'mb_booking_search' );

@@ -146,13 +146,13 @@ $loc_text     = $loc ? esc_html( trim( $loc->city . ', ' . $loc->postal_code . '
 				</div>
 			</div>
 
-			<div class="mb-booking-funnel-trigger" data-entity-id="<?php echo esc_attr( $post_id ); ?>">
+			<div class="mb-booking-funnel-trigger" data-entity-id="<?php echo esc_attr( $post_id ); ?>" data-model="<?php echo esc_attr( $entity->get_model_type() ); ?>">
 				<div class="mb-date-field mb-single-date-box" id="mb-trigger-date-picker">
 					<label><?php esc_html_e( 'SESSION DATE & TIME', 'my-booking-engine' ); ?></label>
 					<span class="mb-val" id="mb-display-checkin"><?php esc_html_e( 'Select slot', 'my-booking-engine' ); ?></span>
 				</div>
 
-				<button type="button" class="mb-btn mb-btn-primary mb-btn-block mb-btn-reserve" id="mb-start-booking-btn" data-entity-id="<?php echo esc_attr( $post_id ); ?>">
+				<button type="button" class="mb-btn mb-btn-primary mb-btn-block mb-btn-reserve" id="mb-start-booking-btn" data-entity-id="<?php echo esc_attr( $post_id ); ?>" data-model="<?php echo esc_attr( $entity->get_model_type() ); ?>">
 					<?php esc_html_e( 'Book Now', 'my-booking-engine' ); ?>
 				</button>
 			</div>

@@ -182,7 +182,7 @@ $loc_text     = $loc ? esc_html( trim( $loc->city . ', ' . $loc->postal_code . '
 				</div>
 			</div>
 
-			<div class="mb-dates-input-box" id="mb-trigger-date-picker">
+			<div class="mb-dates-input-box" id="mb-trigger-date-picker" data-entity-id="<?php echo esc_attr( $post_id ); ?>" data-model="<?php echo esc_attr( $entity->get_model_type() ); ?>">
 				<div class="mb-date-field">
 					<label><?php esc_html_e( 'TRIP START', 'my-booking-engine' ); ?></label>
 					<span class="mb-val" id="mb-display-checkin"><?php esc_html_e( 'Pick date', 'my-booking-engine' ); ?></span>
@@ -201,7 +201,7 @@ $loc_text     = $loc ? esc_html( trim( $loc->city . ', ' . $loc->postal_code . '
 				</select>
 			</div>
 
-			<button type="button" class="mb-btn mb-btn-primary mb-btn-block mb-btn-reserve" id="mb-start-booking-btn" data-entity-id="<?php echo esc_attr( $post_id ); ?>">
+			<button type="button" class="mb-btn mb-btn-primary mb-btn-block mb-btn-reserve" id="mb-start-booking-btn" data-entity-id="<?php echo esc_attr( $post_id ); ?>" data-model="<?php echo esc_attr( $entity->get_model_type() ); ?>">
 				<?php esc_html_e( 'Continue to Book', 'my-booking-engine' ); ?>
 			</button>
 

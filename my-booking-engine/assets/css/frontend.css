@@ -861,6 +861,25 @@ button:focus-visible {
 	border-radius: 8px;
 	margin-bottom: 12px;
 	cursor: pointer;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mb-dates-input-box:hover {
+	border-color: var(--mb-primary);
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.mb-single-date-box {
+	border: 1px solid var(--mb-border);
+	border-radius: 8px;
+	margin-bottom: 12px;
+	cursor: pointer;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mb-single-date-box:hover {
+	border-color: var(--mb-primary);
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
 .mb-date-field {

@@ -24,6 +24,13 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 class BookingsListTable extends \WP_List_Table {
 
 	/**
+	 * Last database error encountered while querying bookings, if any.
+	 *
+	 * @var string
+	 */
+	public $db_error = '';
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -262,7 +269,8 @@ class BookingsListTable extends \WP_List_Table {
 			)
 		);
 
-		$this->items = $query_result['items'];
+		$this->items   = $query_result['items'];
+		$this->db_error = ! empty( $query_result['db_error'] ) ? $query_result['db_error'] : '';
 
 		$this->set_pagination_args(
 			array(

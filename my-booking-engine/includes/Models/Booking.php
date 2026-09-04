@@ -248,6 +248,10 @@ class Booking {
 		return array(
 			'items' => is_array( $items ) ? $items : array(),
 			'total' => $total,
+			// Surfaced so the admin screen can show a real diagnostic instead
+			// of silently rendering "no bookings found" when the underlying
+			// query actually failed (e.g. table missing/out of date).
+			'db_error' => $wpdb->last_error,
 		);
 	}
 

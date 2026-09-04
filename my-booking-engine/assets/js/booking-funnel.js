@@ -26,19 +26,27 @@
 
 		init() {
 			document.addEventListener('click', (e) => {
-				const startBtn = e.target.closest('#mb-start-booking-btn, .mb-trigger-modal, .mb-btn-reserve');
+				const startBtn = e.target.closest('#mb-start-booking-btn, .mb-trigger-modal, .mb-btn-reserve, #mb-trigger-date-picker, .mb-date-field, .mb-booking-funnel-trigger');
 				if (startBtn) {
 					e.preventDefault();
-					const entityId = startBtn.dataset.entityId || (window.mbSingleEntityId || 0);
-					this.open(entityId);
+					const source = startBtn.closest('[data-entity-id]') || startBtn;
+					const entityId = source.dataset.entityId || (window.mbSingleEntityId || 0);
+					const knownModel = source.dataset.model || '';
+					this.open(entityId, knownModel);
 				}
 			});
 		}
 
-		open(entityId) {
+		open(entityId, knownModel) {
 			this.entityId = entityId;
 			this.currentStep = 1;
-			this.model = 'hourly_slot';
+			// If the trigger element already told us the booking model (set
+			// server-side from the listing's actual data), use it right away
+			// instead of waiting on an async fetch — this is what the
+			// calendar mode (single date vs. date range) renders from, so
+			// getting it synchronously avoids any flash/fallback to the
+			// wrong picker type.
+			this.model = knownModel || 'hourly_slot';
 			this.selectedDates = { startDate: null, endDate: null, nights: 1 };
 			this.selectedSlot = null;
 			this.liveTotal = null;
@@ -56,9 +64,10 @@
 			overlay.classList.add('is-open');
 			document.body.style.overflow = 'hidden';
 
-			// Learn the entity's booking model up front (hourly slots vs.
-			// date-range vs. fixed event) so Step 1 can render the right
-			// right-hand panel immediately once a date is picked.
+			// Confirm/refine against the server (also fetches capacity_roster
+			// event details). Only triggers a re-render if our synchronous
+			// guess above turns out to have been wrong (e.g. no data-model
+			// was available on the trigger element).
 			this.fetchAvailability(this.todayStr()).then((data) => {
 				if (!this.modal || !this.modal.classList.contains('is-open')) return;
 				const previousModel = this.model;
