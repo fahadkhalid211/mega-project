@@ -178,6 +178,10 @@ class Plugin {
 			flush_rewrite_rules();
 			update_option( 'mb_engine_flushed_version', MB_ENGINE_VERSION );
 		}
+
+		// Register search AJAX fallbacks (for environments where REST routes are blocked or cached).
+		add_action( 'wp_ajax_mb_search_entities', array( '\\MyBookingEngine\\Api\\SearchEndpoint', 'ajax_search_entities_static' ) );
+		add_action( 'wp_ajax_nopriv_mb_search_entities', array( '\\MyBookingEngine\\Api\\SearchEndpoint', 'ajax_search_entities_static' ) );
 	}
 
 	/**
@@ -463,6 +467,7 @@ class Plugin {
 			'mbEngineData',
 			array(
 				'restUrl'         => esc_url_raw( rest_url( 'my-booking-engine/v1/' ) ),
+				'ajaxUrl'         => esc_url_raw( admin_url( 'admin-ajax.php' ) ),
 				'nonce'           => wp_create_nonce( 'wp_rest' ),
 				'currencySymbol'  => isset( $settings['currency_symbol'] ) ? $settings['currency_symbol'] : '$',
 				'distanceUnit'    => isset( $settings['distance_unit'] ) ? $settings['distance_unit'] : 'km',

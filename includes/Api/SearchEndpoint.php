@@ -82,20 +82,110 @@ class SearchEndpoint extends RestController {
 	}
 
 	/**
-	 * Handle search request.
+	 * Handle REST search request.
 	 *
 	 * @param \WP_REST_Request $request Request object.
 	 * @return \WP_REST_Response
 	 */
 	public function search_entities( $request ) {
-		$postal_code = $request->get_param( 'postal_code' );
-		$city        = $request->get_param( 'city' );
-		$country     = $request->get_param( 'country' );
-		$radius      = floatval( $request->get_param( 'radius' ) );
-		$type_slug   = $request->get_param( 'type' );
-		$model_type  = $request->get_param( 'model' );
-		$min_price   = floatval( $request->get_param( 'min_price' ) );
-		$max_price   = floatval( $request->get_param( 'max_price' ) );
+		ob_start();
+		try {
+			$params = array(
+				'postal_code' => $request->get_param( 'postal_code' ),
+				'city'        => $request->get_param( 'city' ),
+				'country'     => $request->get_param( 'country' ),
+				'radius'      => $request->get_param( 'radius' ),
+				'type'        => $request->get_param( 'type' ),
+				'model'       => $request->get_param( 'model' ),
+				'min_price'   => $request->get_param( 'min_price' ),
+				'max_price'   => $request->get_param( 'max_price' ),
+				'page'        => $request->get_param( 'page' ),
+				'per_page'    => $request->get_param( 'per_page' ),
+			);
+			$data = $this->execute_search( $params );
+			if ( ob_get_level() > 0 ) {
+				ob_end_clean();
+			}
+			return rest_ensure_response( $data );
+		} catch ( \Throwable $e ) {
+			if ( ob_get_level() > 0 ) {
+				ob_end_clean();
+			}
+			return new \WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => $e->getMessage(),
+					'items'   => array(),
+				),
+				500
+			);
+		}
+	}
+
+	/**
+	 * AJAX fallback handler for search queries (admin-ajax.php?action=mb_search_entities).
+	 *
+	 * @return void
+	 */
+	public static function ajax_search_entities_static() {
+		$instance = new self();
+		$instance->ajax_search_entities();
+	}
+
+	/**
+	 * Instance AJAX handler.
+	 *
+	 * @return void
+	 */
+	public function ajax_search_entities() {
+		ob_start();
+		try {
+			$params = array(
+				'postal_code' => isset( $_GET['postal_code'] ) ? sanitize_text_field( wp_unslash( $_GET['postal_code'] ) ) : '',
+				'city'        => isset( $_GET['city'] ) ? sanitize_text_field( wp_unslash( $_GET['city'] ) ) : '',
+				'country'     => isset( $_GET['country'] ) ? sanitize_text_field( wp_unslash( $_GET['country'] ) ) : '',
+				'radius'      => isset( $_GET['radius'] ) ? floatval( $_GET['radius'] ) : 25.0,
+				'type'        => isset( $_GET['type'] ) ? sanitize_text_field( wp_unslash( $_GET['type'] ) ) : '',
+				'model'       => isset( $_GET['model'] ) ? sanitize_key( wp_unslash( $_GET['model'] ) ) : '',
+				'min_price'   => isset( $_GET['min_price'] ) ? floatval( $_GET['min_price'] ) : 0.0,
+				'max_price'   => isset( $_GET['max_price'] ) ? floatval( $_GET['max_price'] ) : 0.0,
+				'page'        => isset( $_GET['page'] ) ? absint( $_GET['page'] ) : 1,
+				'per_page'    => isset( $_GET['per_page'] ) ? absint( $_GET['per_page'] ) : 12,
+			);
+			$data = $this->execute_search( $params );
+			if ( ob_get_level() > 0 ) {
+				ob_end_clean();
+			}
+			wp_send_json( $data );
+		} catch ( \Throwable $e ) {
+			if ( ob_get_level() > 0 ) {
+				ob_end_clean();
+			}
+			wp_send_json_error( array( 'message' => $e->getMessage(), 'items' => array() ), 500 );
+		}
+	}
+
+	/**
+	 * Shared search execution logic for both REST and AJAX calls.
+	 *
+	 * @param array $params Query parameters.
+	 * @return array
+	 */
+	public function execute_search( array $params ) {
+		$postal_code = isset( $params['postal_code'] ) ? sanitize_text_field( $params['postal_code'] ) : '';
+		$city        = isset( $params['city'] ) ? sanitize_text_field( $params['city'] ) : '';
+		$country     = isset( $params['country'] ) ? sanitize_text_field( $params['country'] ) : '';
+		$radius      = isset( $params['radius'] ) ? floatval( $params['radius'] ) : 25.0;
+		$type_slug   = isset( $params['type'] ) ? sanitize_text_field( $params['type'] ) : '';
+		$model_type  = isset( $params['model'] ) ? sanitize_key( $params['model'] ) : '';
+		$min_price   = isset( $params['min_price'] ) ? floatval( $params['min_price'] ) : 0.0;
+		$max_price   = isset( $params['max_price'] ) ? floatval( $params['max_price'] ) : 0.0;
+		$per_page    = isset( $params['per_page'] ) ? absint( $params['per_page'] ) : 12;
+		$page        = isset( $params['page'] ) ? max( 1, absint( $params['page'] ) ) : 1;
+
+		if ( $per_page <= 0 ) {
+			$per_page = 12;
+		}
 
 		$settings = get_option( 'mb_engine_settings', array() );
 		$unit     = isset( $settings['distance_unit'] ) ? $settings['distance_unit'] : 'km';
@@ -123,13 +213,11 @@ class SearchEndpoint extends RestController {
 
 			// If search location was specified but NO entities matched locally or within radius, return empty.
 			if ( empty( $entity_distances ) ) {
-				return rest_ensure_response(
-					array(
-						'success'         => true,
-						'geocoded_center' => $geocoded_center,
-						'total'           => 0,
-						'items'           => array(),
-					)
+				return array(
+					'success'         => true,
+					'geocoded_center' => $geocoded_center,
+					'total'           => 0,
+					'items'           => array(),
 				);
 			}
 		}
@@ -138,8 +226,8 @@ class SearchEndpoint extends RestController {
 		$args = array(
 			'post_type'      => 'mb_booking_entity',
 			'post_status'    => 'publish',
-			'posts_per_page' => $request->get_param( 'per_page' ),
-			'paged'          => $request->get_param( 'page' ),
+			'posts_per_page' => $per_page,
+			'paged'          => $page,
 		);
 
 		// If spatial filter was applied, restrict post__in.
@@ -159,13 +247,33 @@ class SearchEndpoint extends RestController {
 			);
 		}
 
-		// Meta filters (Model type and Price).
+		// Meta filters (Model type, Layout and Price).
 		$meta_query = array( 'relation' => 'AND' );
 
 		if ( ! empty( $model_type ) ) {
+			$model_map = array(
+				'hotel_room'          => array( 'night_stay', 'hotel' ),
+				'daily_booking'       => array( 'day_rental', 'rental' ),
+				'hourly_booking'      => array( 'hourly_slot', 'hourly' ),
+				'doctor_professional' => array( 'hourly_slot', 'doctor' ),
+				'salon_spa'           => array( 'hourly_slot', 'salon' ),
+				'shop_business'       => array( 'hourly_slot', 'shop' ),
+			);
+
+			$targets = isset( $model_map[ $model_type ] ) ? $model_map[ $model_type ] : array( $model_type );
+
 			$meta_query[] = array(
-				'key'   => '_mb_model_type',
-				'value' => $model_type,
+				'relation' => 'OR',
+				array(
+					'key'     => '_mb_model_type',
+					'value'   => $targets,
+					'compare' => 'IN',
+				),
+				array(
+					'key'     => '_mb_visual_layout',
+					'value'   => $targets,
+					'compare' => 'IN',
+				),
 			);
 		}
 
@@ -248,13 +356,11 @@ class SearchEndpoint extends RestController {
 			);
 		}
 
-		return rest_ensure_response(
-			array(
-				'success'         => true,
-				'geocoded_center' => $geocoded_center,
-				'total'           => $query->found_posts,
-				'items'           => $items,
-			)
+		return array(
+			'success'         => true,
+			'geocoded_center' => $geocoded_center,
+			'total'           => $query->found_posts,
+			'items'           => $items,
 		);
 	}
 }

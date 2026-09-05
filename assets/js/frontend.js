@@ -114,22 +114,12 @@
 			if (maxPrice) params.append('max_price', maxPrice);
 
 			if (loadingState) loadingState.style.display = 'block';
-			if (statusBanner) statusBanner.textContent = (window.mbEngineData && window.mbEngineData.i18n.searching) || 'Searching...';
+			if (statusBanner) statusBanner.textContent = (window.mbEngineData && window.mbEngineData.i18n && window.mbEngineData.i18n.searching) || 'Searching...';
 
-			const restUrl = (window.mbEngineData && window.mbEngineData.restUrl) ? window.mbEngineData.restUrl : '/wp-json/my-booking-engine/v1/';
-			const nonce = (window.mbEngineData && window.mbEngineData.nonce) ? window.mbEngineData.nonce : '';
-
-			fetch(restUrl + 'search?' + params.toString(), {
-				method: 'GET',
-				headers: {
-					'X-WP-Nonce': nonce
-				}
-			})
-			.then(response => response.json())
-			.then(data => {
+			function handleResults(data) {
 				if (loadingState) loadingState.style.display = 'none';
 
-				if (data.success && Array.isArray(data.items)) {
+				if (data && data.success && Array.isArray(data.items)) {
 					lastItems = data.items;
 					lastCenter = data.geocoded_center;
 					renderResults(data.items, data.geocoded_center);
@@ -139,14 +129,63 @@
 						window.MbMapController.initDirectoryMap('mb-directory-map', data.items, data.geocoded_center);
 					}
 				} else {
-					resultsContainer.innerHTML = '<p class="mb-no-results">' + ((window.mbEngineData && window.mbEngineData.i18n.noResults) || 'No results found.') + '</p>';
-					if (statusBanner) statusBanner.textContent = '';
+					resultsContainer.innerHTML = '<p class="mb-no-results">' + ((window.mbEngineData && window.mbEngineData.i18n && window.mbEngineData.i18n.noResults) || 'No results found.') + '</p>';
+					if (statusBanner) statusBanner.textContent = '0 results found.';
 				}
+			}
+
+			function fallbackToAjax(originalErr) {
+				const ajaxUrl = (window.mbEngineData && window.mbEngineData.ajaxUrl) ? window.mbEngineData.ajaxUrl : '/wp-admin/admin-ajax.php';
+				const ajaxParams = new URLSearchParams(params);
+				ajaxParams.append('action', 'mb_search_entities');
+
+				fetch(ajaxUrl + '?' + ajaxParams.toString(), {
+					method: 'GET'
+				})
+				.then(res => res.json())
+				.then(data => {
+					handleResults(data);
+				})
+				.catch(ajaxErr => {
+					if (loadingState) loadingState.style.display = 'none';
+					console.error('Booking Engine Search error (REST & AJAX failed):', originalErr, ajaxErr);
+					resultsContainer.innerHTML = '<p class="mb-no-results">' + ((window.mbEngineData && window.mbEngineData.i18n && window.mbEngineData.i18n.noResults) || 'No results found.') + '</p>';
+					if (statusBanner) {
+						statusBanner.textContent = 'Could not load search results. Please check your connection.';
+					}
+				});
+			}
+
+			// Build REST URL (cleanly handling both pretty and plain permalinks)
+			const restBase = (window.mbEngineData && window.mbEngineData.restUrl)
+				? window.mbEngineData.restUrl
+				: '/wp-json/my-booking-engine/v1/';
+
+			let searchUrl;
+			const qs = params.toString();
+			if (restBase.includes('rest_route=')) {
+				const parts = restBase.split('rest_route=');
+				const route = (parts[1] || '').replace(/\/+$/, '') + '/search';
+				searchUrl = parts[0] + 'rest_route=' + route + (qs ? '&' + qs : '');
+			} else {
+				searchUrl = restBase.replace(/\/+$/, '') + '/search' + (qs ? '?' + qs : '');
+			}
+
+			fetch(searchUrl, {
+				method: 'GET'
+			})
+			.then(response => {
+				if (!response.ok) {
+					throw new Error('HTTP ' + response.status);
+				}
+				return response.json();
+			})
+			.then(data => {
+				handleResults(data);
 			})
 			.catch(err => {
-				if (loadingState) loadingState.style.display = 'none';
-				console.error('Booking Engine Search error:', err);
-				if (statusBanner) statusBanner.textContent = 'Error connecting to booking service.';
+				// Automatic fallback to admin-ajax if REST 404s, CORS fails, or fails to parse
+				fallbackToAjax(err);
 			});
 		}
 
