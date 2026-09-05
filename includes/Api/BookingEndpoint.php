@@ -158,6 +158,18 @@ class BookingEndpoint extends RestController {
 		$settings = get_option( 'mb_engine_settings', array() );
 		$wc_mode  = ( 'yes' === ( $settings['enable_woocommerce'] ?? 'yes' ) ) && class_exists( 'WooCommerce' );
 
+		if ( $wc_mode && function_exists( 'wc_load_cart' ) ) {
+			// WooCommerce only auto-initializes WC()->cart / WC()->session on
+			// a normal frontend page load (via the 'wp_loaded' hook). REST
+			// API requests never trigger that, so WC()->cart is null here
+			// and the check below would silently fail — falling through to
+			// the non-WooCommerce booking path with no checkout redirect,
+			// which is exactly the bug being fixed. wc_load_cart() is
+			// WooCommerce's own helper for this (same one core uses for its
+			// AJAX add-to-cart handlers) and brings the session/cart up.
+			wc_load_cart();
+		}
+
 		if ( $wc_mode && function_exists( 'WC' ) && WC()->cart ) {
 			$wc_product_id = WcProductType::get_or_create_product( $entity_id );
 			if ( $wc_product_id ) {
@@ -181,6 +193,27 @@ class BookingEndpoint extends RestController {
 						)
 					);
 				}
+
+				// add_to_cart() failed — surface why instead of silently
+				// falling through to the non-WooCommerce booking path,
+				// which just looks like "nothing happened" to the customer.
+				$wc_errors = array();
+				if ( function_exists( 'wc_get_notices' ) ) {
+					foreach ( wc_get_notices( 'error' ) as $notice ) {
+						$wc_errors[] = is_array( $notice ) ? ( $notice['notice'] ?? '' ) : $notice;
+					}
+					wc_clear_notices();
+				}
+
+				return new \WP_REST_Response(
+					array(
+						'success' => false,
+						'message' => ! empty( $wc_errors )
+							? implode( ' ', $wc_errors )
+							: __( 'Could not add this booking to the WooCommerce cart.', 'my-booking-engine' ),
+					),
+					500
+				);
 			}
 		}
 
