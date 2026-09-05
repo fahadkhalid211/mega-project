@@ -4,14 +4,8 @@
  *
  * A dedicated, fully custom-styled page (no WordPress postbox/metabox
  * chrome) similar in spirit to Amelia / LatePoint's guided setup screens.
- * Picking a listing type instantly applies smart defaults for pricing,
- * duration, and hours; everything else stays available to fine-tune under
- * "Advanced Settings" for admins who want more control.
- *
- * Shared between Add New Listing and Edit Listing: when $edit_entity_id
- * is set (by AdminMenu::render_edit_listing_page()) to an existing post
- * ID, every field below is prefilled from that listing's saved data and
- * the form submits as an update instead of a create.
+ * Features instant smart per-type defaults, live layout preview mockups
+ * on hover, soft modern aesthetic, and all settings fully visible.
  *
  * @package MyBookingEngine
  */
@@ -36,71 +30,71 @@ $days_of_week = array(
 
 $listing_types = array(
 	'hourly' => array(
-		'icon'  => '⏱️',
-		'label' => __( 'Hourly Studio & Activity', 'my-booking-engine' ),
-		'desc'  => __( 'Studios, activities, quick sessions.', 'my-booking-engine' ),
-		'model' => 'hourly_slot',
-		'price' => 40,
-		'slot'  => 60,
-		'before' => 0,
-		'after' => 15,
+		'icon'     => '⏱️',
+		'label'    => __( 'Hourly Studio & Activity', 'my-booking-engine' ),
+		'desc'     => __( 'Studios, activities, quick sessions.', 'my-booking-engine' ),
+		'model'    => 'hourly_slot',
+		'price'    => 40,
+		'slot'     => 60,
+		'before'   => 0,
+		'after'    => 15,
 		'schedule' => 'all_week',
 	),
 	'hotel' => array(
-		'icon'  => '🏨',
-		'label' => __( 'Hotel & Vacation Stay', 'my-booking-engine' ),
-		'desc'  => __( 'Rooms, villas, apartments.', 'my-booking-engine' ),
-		'model' => 'night_stay',
-		'price' => 150,
-		'min'   => 1,
-		'max'   => 30,
+		'icon'     => '🏨',
+		'label'    => __( 'Hotel & Vacation Stay', 'my-booking-engine' ),
+		'desc'     => __( 'Rooms, villas, apartments.', 'my-booking-engine' ),
+		'model'    => 'night_stay',
+		'price'    => 150,
+		'min'      => 1,
+		'max'      => 30,
 		'checkin'  => '15:00',
 		'checkout' => '11:00',
 		'schedule' => 'all_week',
 	),
 	'rental' => array(
-		'icon'  => '🚗',
-		'label' => __( 'Car & Equipment Rental', 'my-booking-engine' ),
-		'desc'  => __( 'Vehicles, gear, machinery.', 'my-booking-engine' ),
-		'model' => 'day_rental',
-		'price' => 89,
-		'min'   => 1,
-		'max'   => 14,
+		'icon'     => '🚗',
+		'label'    => __( 'Car & Equipment Rental', 'my-booking-engine' ),
+		'desc'     => __( 'Vehicles, gear, machinery.', 'my-booking-engine' ),
+		'model'    => 'day_rental',
+		'price'    => 89,
+		'min'      => 1,
+		'max'      => 14,
 		'checkin'  => '09:00',
 		'checkout' => '17:00',
 		'schedule' => 'all_week',
 	),
 	'doctor' => array(
-		'icon'  => '🩺',
-		'label' => __( 'Doctor & Specialist', 'my-booking-engine' ),
-		'desc'  => __( 'Clinics, consultations.', 'my-booking-engine' ),
-		'model' => 'hourly_slot',
-		'price' => 120,
-		'slot'  => 30,
-		'before' => 5,
-		'after' => 10,
+		'icon'     => '🩺',
+		'label'    => __( 'Doctor & Specialist', 'my-booking-engine' ),
+		'desc'     => __( 'Clinics, consultations.', 'my-booking-engine' ),
+		'model'    => 'hourly_slot',
+		'price'    => 120,
+		'slot'     => 30,
+		'before'   => 5,
+		'after'    => 10,
 		'schedule' => 'weekdays',
 	),
 	'salon' => array(
-		'icon'  => '✂️',
-		'label' => __( 'Salon & Spa', 'my-booking-engine' ),
-		'desc'  => __( 'Stylists, treatments.', 'my-booking-engine' ),
-		'model' => 'hourly_slot',
-		'price' => 55,
-		'slot'  => 45,
-		'before' => 0,
-		'after' => 15,
+		'icon'     => '✂️',
+		'label'    => __( 'Salon & Spa', 'my-booking-engine' ),
+		'desc'     => __( 'Stylists, treatments.', 'my-booking-engine' ),
+		'model'    => 'hourly_slot',
+		'price'    => 55,
+		'slot'     => 45,
+		'before'   => 0,
+		'after'    => 15,
 		'schedule' => 'six_day',
 	),
 	'shop' => array(
-		'icon'  => '🏪',
-		'label' => __( 'Shop & Local Business', 'my-booking-engine' ),
-		'desc'  => __( 'Storefronts, local venues.', 'my-booking-engine' ),
-		'model' => 'hourly_slot',
-		'price' => 25,
-		'slot'  => 30,
-		'before' => 0,
-		'after' => 5,
+		'icon'     => '🏪',
+		'label'    => __( 'Shop & Local Business', 'my-booking-engine' ),
+		'desc'     => __( 'Storefronts, local venues.', 'my-booking-engine' ),
+		'model'    => 'hourly_slot',
+		'price'    => 25,
+		'slot'     => 30,
+		'before'   => 0,
+		'after'    => 5,
 		'schedule' => 'six_day',
 	),
 );
@@ -151,8 +145,7 @@ if ( $is_edit ) {
 	}
 }
 
-// Weekly schedule prefill: turn saved availability rows into a per-day
-// lookup so the day toggles/times below reflect what's actually saved.
+// Weekly schedule prefill
 $schedule_lookup = array();
 if ( $is_edit ) {
 	foreach ( $entity->get_availabilities() as $rule ) {
@@ -170,12 +163,12 @@ if ( $is_edit ) {
 	<div class="mb-app-header">
 		<div class="mb-app-header-inner">
 			<div class="mb-app-brand">
-				<span class="mb-app-brand-icon"><?php echo $is_edit ? '✏️' : '🗓️'; ?></span>
+				<span class="mb-app-brand-icon"><?php echo $is_edit ? '✏️' : '✨'; ?></span>
 				<div>
 					<strong><?php echo $is_edit ? esc_html__( 'Edit Listing', 'my-booking-engine' ) : esc_html__( 'Add New Listing', 'my-booking-engine' ); ?></strong>
 					<span><?php echo $is_edit
-						? esc_html__( 'Update this listing\'s details, pricing, and availability', 'my-booking-engine' )
-						: esc_html__( 'Set up a new bookable listing in a couple of minutes', 'my-booking-engine' ); ?></span>
+						? esc_html__( 'Fine-tune listing details, pricing, layout, and operating hours', 'my-booking-engine' )
+						: esc_html__( 'Create and customize a bookable listing with instant layout preview', 'my-booking-engine' ); ?></span>
 				</div>
 			</div>
 			<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=mb_booking_entity' ) ); ?>" class="mb-app-close" title="<?php esc_attr_e( 'Back to Listings', 'my-booking-engine' ); ?>">&times;</a>
@@ -188,10 +181,15 @@ if ( $is_edit ) {
 
 		<div id="mb-app-alert" class="mb-app-alert" style="display:none;"></div>
 
-		<!-- Type Picker -->
+		<!-- 1. Type Picker with Notification Marks & Hover Mockups -->
 		<div class="mb-app-card mb-app-card-types" id="mb-app-type-picker">
-			<h2 class="mb-app-section-title"><?php esc_html_e( 'What are you listing?', 'my-booking-engine' ); ?></h2>
-			<p class="mb-app-section-desc"><?php esc_html_e( "Pick the closest match. We'll set smart defaults for pricing, duration, and hours automatically — you can fine-tune anything afterward.", 'my-booking-engine' ); ?></p>
+			<div class="mb-app-card-header">
+				<div class="mb-app-card-badge-icon" style="background:#eff6ff; color:#2563eb;">🏷️</div>
+				<div>
+					<h2 class="mb-app-section-title"><?php esc_html_e( 'What are you listing?', 'my-booking-engine' ); ?></h2>
+					<p class="mb-app-section-desc"><?php esc_html_e( 'Pick the closest match. Hover over any card or its Preview badge to see the exact frontend layout mockup before selecting.', 'my-booking-engine' ); ?></p>
+				</div>
+			</div>
 
 			<div class="mb-layout-cards-grid">
 				<?php foreach ( $listing_types as $key => $type ) : ?>
@@ -208,46 +206,320 @@ if ( $is_edit ) {
 						data-checkin="<?php echo esc_attr( $type['checkin'] ?? '' ); ?>"
 						data-checkout="<?php echo esc_attr( $type['checkout'] ?? '' ); ?>"
 						data-schedule="<?php echo esc_attr( $type['schedule'] ); ?>">
+						
 						<input type="radio" name="mb_visual_layout" value="<?php echo esc_attr( $key ); ?>" <?php checked( $default_type, $key ); ?>>
+
+						<!-- Notification mark / Preview Indicator -->
+						<div class="mb-type-notification-mark" title="<?php esc_attr_e( 'Hover to view layout mockup', 'my-booking-engine' ); ?>">
+							<span class="mb-notif-ping"></span>
+							<span class="mb-notif-dot"></span>
+							<span class="mb-notif-label"><?php esc_html_e( 'Preview', 'my-booking-engine' ); ?></span>
+						</div>
+
 						<div class="mb-layout-card-inner">
 							<div class="mb-layout-icon"><?php echo esc_html( $type['icon'] ); ?></div>
 							<div class="mb-layout-card-title"><?php echo esc_html( $type['label'] ); ?></div>
 							<p class="mb-layout-card-desc"><?php echo esc_html( $type['desc'] ); ?></p>
+						</div>
+
+						<!-- Layout Mockup Popover on Hover -->
+						<div class="mb-layout-mockup-popover">
+							<div class="mb-mockup-window">
+								<div class="mb-mockup-topbar">
+									<span class="mb-mockup-dots"><i class="dot-r"></i><i class="dot-y"></i><i class="dot-g"></i></span>
+									<span class="mb-mockup-url">yourdomain.com/listings/<?php echo esc_attr( $key ); ?></span>
+									<span class="mb-mockup-badge"><?php echo esc_html( $type['icon'] . ' ' . ucfirst( $key ) ); ?></span>
+								</div>
+
+								<div class="mb-mockup-canvas">
+									<?php if ( 'hourly' === $key ) : ?>
+										<!-- Hourly Studio Mockup -->
+										<div class="mb-mockup-hero mb-mockup-hero-studio">
+											<div class="mb-mockup-hero-overlay">
+												<div class="mb-mockup-title">Downtown Creative Dance Studio</div>
+												<div class="mb-mockup-meta">⭐ 4.9 (48) · 📍 Arts District</div>
+											</div>
+											<div class="mb-mockup-spec-pill">⏱️ 60 Min Session · ⚡ Instant</div>
+										</div>
+										<div class="mb-mockup-split">
+											<div class="mb-mockup-main">
+												<div class="mb-mockup-p-line"></div>
+												<div class="mb-mockup-p-line short"></div>
+												<div class="mb-mockup-tags">
+													<span class="mb-tag">🔊 Sound System</span>
+													<span class="mb-tag">🪞 Wall Mirrors</span>
+												</div>
+											</div>
+											<div class="mb-mockup-sidebar">
+												<div class="mb-mockup-sidecard">
+													<div class="mb-mockup-side-price"><strong>$40.00</strong> <span>/ hour</span></div>
+													<div class="mb-mockup-slots-label">Time Slots:</div>
+													<div class="mb-mockup-slots-grid">
+														<span class="mb-slot-chip active">09:00 AM</span>
+														<span class="mb-slot-chip">10:30 AM</span>
+														<span class="mb-slot-chip">01:00 PM</span>
+													</div>
+													<div class="mb-mockup-cta-btn">Book Studio</div>
+												</div>
+											</div>
+										</div>
+
+									<?php elseif ( 'hotel' === $key ) : ?>
+										<!-- Hotel & Vacation Stay Mockup (5-Photo Mosaic) -->
+										<div class="mb-mockup-header-sm">
+											<div class="mb-mockup-title">Grand Oceanview Luxury Villa</div>
+											<div class="mb-mockup-meta">⭐ 4.96 (180 reviews) · 🏅 Superhost</div>
+										</div>
+										<div class="mb-mockup-mosaic-gallery">
+											<div class="mb-mosaic-main"></div>
+											<div class="mb-mosaic-sub">
+												<div class="mb-mosaic-thumb"></div>
+												<div class="mb-mosaic-thumb"></div>
+												<div class="mb-mosaic-thumb"></div>
+												<div class="mb-mosaic-thumb"></div>
+											</div>
+										</div>
+										<div class="mb-mockup-split">
+											<div class="mb-mockup-main">
+												<div class="mb-mockup-p-line"></div>
+												<div class="mb-mockup-tags">
+													<span class="mb-tag">🏊 Infinity Pool</span>
+													<span class="mb-tag">📶 WiFi</span>
+													<span class="mb-tag">🍳 Breakfast</span>
+												</div>
+											</div>
+											<div class="mb-mockup-sidebar">
+												<div class="mb-mockup-sidecard">
+													<div class="mb-mockup-side-price"><strong>$150.00</strong> <span>/ night</span></div>
+													<div class="mb-mockup-range-box">
+														<div class="mb-range-col"><span>CHECK-IN</span><strong>Oct 12</strong></div>
+														<div class="mb-range-col"><span>CHECKOUT</span><strong>Oct 15</strong></div>
+													</div>
+													<div class="mb-mockup-calc-row"><span>3 Nights</span><strong>$450.00</strong></div>
+													<div class="mb-mockup-cta-btn">Reserve Stay</div>
+												</div>
+											</div>
+										</div>
+
+									<?php elseif ( 'rental' === $key ) : ?>
+										<!-- Car & Rental Mockup (Hero Slider + Specs) -->
+										<div class="mb-mockup-hero mb-mockup-hero-car">
+											<div class="mb-mockup-hero-overlay">
+												<div class="mb-mockup-title">Tesla Model 3 Long Range (2024)</div>
+												<div class="mb-mockup-meta">⭐ 5.0 (64 trips) · 📍 Central Hub</div>
+											</div>
+											<div class="mb-mockup-slider-dots"><span></span><span class="active"></span><span></span></div>
+										</div>
+										<div class="mb-mockup-specs-strip">
+											<span class="mb-spec-item">⚡ Electric</span>
+											<span class="mb-spec-item">🚗 Auto</span>
+											<span class="mb-spec-item">👥 5 Seats</span>
+											<span class="mb-spec-item">🛣️ 330mi</span>
+										</div>
+										<div class="mb-mockup-split">
+											<div class="mb-mockup-main">
+												<div class="mb-mockup-p-line"></div>
+												<div class="mb-mockup-tags">
+													<span class="mb-tag">🛡️ Full Insurance</span>
+													<span class="mb-tag">📍 Free Airport Pickup</span>
+												</div>
+											</div>
+											<div class="mb-mockup-sidebar">
+												<div class="mb-mockup-sidecard">
+													<div class="mb-mockup-side-price"><strong>$89.00</strong> <span>/ day</span></div>
+													<div class="mb-mockup-range-box">
+														<div class="mb-range-col"><span>PICK-UP</span><strong>10:00 AM</strong></div>
+														<div class="mb-range-col"><span>RETURN</span><strong>06:00 PM</strong></div>
+													</div>
+													<div class="mb-mockup-cta-btn">Rent Vehicle</div>
+												</div>
+											</div>
+										</div>
+
+									<?php elseif ( 'doctor' === $key ) : ?>
+										<!-- Doctor Mockup -->
+										<div class="mb-mockup-doctor-header">
+											<div class="mb-doctor-avatar-circle">👩‍⚕️</div>
+											<div class="mb-doctor-info">
+												<div class="mb-mockup-title">Dr. Sarah Jenkins, MD <span class="mb-verified-badge">✓</span></div>
+												<div class="mb-mockup-meta">Board Certified Cardiologist · 🏥 St. Jude Health</div>
+												<div class="mb-doctor-tags">
+													<span class="mb-tag-dr">Cardiology</span>
+													<span class="mb-tag-dr">Consultations</span>
+												</div>
+											</div>
+										</div>
+										<div class="mb-mockup-split">
+											<div class="mb-mockup-main">
+												<div class="mb-mockup-p-line"></div>
+												<div class="mb-mockup-insurances">
+													<span>Accepted: BlueCross · Aetna · UnitedHealth</span>
+												</div>
+											</div>
+											<div class="mb-mockup-sidebar">
+												<div class="mb-mockup-sidecard">
+													<div class="mb-mockup-side-price"><strong>$120.00</strong> <span>/ consult</span></div>
+													<div class="mb-mockup-slots-label">Appointment Slots:</div>
+													<div class="mb-mockup-slots-grid">
+														<span class="mb-slot-chip active">09:30 AM</span>
+														<span class="mb-slot-chip">11:00 AM</span>
+														<span class="mb-slot-chip">02:30 PM</span>
+													</div>
+													<div class="mb-mockup-cta-btn">Book Appointment</div>
+												</div>
+											</div>
+										</div>
+
+									<?php elseif ( 'salon' === $key ) : ?>
+										<!-- Salon Mockup (Interactive Services Menu) -->
+										<div class="mb-mockup-hero mb-mockup-hero-salon">
+											<div class="mb-mockup-hero-overlay">
+												<div class="mb-mockup-title">Luxe Glow Hair Studio & Spa</div>
+												<div class="mb-mockup-meta">⭐ 4.98 (210 reviews) · 📍 Beverly Hills</div>
+											</div>
+										</div>
+										<div class="mb-mockup-services-list">
+											<div class="mb-mini-service-row active">
+												<div><strong>Signature Haircut & Style</strong> <span>45 mins</span></div>
+												<div class="mb-service-price">$55 <span class="mb-check-mark">✓</span></div>
+											</div>
+											<div class="mb-mini-service-row">
+												<div><strong>Balayage, Toner & Gloss</strong> <span>90 mins</span></div>
+												<div class="mb-service-price">$140 <span class="mb-add-mark">+</span></div>
+											</div>
+										</div>
+										<div class="mb-mockup-split">
+											<div class="mb-mockup-main">
+												<div class="mb-mockup-stylists">
+													<span>Stylists: 👤 Emma · 👤 Liam</span>
+												</div>
+											</div>
+											<div class="mb-mockup-sidebar">
+												<div class="mb-mockup-sidecard">
+													<div class="mb-mockup-side-price"><strong>$55.00</strong> <span>(1 item)</span></div>
+													<div class="mb-mockup-cta-btn">Book Experience</div>
+												</div>
+											</div>
+										</div>
+
+									<?php elseif ( 'shop' === $key ) : ?>
+										<!-- Shop Mockup (Storefront + Products Grid) -->
+										<div class="mb-mockup-hero mb-mockup-hero-shop">
+											<div class="mb-mockup-hero-overlay">
+												<div class="mb-mockup-title">Heritage Artisan Coffee Roasters</div>
+												<div class="mb-mockup-meta">🟢 Open Now (Closes 7:00 PM)</div>
+											</div>
+										</div>
+										<div class="mb-mockup-products-grid">
+											<div class="mb-product-mini">
+												<div class="mb-product-img roast1"></div>
+												<strong>House Blend</strong>
+												<span>$18.00</span>
+											</div>
+											<div class="mb-product-mini">
+												<div class="mb-product-img roast2"></div>
+												<strong>Pour-Over Kit</strong>
+												<span>$45.00</span>
+											</div>
+											<div class="mb-product-mini">
+												<div class="mb-product-img roast3"></div>
+												<strong>Cold Brew</strong>
+												<span>$16.00</span>
+											</div>
+										</div>
+										<div class="mb-mockup-split">
+											<div class="mb-mockup-main">
+												<div class="mb-mockup-tags">
+													<span class="mb-tag">☕ Tasting Room</span>
+													<span class="mb-tag">🛍️ Store Pickup</span>
+												</div>
+											</div>
+											<div class="mb-mockup-sidebar">
+												<div class="mb-mockup-sidecard">
+													<div class="mb-mockup-side-price"><strong>$25.00</strong> <span>/ tasting</span></div>
+													<div class="mb-mockup-cta-btn">Book Store Visit</div>
+												</div>
+											</div>
+										</div>
+									<?php endif; ?>
+								</div>
+
+								<div class="mb-mockup-features">
+									<?php if ( 'hourly' === $key ) : ?>
+										<span class="mb-feature-pill">⏱️ Dynamic Slot Engine</span>
+										<span class="mb-feature-pill">🛡️ Buffer Protection</span>
+										<span class="mb-feature-pill">⚡ Live Price Card</span>
+									<?php elseif ( 'hotel' === $key ) : ?>
+										<span class="mb-feature-pill">🖼️ 5-Photo Mosaic</span>
+										<span class="mb-feature-pill">📅 Multi-Night Range</span>
+										<span class="mb-feature-pill">👥 Guest Selector</span>
+									<?php elseif ( 'rental' === $key ) : ?>
+										<span class="mb-feature-pill">🎠 Hero Image Slider</span>
+										<span class="mb-feature-pill">🚗 Vehicle Specs Strip</span>
+										<span class="mb-feature-pill">⏰ Pick-up & Return</span>
+									<?php elseif ( 'doctor' === $key ) : ?>
+										<span class="mb-feature-pill">🩺 Doctor Bio & Badges</span>
+										<span class="mb-feature-pill">🏥 Clinic Schedules</span>
+										<span class="mb-feature-pill">📋 Visit Reasons</span>
+									<?php elseif ( 'salon' === $key ) : ?>
+										<span class="mb-feature-pill">💇 Interactive Services</span>
+										<span class="mb-feature-pill">🛒 Multi-Service Cart</span>
+										<span class="mb-feature-pill">👤 Stylist Selection</span>
+									<?php elseif ( 'shop' === $key ) : ?>
+										<span class="mb-feature-pill">🏪 Storefront Header</span>
+										<span class="mb-feature-pill">📦 Product Showcase</span>
+										<span class="mb-feature-pill">🟢 Live Open Ribbon</span>
+									<?php endif; ?>
+								</div>
+
+								<div class="mb-mockup-footer-note">
+									👁️ <?php esc_html_e( 'Single Listing Page Preview — how visitors experience this layout', 'my-booking-engine' ); ?>
+								</div>
+							</div>
 						</div>
 					</label>
 				<?php endforeach; ?>
 			</div>
 		</div>
 
-		<!-- Smart defaults banner -->
+		<!-- Smart Defaults Banner -->
 		<div class="mb-app-smart-banner" id="mb-app-smart-banner">
 			<span class="mb-app-smart-icon">✨</span>
 			<div>
-				<strong><?php esc_html_e( "We've pre-filled the best settings for", 'my-booking-engine' ); ?> <span id="mb-app-smart-type-label"><?php echo esc_html( $listing_types[ $default_type ]['label'] ); ?></span>.</strong>
-				<p><?php esc_html_e( 'Just add a title and price below — open Advanced Settings only if you want to change anything.', 'my-booking-engine' ); ?></p>
+				<strong><?php esc_html_e( "We've pre-configured the recommended settings for", 'my-booking-engine' ); ?> <span id="mb-app-smart-type-label"><?php echo esc_html( $listing_types[ $default_type ]['label'] ); ?></span>.</strong>
+				<p><?php esc_html_e( 'All pricing, rules, hours, and policies are fully visible below — edit anything you wish anytime.', 'my-booking-engine' ); ?></p>
 				<p class="mb-app-defaults-summary" id="mb-app-defaults-summary"></p>
 			</div>
 		</div>
 
-		<!-- Basics -->
-		<div class="mb-app-card">
-			<h2 class="mb-app-section-title"><?php esc_html_e( 'The Basics', 'my-booking-engine' ); ?></h2>
+		<!-- 2. The Basics & Location -->
+		<div class="mb-app-card" id="mb-app-basics-card">
+			<div class="mb-app-card-header">
+				<div class="mb-app-card-badge-icon" style="background:#f0fdf4; color:#16a34a;">📝</div>
+				<div>
+					<h2 class="mb-app-section-title"><?php esc_html_e( 'The Basics & Location', 'my-booking-engine' ); ?></h2>
+					<p class="mb-app-section-desc"><?php esc_html_e( 'Enter your listing title, base rate, description, and address for search indexing.', 'my-booking-engine' ); ?></p>
+				</div>
+			</div>
+
 			<div class="mb-app-grid-2">
 				<div class="mb-w-field">
 					<label for="mb_quick_title"><?php esc_html_e( 'Listing Title', 'my-booking-engine' ); ?> <span class="mb-req">*</span></label>
-					<input type="text" id="mb_quick_title" name="mb_quick_title" class="widefat" required placeholder="<?php esc_attr_e( 'e.g. Downtown Hair Studio', 'my-booking-engine' ); ?>" value="<?php echo esc_attr( $title_val ); ?>">
+					<input type="text" id="mb_quick_title" name="mb_quick_title" class="widefat" required placeholder="<?php esc_attr_e( 'e.g. Downtown Creative Studio', 'my-booking-engine' ); ?>" value="<?php echo esc_attr( $title_val ); ?>">
 				</div>
 				<div class="mb-w-field">
 					<label for="mb_base_price"><?php esc_html_e( 'Base Price', 'my-booking-engine' ); ?> <span class="mb-req">*</span></label>
 					<input type="number" id="mb_base_price" name="mb_base_price" class="widefat" step="0.01" min="0" required value="<?php echo esc_attr( $price_val ); ?>" <?php echo $is_edit ? 'data-user-edited="true"' : ''; ?>>
 				</div>
 			</div>
-			<div class="mb-w-field" style="margin-top:16px;">
+
+			<div class="mb-w-field" style="margin-top:18px;">
 				<label for="mb_description"><?php esc_html_e( 'Description', 'my-booking-engine' ); ?></label>
-				<p class="description" style="margin:0 0 6px;"><?php esc_html_e( 'A short overview shown on the listing page — what it is, who it\'s for, what makes it worth booking.', 'my-booking-engine' ); ?></p>
-				<textarea name="mb_description" id="mb_description" rows="4" class="widefat" placeholder="<?php esc_attr_e( 'Tell customers what to expect…', 'my-booking-engine' ); ?>"><?php echo esc_textarea( $description_val ); ?></textarea>
+				<p class="description" style="margin:0 0 6px;"><?php esc_html_e( 'A compelling overview shown on the listing page — what it is, who it is for, and key highlights.', 'my-booking-engine' ); ?></p>
+				<textarea name="mb_description" id="mb_description" rows="4" class="widefat" placeholder="<?php esc_attr_e( 'Tell customers what makes this experience special…', 'my-booking-engine' ); ?>"><?php echo esc_textarea( $description_val ); ?></textarea>
 			</div>
-			<div class="mb-app-grid-3" style="margin-top:16px;">
+
+			<div class="mb-app-grid-3" style="margin-top:18px;">
 				<div class="mb-w-field">
 					<label for="mb_postal_code"><?php esc_html_e( 'Postal / ZIP Code', 'my-booking-engine' ); ?></label>
 					<input type="text" id="mb_postal_code" name="mb_postal_code" class="widefat" placeholder="90210" value="<?php echo esc_attr( $postal_val ); ?>">
@@ -261,6 +533,7 @@ if ( $is_edit ) {
 					<input type="text" id="mb_country_code" name="mb_country_code" class="widefat" placeholder="US" value="<?php echo esc_attr( $country_val ); ?>">
 				</div>
 			</div>
+
 			<div class="mb-app-geocode-row">
 				<button type="button" class="button button-primary mb-btn-geocode" id="mb_btn_geocode">
 					<span class="dashicons dashicons-location" style="vertical-align:middle; margin-top:-2px;"></span>
@@ -273,174 +546,212 @@ if ( $is_edit ) {
 			</div>
 		</div>
 
-		<!-- Photo Gallery — moved out of Advanced Settings: photos are one
-		     of the first things a listing needs, not an edge-case setting. -->
-		<div class="mb-app-card">
-			<h3>📸 <?php esc_html_e( 'Photo Gallery', 'my-booking-engine' ); ?></h3>
-			<p class="description"><?php esc_html_e( 'Listings with real photos get booked far more often than ones without — add a few before publishing.', 'my-booking-engine' ); ?></p>
+		<!-- 3. Photo Gallery -->
+		<div class="mb-app-card" id="mb-app-gallery-card">
+			<div class="mb-app-card-header">
+				<div class="mb-app-card-badge-icon" style="background:#faf5ff; color:#9333ea;">📸</div>
+				<div>
+					<h2 class="mb-app-section-title"><?php esc_html_e( 'Photo Gallery', 'my-booking-engine' ); ?></h2>
+					<p class="mb-app-section-desc"><?php esc_html_e( 'Listings with high-resolution photos convert dramatically higher. Upload multiple photos to populate hero sliders and mosaic grids.', 'my-booking-engine' ); ?></p>
+				</div>
+			</div>
+
 			<input type="hidden" name="mb_gallery_images" id="mb_gallery_images" value="<?php echo esc_attr( $gallery_ids_val ); ?>">
-			<button type="button" class="button button-primary" id="mb_btn_select_gallery">
-				<span class="dashicons dashicons-images-alt2" style="vertical-align:middle; margin-top:-2px;"></span>
-				<?php esc_html_e( 'Select Photos from Media Library', 'my-booking-engine' ); ?>
-			</button>
-			<button type="button" class="button button-link-delete" id="mb_btn_clear_gallery" style="margin-left:10px;">
-				<?php esc_html_e( 'Remove All Photos', 'my-booking-engine' ); ?>
-			</button>
+			
+			<div class="mb-gallery-actions">
+				<button type="button" class="button button-primary button-large" id="mb_btn_select_gallery">
+					<span class="dashicons dashicons-images-alt2" style="vertical-align:middle; margin-top:-2px;"></span>
+					<?php esc_html_e( 'Select Photos from Media Library', 'my-booking-engine' ); ?>
+				</button>
+				<button type="button" class="button button-link-delete" id="mb_btn_clear_gallery" style="margin-left:12px;">
+					<?php esc_html_e( 'Remove All Photos', 'my-booking-engine' ); ?>
+				</button>
+			</div>
+
 			<div id="mb_gallery_preview" class="mb-gallery-preview-grid" style="margin-top:16px;" data-existing='<?php echo esc_attr( wp_json_encode( $entity ? $entity->get_gallery_images( 'thumbnail' ) : array() ) ); ?>'></div>
 		</div>
 
-		<!-- Services & Add-ons — only relevant for menu-driven listings
-		     (salon, spa) where customers pick from specific services. -->
+		<!-- 4. Services & Add-ons (Menu-driven: Salon & Spa) -->
 		<div class="mb-app-card" id="mb-app-services-card" style="display:none;">
-			<h3>💇 <?php esc_html_e( 'Services & Add-ons', 'my-booking-engine' ); ?></h3>
-			<p class="description"><?php esc_html_e( 'List the individual services customers can book — a haircut, a color treatment, an add-on. Each can have its own duration and price.', 'my-booking-engine' ); ?></p>
+			<div class="mb-app-card-header">
+				<div class="mb-app-card-badge-icon" style="background:#fdf2f8; color:#db2777;">💇</div>
+				<div>
+					<h2 class="mb-app-section-title"><?php esc_html_e( 'Services & Treatments Menu', 'my-booking-engine' ); ?></h2>
+					<p class="mb-app-section-desc"><?php esc_html_e( 'List individual services customers can select from. Each service can have its own duration and pricing.', 'my-booking-engine' ); ?></p>
+				</div>
+			</div>
+
 			<input type="hidden" name="mb_services" id="mb_services_json" value="<?php echo esc_attr( wp_json_encode( $services_val ) ); ?>">
 			<div id="mb-services-rows" class="mb-services-rows"></div>
-			<button type="button" class="button" id="mb_btn_add_service">
+			
+			<button type="button" class="button button-secondary" id="mb_btn_add_service" style="margin-top:10px;">
 				<span class="dashicons dashicons-plus-alt2" style="vertical-align:middle; margin-top:-2px;"></span>
 				<?php esc_html_e( 'Add a Service', 'my-booking-engine' ); ?>
 			</button>
 		</div>
 
-		<!-- Advanced toggle -->
-		<button type="button" class="mb-app-advanced-toggle" id="mb-app-advanced-toggle" aria-expanded="false">
-			<span>⚙️ <?php esc_html_e( 'Customize Advanced Settings', 'my-booking-engine' ); ?></span>
-			<span class="mb-app-toggle-caret">⌄</span>
-		</button>
+		<!-- 5. Booking Rules & Duration (Always Visible, no dropdown) -->
+		<div class="mb-app-card" id="mb-app-rules-card">
+			<div class="mb-app-card-header">
+				<div class="mb-app-card-badge-icon" style="background:#fff7ed; color:#ea580c;">⚙️</div>
+				<div>
+					<h2 class="mb-app-section-title"><?php esc_html_e( 'Booking Engine Rules & Duration', 'my-booking-engine' ); ?></h2>
+					<p class="mb-app-section-desc">
+						<?php esc_html_e( 'Pre-filled automatically based on your listing type. You can adjust duration, buffers, stay limits, and weekend pricing right here.', 'my-booking-engine' ); ?>
+						<a href="#mb-app-type-picker" id="mb-app-change-type-link" style="margin-left:6px;"><?php esc_html_e( 'Change listing type ↑', 'my-booking-engine' ); ?></a>
+					</p>
+				</div>
+			</div>
 
-		<div class="mb-app-advanced-panel" id="mb-app-advanced-panel">
-
-			<div class="mb-app-card">
-				<h3><?php esc_html_e( 'Booking Engine Algorithm & Rules', 'my-booking-engine' ); ?></h3>
-				<p class="description">
-					<?php esc_html_e( 'Already set automatically based on the type you picked above.', 'my-booking-engine' ); ?>
-					<a href="#mb-app-type-picker" id="mb-app-change-type-link"><?php esc_html_e( 'Change listing type/design ↑', 'my-booking-engine' ); ?></a>
-				</p>
-
-				<select name="mb_model_type" id="mb_model_type" class="widefat mb-model-switcher" style="margin-top:10px; padding:8px 12px; font-weight:600;">
+			<div class="mb-w-field">
+				<label for="mb_model_type"><?php esc_html_e( 'Booking Model Algorithm', 'my-booking-engine' ); ?></label>
+				<select name="mb_model_type" id="mb_model_type" class="widefat mb-model-switcher" style="padding:10px 14px; font-weight:600;">
 					<option value="hourly_slot" <?php selected( $model_val, 'hourly_slot' ); ?>><?php esc_html_e( 'Hourly / Slot Appointments', 'my-booking-engine' ); ?></option>
 					<option value="day_rental" <?php selected( $model_val, 'day_rental' ); ?>><?php esc_html_e( 'Day-based Rentals', 'my-booking-engine' ); ?></option>
 					<option value="night_stay" <?php selected( $model_val, 'night_stay' ); ?>><?php esc_html_e( 'Night-based Stays', 'my-booking-engine' ); ?></option>
 					<option value="capacity_roster" <?php selected( $model_val, 'capacity_roster' ); ?>><?php esc_html_e( 'Capacity Roster / Tickets', 'my-booking-engine' ); ?></option>
 				</select>
+			</div>
 
-				<div class="mb-field-row mb-field-hourly_slot" style="margin-top:18px;">
-					<p class="description" style="margin-top:0;"><?php esc_html_e( 'How long each appointment slot lasts, and any prep/cleanup buffer around it.', 'my-booking-engine' ); ?></p>
-					<div class="mb-wizard-grid-3">
-						<div class="mb-w-field">
-							<label for="mb_slot_duration"><?php esc_html_e( 'Slot Duration (Minutes)', 'my-booking-engine' ); ?></label>
-							<input type="number" name="mb_slot_duration" id="mb_slot_duration" value="<?php echo esc_attr( $slot_val ); ?>" min="5" step="5" class="widefat">
-						</div>
-						<div class="mb-w-field">
-							<label for="mb_buffer_before"><?php esc_html_e( 'Buffer Before (Mins)', 'my-booking-engine' ); ?></label>
-							<input type="number" name="mb_buffer_before" id="mb_buffer_before" value="<?php echo esc_attr( $before_val ); ?>" min="0" step="5" class="widefat">
-						</div>
-						<div class="mb-w-field">
-							<label for="mb_buffer_after"><?php esc_html_e( 'Buffer After (Mins)', 'my-booking-engine' ); ?></label>
-							<input type="number" name="mb_buffer_after" id="mb_buffer_after" value="<?php echo esc_attr( $after_val ); ?>" min="0" step="5" class="widefat">
-						</div>
-					</div>
-				</div>
-
-				<div class="mb-field-row mb-field-day_rental mb-field-night_stay" style="display:none; margin-top:18px;">
-					<p class="description" style="margin-top:0;"><?php esc_html_e( 'How many days/nights a booking must span, and the standard check-in/check-out times.', 'my-booking-engine' ); ?></p>
-					<div class="mb-wizard-grid-2">
-						<div class="mb-w-field">
-							<label for="mb_min_duration"><?php esc_html_e( 'Minimum Stay / Rental', 'my-booking-engine' ); ?></label>
-							<input type="number" name="mb_min_duration" id="mb_min_duration" value="<?php echo esc_attr( $min_val ); ?>" min="1" class="widefat">
-						</div>
-						<div class="mb-w-field">
-							<label for="mb_max_duration"><?php esc_html_e( 'Maximum Stay / Rental', 'my-booking-engine' ); ?></label>
-							<input type="number" name="mb_max_duration" id="mb_max_duration" value="<?php echo esc_attr( $max_val ); ?>" min="1" class="widefat">
-						</div>
-					</div>
-					<div class="mb-wizard-grid-2" style="margin-top:14px;">
-						<div class="mb-w-field">
-							<label for="mb_checkin_time"><?php esc_html_e( 'Check-in Time', 'my-booking-engine' ); ?></label>
-							<input type="time" name="mb_checkin_time" id="mb_checkin_time" value="<?php echo esc_attr( $checkin_val ); ?>" class="widefat">
-						</div>
-						<div class="mb-w-field">
-							<label for="mb_checkout_time"><?php esc_html_e( 'Check-out Time', 'my-booking-engine' ); ?></label>
-							<input type="time" name="mb_checkout_time" id="mb_checkout_time" value="<?php echo esc_attr( $checkout_val ); ?>" class="widefat">
-						</div>
-					</div>
-				</div>
-
-				<div class="mb-field-row mb-field-capacity_roster" style="display:none; margin-top:18px;">
-					<p class="description" style="margin-top:0;"><?php esc_html_e( 'For a fixed-schedule event with one start and end time, rather than a range of bookable dates.', 'my-booking-engine' ); ?></p>
-					<div class="mb-wizard-grid-2">
-						<div class="mb-w-field">
-							<label for="mb_event_start"><?php esc_html_e( 'Event Start Time', 'my-booking-engine' ); ?></label>
-							<input type="datetime-local" name="mb_event_start" id="mb_event_start" class="widefat" value="<?php echo esc_attr( $event_start_val ); ?>">
-						</div>
-						<div class="mb-w-field">
-							<label for="mb_event_end"><?php esc_html_e( 'Event End Time', 'my-booking-engine' ); ?></label>
-							<input type="datetime-local" name="mb_event_end" id="mb_event_end" class="widefat" value="<?php echo esc_attr( $event_end_val ); ?>">
-						</div>
-					</div>
-				</div>
-
-				<div class="mb-app-grid-2" style="margin-top:18px;">
+			<!-- Hourly slot settings -->
+			<div class="mb-field-row mb-field-hourly_slot" style="margin-top:20px;">
+				<p class="description" style="margin:0 0 10px;"><?php esc_html_e( 'Configure session duration and any prep/cleanup buffers around each appointment.', 'my-booking-engine' ); ?></p>
+				<div class="mb-wizard-grid-3">
 					<div class="mb-w-field">
-						<label for="mb_weekend_price"><?php esc_html_e( 'Weekend Price (Optional)', 'my-booking-engine' ); ?></label>
-						<input type="number" name="mb_weekend_price" id="mb_weekend_price" class="widefat" step="0.01" min="0" placeholder="<?php esc_attr_e( 'Leave blank to use base rate', 'my-booking-engine' ); ?>" value="<?php echo esc_attr( $weekend_val ); ?>">
+						<label for="mb_slot_duration"><?php esc_html_e( 'Slot Duration (Minutes)', 'my-booking-engine' ); ?></label>
+						<input type="number" name="mb_slot_duration" id="mb_slot_duration" value="<?php echo esc_attr( $slot_val ); ?>" min="5" step="5" class="widefat">
 					</div>
 					<div class="mb-w-field">
-						<label for="mb_capacity"><?php esc_html_e( 'Maximum Capacity / Spots', 'my-booking-engine' ); ?></label>
-						<input type="number" name="mb_capacity" id="mb_capacity" value="<?php echo esc_attr( $capacity_val ); ?>" min="1" class="widefat">
+						<label for="mb_buffer_before"><?php esc_html_e( 'Buffer Before (Mins)', 'my-booking-engine' ); ?></label>
+						<input type="number" name="mb_buffer_before" id="mb_buffer_before" value="<?php echo esc_attr( $before_val ); ?>" min="0" step="5" class="widefat">
+					</div>
+					<div class="mb-w-field">
+						<label for="mb_buffer_after"><?php esc_html_e( 'Buffer After (Mins)', 'my-booking-engine' ); ?></label>
+						<input type="number" name="mb_buffer_after" id="mb_buffer_after" value="<?php echo esc_attr( $after_val ); ?>" min="0" step="5" class="widefat">
 					</div>
 				</div>
 			</div>
 
-			<div class="mb-app-card">
-				<h3><?php esc_html_e( 'Weekly Operating Hours', 'my-booking-engine' ); ?></h3>
-				<p class="description"><?php esc_html_e( 'Which days you\'re open for bookings, and your hours on each one. Toggle a day off to block it entirely.', 'my-booking-engine' ); ?></p>
-				<div class="mb-schedule-list">
-					<?php foreach ( $days_of_week as $day_idx => $day_info ) :
-						$is_open    = $is_edit ? isset( $schedule_lookup[ $day_idx ] ) : ( $day_idx >= 1 && $day_idx <= 5 );
-						$start_time = isset( $schedule_lookup[ $day_idx ]['start'] ) ? $schedule_lookup[ $day_idx ]['start'] : '09:00';
-						$end_time   = isset( $schedule_lookup[ $day_idx ]['end'] ) ? $schedule_lookup[ $day_idx ]['end'] : '17:00';
-						?>
-						<div class="mb-schedule-row <?php echo $is_open ? 'is-open' : 'is-closed'; ?>">
-							<div class="mb-sched-day">
-								<span class="mb-day-badge"><?php echo esc_html( $day_info['short'] ); ?></span>
-								<strong><?php echo esc_html( $day_info['name'] ); ?></strong>
-							</div>
-							<div class="mb-sched-toggle">
-								<label class="mb-switch">
-									<input type="checkbox" name="mb_schedule[<?php echo esc_attr( $day_idx ); ?>][enabled]" value="1" <?php checked( $is_open ); ?> class="mb-day-switch">
-									<span class="mb-slider round"></span>
-								</label>
-								<span class="mb-switch-label"><?php echo $is_open ? esc_html__( 'Open', 'my-booking-engine' ) : esc_html__( 'Closed', 'my-booking-engine' ); ?></span>
-							</div>
-							<div class="mb-sched-times" style="<?php echo $is_open ? '' : 'opacity:0.4; pointer-events:none;'; ?>">
-								<input type="time" name="mb_schedule[<?php echo esc_attr( $day_idx ); ?>][start]" value="<?php echo esc_attr( $start_time ); ?>" class="mb-time-picker">
-								<span style="color:#94a3b8;">→</span>
-								<input type="time" name="mb_schedule[<?php echo esc_attr( $day_idx ); ?>][end]" value="<?php echo esc_attr( $end_time ); ?>" class="mb-time-picker">
-							</div>
-						</div>
-					<?php endforeach; ?>
+			<!-- Day rental & Night stay settings -->
+			<div class="mb-field-row mb-field-day_rental mb-field-night_stay" style="display:none; margin-top:20px;">
+				<p class="description" style="margin:0 0 10px;"><?php esc_html_e( 'Set minimum and maximum duration, plus standard check-in and check-out times.', 'my-booking-engine' ); ?></p>
+				<div class="mb-wizard-grid-2">
+					<div class="mb-w-field">
+						<label for="mb_min_duration"><?php esc_html_e( 'Minimum Stay / Rental (Days/Nights)', 'my-booking-engine' ); ?></label>
+						<input type="number" name="mb_min_duration" id="mb_min_duration" value="<?php echo esc_attr( $min_val ); ?>" min="1" class="widefat">
+					</div>
+					<div class="mb-w-field">
+						<label for="mb_max_duration"><?php esc_html_e( 'Maximum Stay / Rental (Days/Nights)', 'my-booking-engine' ); ?></label>
+						<input type="number" name="mb_max_duration" id="mb_max_duration" value="<?php echo esc_attr( $max_val ); ?>" min="1" class="widefat">
+					</div>
+				</div>
+				<div class="mb-wizard-grid-2" style="margin-top:16px;">
+					<div class="mb-w-field">
+						<label for="mb_checkin_time"><?php esc_html_e( 'Check-in Time', 'my-booking-engine' ); ?></label>
+						<input type="time" name="mb_checkin_time" id="mb_checkin_time" value="<?php echo esc_attr( $checkin_val ); ?>" class="widefat">
+					</div>
+					<div class="mb-w-field">
+						<label for="mb_checkout_time"><?php esc_html_e( 'Check-out Time', 'my-booking-engine' ); ?></label>
+						<input type="time" name="mb_checkout_time" id="mb_checkout_time" value="<?php echo esc_attr( $checkout_val ); ?>" class="widefat">
+					</div>
 				</div>
 			</div>
 
-			<div class="mb-app-card">
-				<h3><?php esc_html_e( 'More Details', 'my-booking-engine' ); ?></h3>
-				<p class="description"><?php esc_html_e( 'Optional extras shown further down the listing page — a bullet list of what\'s included, and your cancellation terms.', 'my-booking-engine' ); ?></p>
-				<div class="mb-app-grid-2" style="margin-top:12px;">
+			<!-- Capacity roster settings -->
+			<div class="mb-field-row mb-field-capacity_roster" style="display:none; margin-top:20px;">
+				<p class="description" style="margin:0 0 10px;"><?php esc_html_e( 'For a fixed scheduled event with specific start and end timestamps.', 'my-booking-engine' ); ?></p>
+				<div class="mb-wizard-grid-2">
 					<div class="mb-w-field">
-						<label for="mb_amenities"><?php esc_html_e( 'Amenities (one per line)', 'my-booking-engine' ); ?></label>
-						<textarea name="mb_amenities" id="mb_amenities" rows="4" class="widefat"><?php echo esc_textarea( $amenities_val ); ?></textarea>
+						<label for="mb_event_start"><?php esc_html_e( 'Event Start Time', 'my-booking-engine' ); ?></label>
+						<input type="datetime-local" name="mb_event_start" id="mb_event_start" class="widefat" value="<?php echo esc_attr( $event_start_val ); ?>">
 					</div>
 					<div class="mb-w-field">
-						<label for="mb_policy"><?php esc_html_e( 'Cancellation & House Rules', 'my-booking-engine' ); ?></label>
-						<textarea name="mb_policy" id="mb_policy" rows="4" class="widefat"><?php echo esc_textarea( $policy_val ); ?></textarea>
+						<label for="mb_event_end"><?php esc_html_e( 'Event End Time', 'my-booking-engine' ); ?></label>
+						<input type="datetime-local" name="mb_event_end" id="mb_event_end" class="widefat" value="<?php echo esc_attr( $event_end_val ); ?>">
 					</div>
+				</div>
+			</div>
+
+			<!-- Pricing & Capacity extras -->
+			<div class="mb-app-grid-2" style="margin-top:20px;">
+				<div class="mb-w-field">
+					<label for="mb_weekend_price"><?php esc_html_e( 'Weekend Price (Optional)', 'my-booking-engine' ); ?></label>
+					<input type="number" name="mb_weekend_price" id="mb_weekend_price" class="widefat" step="0.01" min="0" placeholder="<?php esc_attr_e( 'Leave blank to use base rate', 'my-booking-engine' ); ?>" value="<?php echo esc_attr( $weekend_val ); ?>">
+					<span class="description"><?php esc_html_e( 'Applies automatically for Saturday and Sunday bookings.', 'my-booking-engine' ); ?></span>
+				</div>
+				<div class="mb-w-field">
+					<label for="mb_capacity"><?php esc_html_e( 'Maximum Capacity / Spots', 'my-booking-engine' ); ?></label>
+					<input type="number" name="mb_capacity" id="mb_capacity" value="<?php echo esc_attr( $capacity_val ); ?>" min="1" class="widefat">
+					<span class="description"><?php esc_html_e( 'Max customers or tickets allowed per slot/booking.', 'my-booking-engine' ); ?></span>
 				</div>
 			</div>
 		</div>
 
+		<!-- 6. Weekly Operating Hours (Always Visible, no dropdown) -->
+		<div class="mb-app-card" id="mb-app-schedule-card">
+			<div class="mb-app-card-header">
+				<div class="mb-app-card-badge-icon" style="background:#ecfeff; color:#0891b2;">🕒</div>
+				<div>
+					<h2 class="mb-app-section-title"><?php esc_html_e( 'Weekly Operating Hours', 'my-booking-engine' ); ?></h2>
+					<p class="mb-app-section-desc"><?php esc_html_e( 'Define your open days and hours. Toggle off any day to block it completely from the booking calendar.', 'my-booking-engine' ); ?></p>
+				</div>
+			</div>
+
+			<div class="mb-schedule-list">
+				<?php foreach ( $days_of_week as $day_idx => $day_info ) :
+					$is_open    = $is_edit ? isset( $schedule_lookup[ $day_idx ] ) : ( $day_idx >= 1 && $day_idx <= 5 );
+					$start_time = isset( $schedule_lookup[ $day_idx ]['start'] ) ? $schedule_lookup[ $day_idx ]['start'] : '09:00';
+					$end_time   = isset( $schedule_lookup[ $day_idx ]['end'] ) ? $schedule_lookup[ $day_idx ]['end'] : '17:00';
+					?>
+					<div class="mb-schedule-row <?php echo $is_open ? 'is-open' : 'is-closed'; ?>">
+						<div class="mb-sched-day">
+							<span class="mb-day-badge"><?php echo esc_html( $day_info['short'] ); ?></span>
+							<strong><?php echo esc_html( $day_info['name'] ); ?></strong>
+						</div>
+						<div class="mb-sched-toggle">
+							<label class="mb-switch">
+								<input type="checkbox" name="mb_schedule[<?php echo esc_attr( $day_idx ); ?>][enabled]" value="1" <?php checked( $is_open ); ?> class="mb-day-switch">
+								<span class="mb-slider round"></span>
+							</label>
+							<span class="mb-switch-label"><?php echo $is_open ? esc_html__( 'Open', 'my-booking-engine' ) : esc_html__( 'Closed', 'my-booking-engine' ); ?></span>
+						</div>
+						<div class="mb-sched-times" style="<?php echo $is_open ? '' : 'opacity:0.4; pointer-events:none;'; ?>">
+							<input type="time" name="mb_schedule[<?php echo esc_attr( $day_idx ); ?>][start]" value="<?php echo esc_attr( $start_time ); ?>" class="mb-time-picker">
+							<span style="color:#94a3b8; font-weight:700;">→</span>
+							<input type="time" name="mb_schedule[<?php echo esc_attr( $day_idx ); ?>][end]" value="<?php echo esc_attr( $end_time ); ?>" class="mb-time-picker">
+						</div>
+					</div>
+				<?php endforeach; ?>
+			</div>
+		</div>
+
+		<!-- 7. Amenities, Policies & House Rules (Always Visible, no dropdown) -->
+		<div class="mb-app-card" id="mb-app-policies-card">
+			<div class="mb-app-card-header">
+				<div class="mb-app-card-badge-icon" style="background:#f1f5f9; color:#475569;">📋</div>
+				<div>
+					<h2 class="mb-app-section-title"><?php esc_html_e( 'Amenities & Policies', 'my-booking-engine' ); ?></h2>
+					<p class="mb-app-section-desc"><?php esc_html_e( 'Shown clearly on your listing page to give customers all the details before they book.', 'my-booking-engine' ); ?></p>
+				</div>
+			</div>
+
+			<div class="mb-app-grid-2">
+				<div class="mb-w-field">
+					<label for="mb_amenities"><?php esc_html_e( 'Amenities & Inclusions (one per line)', 'my-booking-engine' ); ?></label>
+					<textarea name="mb_amenities" id="mb_amenities" rows="4" class="widefat" placeholder="<?php esc_attr_e( "High-Speed WiFi\nAir Conditioning\nFree Parking", 'my-booking-engine' ); ?>"><?php echo esc_textarea( $amenities_val ); ?></textarea>
+					<span class="description"><?php esc_html_e( 'Renders as neat feature pills on the frontend.', 'my-booking-engine' ); ?></span>
+				</div>
+				<div class="mb-w-field">
+					<label for="mb_policy"><?php esc_html_e( 'Cancellation Policy & House Rules', 'my-booking-engine' ); ?></label>
+					<textarea name="mb_policy" id="mb_policy" rows="4" class="widefat" placeholder="<?php esc_attr_e( 'Free cancellation up to 48 hours before check-in. No smoking.', 'my-booking-engine' ); ?>"><?php echo esc_textarea( $policy_val ); ?></textarea>
+					<span class="description"><?php esc_html_e( 'Displayed in the policies accordion on the single listing page.', 'my-booking-engine' ); ?></span>
+				</div>
+			</div>
+		</div>
+
+		<!-- Sticky Footer Publish Bar -->
 		<div class="mb-app-sticky-footer">
-			<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=mb_booking_entity' ) ); ?>" class="button button-large"><?php esc_html_e( 'Cancel', 'my-booking-engine' ); ?></a>
+			<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=mb_booking_entity' ) ); ?>" class="button button-large button-secondary"><?php esc_html_e( 'Cancel', 'my-booking-engine' ); ?></a>
 			<button type="submit" class="button button-primary button-hero mb-app-publish-btn" id="mb-app-publish-btn">
 				<?php echo $is_edit ? '💾 ' . esc_html__( 'Update Listing', 'my-booking-engine' ) : '🚀 ' . esc_html__( 'Publish Listing', 'my-booking-engine' ); ?>
 			</button>

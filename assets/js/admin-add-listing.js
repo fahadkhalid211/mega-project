@@ -160,16 +160,28 @@
 			updateDefaultsSummary();
 		});
 
-		// Advanced Settings reveal
-		const $advToggle = $('#mb-app-advanced-toggle');
-		const $advPanel = $('#mb-app-advanced-panel');
-		$advToggle.on('click', function() {
-			const isOpen = $advPanel.hasClass('is-open');
-			$advPanel.toggleClass('is-open', !isOpen);
-			$advToggle.attr('aria-expanded', String(!isOpen)).toggleClass('is-open', !isOpen);
-			if (!isOpen) {
-				$advPanel[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		// Notification mark preview toggle (click / tap handler for mobile & accessible navigation)
+		$(document).on('click', '.mb-type-notification-mark', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			const $card = $(this).closest('.mb-app-type-card');
+			const wasActive = $card.hasClass('preview-active');
+			$('.mb-app-type-card').removeClass('preview-active');
+			if (!wasActive) {
+				$card.addClass('preview-active');
 			}
+		});
+
+		// Close preview popover when clicking outside
+		$(document).on('click', function(e) {
+			if (!$(e.target).closest('.mb-app-type-card').length) {
+				$('.mb-app-type-card').removeClass('preview-active');
+			}
+		});
+
+		// Prevent clicks inside the mockup popover from inadvertently triggering type switch
+		$(document).on('click', '.mb-layout-mockup-popover', function(e) {
+			e.stopPropagation();
 		});
 
 		// AJAX publish
