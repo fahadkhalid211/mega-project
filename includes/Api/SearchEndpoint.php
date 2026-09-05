@@ -314,12 +314,18 @@ class SearchEndpoint extends RestController {
 					$distance_text = $entity_distances[ $id ] . ' ' . $unit;
 				}
 
+				$raw_excerpt   = wp_strip_all_tags( get_the_excerpt() );
+				if ( empty( $raw_excerpt ) ) {
+					$raw_excerpt = wp_strip_all_tags( get_post_field( 'post_content', $id ) );
+				}
+				$short_excerpt = wp_trim_words( $raw_excerpt, 8, '...' );
+
 				$items[] = array(
 					'id'            => $id,
 					'title'         => get_the_title(),
 					'permalink'     => get_permalink(),
-					'excerpt'       => wp_strip_all_tags( get_the_excerpt() ),
-					'thumbnail'     => $entity->get_thumbnail_url(),
+					'excerpt'       => $short_excerpt,
+					'thumbnail'     => $entity->get_thumbnail_url( 'medium' ),
 					'gallery'       => $entity->get_gallery_images( 'medium' ),
 					'model_type'    => $entity->get_model_type(),
 					'visual_layout' => $entity->get_visual_layout(),

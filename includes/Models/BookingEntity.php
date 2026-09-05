@@ -66,13 +66,33 @@ class BookingEntity {
 
 	/**
 	 * Get entity thumbnail URL.
+	 * If featured image is not set or not allowed, picks the first image from the listing gallery.
 	 *
 	 * @param string $size Image size.
 	 * @return string
 	 */
 	public function get_thumbnail_url( $size = 'medium' ) {
 		$thumb = get_the_post_thumbnail_url( $this->id, $size );
-		return $thumb ? $thumb : MB_ENGINE_URL . 'assets/images/placeholder.svg';
+		if ( ! empty( $thumb ) ) {
+			return $thumb;
+		}
+
+		// Fallback: pick from gallery images if featured image is not set or not allowed.
+		$gallery_meta = get_post_meta( $this->id, '_mb_gallery_images', true );
+		if ( ! empty( $gallery_meta ) ) {
+			$ids = is_array( $gallery_meta ) ? $gallery_meta : explode( ',', $gallery_meta );
+			foreach ( $ids as $img_id ) {
+				$img_id = absint( trim( $img_id ) );
+				if ( $img_id > 0 ) {
+					$gallery_thumb = wp_get_attachment_image_url( $img_id, $size );
+					if ( ! empty( $gallery_thumb ) ) {
+						return $gallery_thumb;
+					}
+				}
+			}
+		}
+
+		return MB_ENGINE_URL . 'assets/images/placeholder.svg';
 	}
 
 	/**
@@ -362,19 +382,24 @@ class BookingEntity {
 				$img_id = absint( trim( $img_id ) );
 				if ( $img_id > 0 ) {
 					$url = wp_get_attachment_image_url( $img_id, $size );
-					if ( $url ) {
+					if ( $url && ! in_array( $url, $urls, true ) ) {
 						$urls[] = $url;
 					}
 				}
 			}
 		}
 
-		// If no gallery images uploaded, include featured thumbnail.
-		if ( empty( $urls ) ) {
-			$thumb = $this->get_thumbnail_url( $size );
-			if ( $thumb ) {
-				$urls[] = $thumb;
+		// If featured thumbnail exists on post, prepend it as the first slide.
+		$feat_thumb = get_the_post_thumbnail_url( $this->id, $size );
+		if ( ! empty( $feat_thumb ) ) {
+			if ( ! in_array( $feat_thumb, $urls, true ) ) {
+				array_unshift( $urls, $feat_thumb );
 			}
+		}
+
+		// If still empty, return placeholder.
+		if ( empty( $urls ) ) {
+			$urls[] = MB_ENGINE_URL . 'assets/images/placeholder.svg';
 		}
 
 		return $urls;

@@ -14,6 +14,7 @@
 		initReviewModal();
 		initHeroSliders();
 		initCategoryFilterPills();
+		initCardSliders();
 	});
 
 	/**
@@ -218,12 +219,46 @@
 				const reviewCount = item.review_count || 0;
 				const layout = item.visual_layout || 'hotel';
 
+				const galleryImages = (Array.isArray(item.gallery) && item.gallery.length > 0)
+					? item.gallery
+					: (item.thumbnail ? [item.thumbnail] : []);
+
+				const hasMultiple = galleryImages.length > 1;
+
+				const slidesHtml = galleryImages.map(imgUrl => `
+					<div class="mb-card-slide">
+						<img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(item.title)}" class="mb-card-thumb" loading="lazy">
+					</div>
+				`).join('');
+
+				const arrowsHtml = hasMultiple ? `
+					<button type="button" class="mb-card-arrow mb-card-arrow-prev" aria-label="Previous photo">
+						<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+					</button>
+					<button type="button" class="mb-card-arrow mb-card-arrow-next" aria-label="Next photo">
+						<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+					</button>
+					<div class="mb-card-slider-dots">
+						${galleryImages.map((_, sIdx) => `<span class="mb-slider-dot${sIdx === 0 ? ' is-active' : ''}" data-slide="${sIdx}"></span>`).join('')}
+					</div>
+				` : '';
+
+				let shortExcerpt = (item.excerpt || '').trim();
+				const words = shortExcerpt.split(/\s+/);
+				if (words.length > 8) {
+					shortExcerpt = words.slice(0, 8).join(' ') + '...';
+				}
+
 				return `
 					<div class="mb-card-item mb-card-${layout}" data-entity-id="${item.id}" data-model="${item.model_type}" data-lat="${item.location?.lat || ''}" data-lng="${item.location?.lng || ''}">
 						<div class="mb-card-thumb-wrap">
-							<a href="${item.permalink}" class="mb-thumb-link">
-								<img src="${item.thumbnail}" alt="${escapeHtml(item.title)}" class="mb-card-thumb" loading="lazy">
-							</a>
+							<div class="mb-card-slider" data-current="0" data-total="${galleryImages.length}">
+								<div class="mb-card-slider-track">
+									${slidesHtml}
+								</div>
+								${arrowsHtml}
+							</div>
+							<a href="${item.permalink}" class="mb-card-link-overlay" aria-label="${escapeHtml(item.title)}"></a>
 							<span class="mb-badge mb-badge-model mb-badge-${layout}">
 								${formatModelLabel(item.model_type)}
 							</span>
@@ -238,7 +273,7 @@
 								${locationText ? `<span class="mb-card-location">📍 ${escapeHtml(locationText)}</span>` : ''}
 							</div>
 							<h3 class="mb-card-title"><a href="${item.permalink}">${escapeHtml(item.title)}</a></h3>
-							<div class="mb-card-excerpt">${escapeHtml(item.excerpt)}</div>
+							${shortExcerpt ? `<div class="mb-card-excerpt">${escapeHtml(shortExcerpt)}</div>` : ''}
 							<div class="mb-card-footer">
 								<div class="mb-card-price">
 									<span class="mb-price-amount">${currency}${parseFloat(item.base_price).toFixed(2)}</span>
@@ -254,6 +289,7 @@
 			}).join('');
 
 			resultsContainer.innerHTML = html;
+			initCardSliders();
 		}
 	}
 
@@ -644,6 +680,101 @@
 					}
 				});
 			});
+		});
+	}
+
+	/**
+	 * Interactive Slider for Listing Cards (Archive & Directory).
+	 * Supports click navigation arrows, indicator dots, and touch swiping.
+	 */
+	function initCardSliders() {
+		if (window._mbCardSlidersInitialized) return;
+		window._mbCardSlidersInitialized = true;
+
+		// Delegate click for arrows and dots
+		document.addEventListener('click', function(e) {
+			const arrow = e.target.closest('.mb-card-arrow');
+			const dot = e.target.closest('.mb-slider-dot');
+
+			if (arrow) {
+				e.preventDefault();
+				e.stopPropagation();
+				const slider = arrow.closest('.mb-card-slider');
+				if (!slider) return;
+
+				const total = parseInt(slider.getAttribute('data-total') || '1', 10);
+				if (total <= 1) return;
+
+				let current = parseInt(slider.getAttribute('data-current') || '0', 10);
+				if (arrow.classList.contains('mb-card-arrow-next')) {
+					current = (current + 1) % total;
+				} else {
+					current = (current - 1 + total) % total;
+				}
+
+				updateCardSlider(slider, current);
+				return;
+			}
+
+			if (dot) {
+				e.preventDefault();
+				e.stopPropagation();
+				const slider = dot.closest('.mb-card-slider');
+				if (!slider) return;
+
+				const slideIdx = parseInt(dot.getAttribute('data-slide') || '0', 10);
+				updateCardSlider(slider, slideIdx);
+				return;
+			}
+		});
+
+		// Touch swipe gesture support for cards
+		let cardTouchStartX = 0;
+		let cardTouchStartY = 0;
+		let activeCardSlider = null;
+
+		document.addEventListener('touchstart', function(e) {
+			activeCardSlider = e.target.closest('.mb-card-slider');
+			if (activeCardSlider) {
+				cardTouchStartX = e.touches[0].clientX;
+				cardTouchStartY = e.touches[0].clientY;
+			}
+		}, { passive: true });
+
+		document.addEventListener('touchend', function(e) {
+			if (!activeCardSlider) return;
+			const diffX = e.changedTouches[0].clientX - cardTouchStartX;
+			const diffY = e.changedTouches[0].clientY - cardTouchStartY;
+
+			if (Math.abs(diffX) > 35 && Math.abs(diffX) > Math.abs(diffY)) {
+				const total = parseInt(activeCardSlider.getAttribute('data-total') || '1', 10);
+				if (total > 1) {
+					let current = parseInt(activeCardSlider.getAttribute('data-current') || '0', 10);
+					if (diffX < 0) {
+						current = (current + 1) % total;
+					} else {
+						current = (current - 1 + total) % total;
+					}
+					updateCardSlider(activeCardSlider, current);
+				}
+			}
+			activeCardSlider = null;
+		}, { passive: true });
+	}
+
+	function updateCardSlider(slider, index) {
+		slider.setAttribute('data-current', index);
+		const track = slider.querySelector('.mb-card-slider-track');
+		if (track) {
+			track.style.transform = `translateX(-${index * 100}%)`;
+		}
+		const dots = slider.querySelectorAll('.mb-slider-dot');
+		dots.forEach((d, idx) => {
+			if (idx === index) {
+				d.classList.add('is-active');
+			} else {
+				d.classList.remove('is-active');
+			}
 		});
 	}
 })();

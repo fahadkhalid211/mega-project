@@ -125,6 +125,15 @@ class MetaBoxes {
 		$gallery_images = isset( $_POST['mb_gallery_images'] ) ? sanitize_text_field( wp_unslash( $_POST['mb_gallery_images'] ) ) : '';
 		update_post_meta( $post_id, '_mb_gallery_images', $gallery_images );
 
+		// If post has no featured image, auto-assign first gallery image as featured thumbnail
+		if ( ! has_post_thumbnail( $post_id ) && ! empty( $gallery_images ) ) {
+			$ids = explode( ',', $gallery_images );
+			$first_id = absint( trim( $ids[0] ) );
+			if ( $first_id > 0 ) {
+				set_post_thumbnail( $post_id, $first_id );
+			}
+		}
+
 		$amenities = isset( $_POST['mb_amenities'] ) ? sanitize_textarea_field( wp_unslash( $_POST['mb_amenities'] ) ) : '';
 		update_post_meta( $post_id, '_mb_amenities', $amenities );
 

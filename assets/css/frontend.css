@@ -252,147 +252,347 @@ button:focus-visible {
 /* --- Grid & Cards --- */
 .mb-entities-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
 	gap: 24px;
 }
 
 .mb-card-item {
-	background: var(--mb-bg-card);
-	border: 1px solid var(--mb-border);
-	border-radius: var(--mb-radius);
+	background: var(--mb-bg-card, #ffffff);
+	border: 1px solid rgba(226, 232, 240, 0.85);
+	border-radius: 20px;
 	overflow: hidden;
-	box-shadow: var(--mb-shadow);
+	box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.02);
 	display: flex;
 	flex-direction: column;
-	transition: transform 0.2s, box-shadow 0.2s;
+	position: relative;
+	transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
 }
 
 .mb-card-item:hover {
-	transform: translateY(-3px);
-	box-shadow: var(--mb-shadow-card-hover);
+	transform: translateY(-4px);
+	box-shadow: 0 20px 35px -8px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+	border-color: rgba(203, 213, 225, 0.9);
 }
 
+.mb-card-item.mb-card-highlight {
+	border-color: var(--mb-primary) !important;
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25), 0 20px 35px -8px rgba(15, 23, 42, 0.12) !important;
+}
+
+/* Card Thumbnail & Slider */
 .mb-card-thumb-wrap {
 	position: relative;
 	width: 100%;
-	height: 200px;
+	aspect-ratio: 16 / 10.5;
+	min-height: 200px;
+	max-height: 240px;
 	overflow: hidden;
-	background: #f1f5f9;
+	background: #f8fafc;
+	border-radius: 20px 20px 0 0;
+}
+
+.mb-card-slider {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+.mb-card-slider-track {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+	will-change: transform;
+}
+
+.mb-card-slide {
+	flex: 0 0 100%;
+	width: 100%;
+	height: 100%;
+	position: relative;
+	overflow: hidden;
 }
 
 .mb-card-thumb {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-	transition: transform 0.3s ease;
+	display: block;
+	transition: transform 0.4s ease;
 }
 
 .mb-card-item:hover .mb-card-thumb {
-	transform: scale(1.04);
+	transform: scale(1.03);
 }
 
+.mb-card-link-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 2;
+	display: block;
+	text-decoration: none;
+}
+
+/* Slider Nav Arrows */
+.mb-card-arrow {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 4;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.92);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	border: 1px solid rgba(255, 255, 255, 0.6);
+	color: #0f172a;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.2s ease, transform 0.2s ease, background 0.18s ease;
+	padding: 0;
+}
+
+.mb-card-arrow-prev {
+	left: 10px;
+}
+
+.mb-card-arrow-next {
+	right: 10px;
+}
+
+.mb-card-item:hover .mb-card-arrow {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.mb-card-arrow:hover {
+	transform: translateY(-50%) scale(1.1);
+	background: #ffffff;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+}
+
+.mb-card-arrow:active {
+	transform: translateY(-50%) scale(0.95);
+}
+
+/* Slider Indicator Dots */
+.mb-card-slider-dots {
+	position: absolute;
+	bottom: 10px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 4;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	pointer-events: auto;
+	padding: 3px 7px;
+	background: rgba(15, 23, 42, 0.32);
+	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(6px);
+	border-radius: 100px;
+}
+
+.mb-slider-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.55);
+	cursor: pointer;
+	transition: all 0.25s ease;
+	border: none;
+	padding: 0;
+	margin: 0;
+	display: inline-block;
+}
+
+.mb-slider-dot.is-active {
+	width: 14px;
+	border-radius: 4px;
+	background: #ffffff;
+}
+
+/* Badges */
 .mb-badge {
 	position: absolute;
-	padding: 4px 10px;
-	border-radius: 4px;
+	padding: 4px 12px;
+	border-radius: 100px;
 	font-size: 11px;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
+	font-weight: 600;
+	letter-spacing: 0.3px;
+	z-index: 3;
+	line-height: 1.3;
 }
 
 .mb-badge-model {
 	top: 12px;
 	left: 12px;
-	background: rgba(15, 23, 42, 0.85);
+	background: rgba(15, 23, 42, 0.75);
 	color: #fff;
-	backdrop-filter: blur(4px);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 .mb-badge-distance {
 	top: 12px;
 	right: 12px;
-	background: #16a34a;
+	background: rgba(16, 185, 129, 0.92);
 	color: #fff;
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	border: 1px solid rgba(255, 255, 255, 0.25);
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
+	box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
 }
 
+/* Card Body */
 .mb-card-body {
-	padding: 20px;
+	padding: 16px 18px 18px 18px;
 	display: flex;
 	flex-direction: column;
 	flex-grow: 1;
 }
 
-.mb-card-title {
-	margin: 0 0 8px 0;
-	font-size: 18px;
+.mb-card-rating-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+	font-size: 12.5px;
+}
+
+.mb-card-rating {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
 	font-weight: 700;
-	line-height: 1.3;
+	color: #0f172a;
+}
+
+.mb-star {
+	color: #f59e0b;
+	font-size: 13px;
+}
+
+.mb-card-rev-count {
+	color: #64748b;
+	font-weight: 400;
+}
+
+.mb-card-location {
+	color: #64748b;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-weight: 500;
+	font-size: 12px;
+	max-width: 55%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-bottom: 0;
+}
+
+.mb-card-title {
+	margin: 0 0 6px 0;
+	font-size: 16px;
+	font-weight: 700;
+	line-height: 1.35;
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 }
 
 .mb-card-title a {
-	color: var(--mb-text);
+	color: #0f172a;
 	text-decoration: none;
+	transition: color 0.15s ease;
 }
 
 .mb-card-title a:hover {
 	color: var(--mb-primary);
 }
 
-.mb-card-location {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	font-size: 13px;
-	color: var(--mb-text-muted);
-	margin-bottom: 12px;
-}
-
 .mb-card-excerpt {
-	font-size: 14px;
-	color: #4b5563;
-	line-height: 1.5;
-	margin-bottom: 18px;
-	flex-grow: 1;
+	font-size: 12.5px;
+	color: #64748b;
+	line-height: 1.45;
+	margin: 0 0 14px 0;
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .mb-card-footer {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding-top: 16px;
-	border-top: 1px solid var(--mb-border);
+	padding-top: 14px;
+	border-top: 1px solid #f1f5f9;
+	margin-top: auto;
 }
 
 .mb-card-price {
 	display: flex;
-	flex-direction: column;
+	align-items: baseline;
+	gap: 3px;
 }
 
 .mb-price-amount {
-	font-size: 20px;
+	font-size: 18px;
 	font-weight: 800;
-	color: var(--mb-text);
+	color: #0f172a;
+	letter-spacing: -0.3px;
 }
 
 .mb-price-unit {
 	font-size: 12px;
-	color: var(--mb-text-muted);
+	color: #64748b;
+	font-weight: 500;
 }
 
 .mb-btn-book {
-	background: var(--mb-primary);
-	color: #fff;
-	font-size: 13px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 36px;
 	padding: 0 16px;
-	height: 38px;
+	border-radius: 100px;
+	font-size: 12.5px;
+	font-weight: 600;
+	text-decoration: none;
+	color: #ffffff;
+	background: var(--mb-primary);
+	box-shadow: 0 2px 8px rgba(37, 99, 235, 0.22);
+	transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .mb-btn-book:hover {
 	background: var(--mb-primary-hover);
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+	color: #ffffff;
 }
 
 /* --- Booking Modal / Drawer --- */
