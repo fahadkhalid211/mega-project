@@ -482,7 +482,7 @@
 		const i18n = (window.mbAdminData && window.mbAdminData.i18n) || {};
 
 		function fieldRow(label, value) {
-			return '<div class="mb-detail-row"><span>' + label + '</span><span>' + value + '</span></div>';
+			return '<div class="mb-detail-row"><span class="mb-detail-label">' + label + '</span><span class="mb-detail-value">' + value + '</span></div>';
 		}
 
 		function escapeHtml(str) {
@@ -491,24 +491,37 @@
 
 		function openDetails(payload) {
 			let html = '';
-			html += fieldRow('Listing', escapeHtml(payload.entityTitle));
-			html += fieldRow('Customer', escapeHtml(payload.customerName));
-			html += fieldRow('Email', '<a href="mailto:' + escapeHtml(payload.customerEmail) + '">' + escapeHtml(payload.customerEmail) + '</a>');
+			html += fieldRow('Booking ID', '<strong>#' + escapeHtml(payload.id) + '</strong>');
+			html += fieldRow('Listing', escapeHtml(payload.entityTitle || '—'));
+			html += fieldRow('Customer', '<strong>' + escapeHtml(payload.customerName) + '</strong>');
+			html += fieldRow('Email', payload.customerEmail ? '<a href="mailto:' + escapeHtml(payload.customerEmail) + '">' + escapeHtml(payload.customerEmail) + '</a>' : '—');
 			if (payload.customerPhone) {
-				html += fieldRow('Phone', escapeHtml(payload.customerPhone));
+				html += fieldRow('Phone', '<a href="tel:' + escapeHtml(payload.customerPhone) + '">' + escapeHtml(payload.customerPhone) + '</a>');
 			}
-			html += fieldRow('Start', escapeHtml(payload.bookingStart));
-			html += fieldRow('End', escapeHtml(payload.bookingEnd));
-			html += fieldRow('Spots', escapeHtml(payload.capacityBooked));
-			html += fieldRow('Total', escapeHtml(payload.totalPrice));
-			html += fieldRow('Status', '<span class="mb-status-pill mb-status-' + payload.status + '">' + escapeHtml(payload.status.charAt(0).toUpperCase() + payload.status.slice(1)) + '</span>');
+			html += fieldRow('Booking Start', escapeHtml(payload.bookingStartFormatted || payload.bookingStart));
+			html += fieldRow('Booking End', escapeHtml(payload.bookingEndFormatted || payload.bookingEnd));
+
+			const capCount = parseInt(payload.capacityBooked, 10) || 1;
+			const capLabel = capCount === 1 ? 'Spot / Guest' : 'Spots / Guests';
+			html += fieldRow('Capacity', '<strong>' + capCount + '</strong> <span style="color:#64748b; font-size:12px;">(' + capLabel + ')</span>');
+
+			html += fieldRow('Total Price', '<strong>' + escapeHtml(payload.totalPrice) + '</strong>');
+
+			if (payload.orderId && payload.orderId !== 0) {
+				html += fieldRow('WooCommerce Order', '<a href="' + escapeHtml(payload.orderUrl) + '" target="_blank" style="font-weight:600;">#' + escapeHtml(payload.orderId) + ' ↗</a>');
+			} else {
+				html += fieldRow('Order Source', '<span style="color:#64748b;">Direct Booking</span>');
+			}
+
+			const statusText = payload.status ? (payload.status.charAt(0).toUpperCase() + payload.status.slice(1)) : 'Pending';
+			html += fieldRow('Status', '<span class="mb-status-pill mb-status-' + payload.status + '">' + escapeHtml(statusText) + '</span>');
 
 			let actions = '<div class="mb-detail-actions">';
 			if (payload.status !== 'confirmed') {
-				actions += '<a href="' + payload.confirmUrl + '" class="mb-row-action mb-row-action-approve">Approve</a>';
+				actions += '<a href="' + payload.confirmUrl + '" class="mb-row-action mb-row-action-approve">Approve Booking</a>';
 			}
 			if (payload.status !== 'cancelled') {
-				actions += '<a href="' + payload.cancelUrl + '" class="mb-row-action mb-row-action-cancel" onclick="return confirm(\'Are you sure you want to cancel this booking?\');">Cancel</a>';
+				actions += '<a href="' + payload.cancelUrl + '" class="mb-row-action mb-row-action-cancel" onclick="return confirm(\'Are you sure you want to cancel this booking?\');">Cancel Booking</a>';
 			}
 			actions += '</div>';
 

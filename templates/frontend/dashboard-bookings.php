@@ -56,7 +56,7 @@ if ( ! function_exists( 'mb_dashboard_render_card' ) ) {
 				</h3>
 				<div class="mb-dash-card-meta">
 					<span>📅 <?php echo esc_html( $b->booking_start ); ?> → <?php echo esc_html( $b->booking_end ); ?></span>
-					<span>👥 <?php echo esc_html( $b->capacity_booked ); ?></span>
+					<span>👥 <?php echo esc_html__( 'Capacity:', 'my-booking-engine' ); ?> <strong><?php echo esc_html( $b->capacity_booked ); ?></strong> <?php echo ( 1 === (int) $b->capacity_booked ) ? esc_html__( 'Spot / Guest', 'my-booking-engine' ) : esc_html__( 'Spots / Guests', 'my-booking-engine' ); ?></span>
 					<span>💳 <?php echo esc_html( $sym . number_format( (float) $b->total_price, 2 ) ); ?></span>
 				</div>
 			</div>

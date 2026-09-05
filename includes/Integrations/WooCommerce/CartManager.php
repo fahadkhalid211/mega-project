@@ -33,6 +33,9 @@ class CartManager {
 		add_action( 'woocommerce_check_cart_items', array( __CLASS__, 'validate_cart_items' ) );
 		add_action( 'woocommerce_checkout_create_order_line_item', array( __CLASS__, 'save_order_line_item_meta' ), 10, 4 );
 		add_action( 'woocommerce_remove_cart_item', array( __CLASS__, 'on_remove_cart_item' ), 10, 2 );
+		add_filter( 'woocommerce_hidden_order_itemmeta', array( __CLASS__, 'hide_internal_order_itemmeta' ) );
+		add_filter( 'woocommerce_order_item_display_meta_key', array( __CLASS__, 'filter_display_meta_key' ), 10, 3 );
+		add_filter( 'woocommerce_order_item_display_meta_value', array( __CLASS__, 'filter_display_meta_value' ), 10, 3 );
 	}
 
 	/**
@@ -44,17 +47,27 @@ class CartManager {
 	 * @return array
 	 */
 	public static function add_cart_item_data( $cart_item_data, $product_id, $variation_id ) {
+		// If booking data was already passed directly via WC()->cart->add_to_cart($id, 1, 0, [], $cart_item_data).
+		if ( ! empty( $cart_item_data['mb_booking'] ) ) {
+			$b = $cart_item_data['mb_booking'];
+			if ( ! empty( $b['entity_id'] ) && ! empty( $b['booking_start'] ) && ! empty( $b['booking_end'] ) && ! empty( $b['token'] ) ) {
+				MutexLock::acquire_lock( $b['entity_id'], $b['booking_start'], $b['booking_end'], $b['token'] );
+			}
+			return $cart_item_data;
+		}
+
 		if ( ! isset( $_POST['mb_booking_entity_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return $cart_item_data;
 		}
 
-		$entity_id = absint( $_POST['mb_booking_entity_id'] );
-		$start     = sanitize_text_field( wp_unslash( $_POST['mb_booking_start'] ?? '' ) );
-		$end       = sanitize_text_field( wp_unslash( $_POST['mb_booking_end'] ?? '' ) );
-		$capacity  = max( 1, absint( $_POST['mb_booking_capacity'] ?? 1 ) );
-		$token     = sanitize_text_field( wp_unslash( $_POST['mb_session_token'] ?? '' ) );
+		$entity_id  = absint( $_POST['mb_booking_entity_id'] );
+		$booking_id = isset( $_POST['mb_booking_id'] ) ? absint( $_POST['mb_booking_id'] ) : 0;
+		$start      = sanitize_text_field( wp_unslash( $_POST['mb_booking_start'] ?? '' ) );
+		$end        = sanitize_text_field( wp_unslash( $_POST['mb_booking_end'] ?? '' ) );
+		$capacity   = max( 1, absint( $_POST['mb_booking_capacity'] ?? 1 ) );
+		$token      = sanitize_text_field( wp_unslash( $_POST['mb_session_token'] ?? '' ) );
 
-		if ( empty( $token ) ) {
+		if ( empty( $token ) && function_exists( 'WC' ) && WC()->session ) {
 			$token = WC()->session->get_customer_id();
 		}
 
@@ -65,6 +78,7 @@ class CartManager {
 		MutexLock::acquire_lock( $entity_id, $start, $end, $token );
 
 		$cart_item_data['mb_booking'] = array(
+			'booking_id'    => $booking_id,
 			'entity_id'     => $entity_id,
 			'title'         => $entity->get_title(),
 			'model'         => $entity->get_model_type(),
@@ -82,7 +96,7 @@ class CartManager {
 	}
 
 	/**
-	 * Display booking metadata in Cart and Checkout.
+	 * Display human-readable booking metadata in Cart and Checkout.
 	 *
 	 * @param array $item_data Existing item data.
 	 * @param array $cart_item Cart item row.
@@ -96,26 +110,26 @@ class CartManager {
 		$b = $cart_item['mb_booking'];
 
 		$item_data[] = array(
-			'name'  => __( 'Booking Item', 'my-booking-engine' ),
+			'name'  => __( 'Listing', 'my-booking-engine' ),
 			'value' => esc_html( $b['title'] ),
 		);
 
 		$item_data[] = array(
-			'name'  => __( 'Starts', 'my-booking-engine' ),
+			'name'  => __( 'Booking Start', 'my-booking-engine' ),
 			'value' => esc_html( $b['booking_start'] ),
 		);
 
 		$item_data[] = array(
-			'name'  => __( 'Ends', 'my-booking-engine' ),
+			'name'  => __( 'Booking End', 'my-booking-engine' ),
 			'value' => esc_html( $b['booking_end'] ),
 		);
 
-		if ( $b['capacity'] > 1 ) {
-			$item_data[] = array(
-				'name'  => __( 'Guests / Spots', 'my-booking-engine' ),
-				'value' => esc_html( $b['capacity'] ),
-			);
-		}
+		$cap_num   = max( 1, absint( $b['capacity'] ?? 1 ) );
+		$cap_label = ( 1 === $cap_num ) ? __( 'Spot / Guest', 'my-booking-engine' ) : __( 'Spots / Guests', 'my-booking-engine' );
+		$item_data[] = array(
+			'name'  => __( 'Capacity', 'my-booking-engine' ),
+			'value' => esc_html( $cap_num . ' ' . $cap_label ),
+		);
 
 		return $item_data;
 	}
@@ -166,7 +180,7 @@ class CartManager {
 	}
 
 	/**
-	 * Persist booking metadata to WooCommerce order item.
+	 * Persist booking metadata to WooCommerce order item with human-readable labels.
 	 *
 	 * @param \WC_Order_Item_Product $item Order line item.
 	 * @param string                 $cart_item_key Cart item key.
@@ -181,18 +195,116 @@ class CartManager {
 
 		$b = $values['mb_booking'];
 
+		// Internal technical meta keys (hidden from default displays).
+		if ( ! empty( $b['booking_id'] ) ) {
+			$item->add_meta_data( '_mb_booking_id', absint( $b['booking_id'] ) );
+		}
 		$item->add_meta_data( '_mb_entity_id', $b['entity_id'] );
 		$item->add_meta_data( '_mb_booking_start', $b['booking_start'] );
 		$item->add_meta_data( '_mb_booking_end', $b['booking_end'] );
-		$item->add_meta_data( '_mb_capacity', $b['capacity'] );
+		$item->add_meta_data( '_mb_capacity', max( 1, absint( $b['capacity'] ) ) );
 		$item->add_meta_data( '_mb_total_price', $b['price'] );
 
-		// User-friendly visible order item meta.
+		// Clean, human-readable visible order item metadata.
+		$cap_num   = max( 1, absint( $b['capacity'] ) );
+		$cap_label = ( 1 === $cap_num ) ? __( 'Spot / Guest', 'my-booking-engine' ) : __( 'Spots / Guests', 'my-booking-engine' );
+		$item->add_meta_data( __( 'Capacity', 'my-booking-engine' ), $cap_num . ' ' . $cap_label );
 		$item->add_meta_data( __( 'Booking Start', 'my-booking-engine' ), $b['booking_start'] );
 		$item->add_meta_data( __( 'Booking End', 'my-booking-engine' ), $b['booking_end'] );
-		if ( $b['capacity'] > 1 ) {
-			$item->add_meta_data( __( 'Spots', 'my-booking-engine' ), $b['capacity'] );
+	}
+
+	/**
+	 * Hide internal technical meta keys from WooCommerce order item displays.
+	 *
+	 * @param array $hidden Existing hidden meta keys.
+	 * @return array
+	 */
+	public static function hide_internal_order_itemmeta( $hidden ) {
+		$hidden[] = '_mb_booking_id';
+		$hidden[] = '_mb_entity_id';
+		$hidden[] = '_mb_booking_start';
+		$hidden[] = '_mb_booking_end';
+		$hidden[] = '_mb_capacity';
+		$hidden[] = '_mb_total_price';
+		$hidden[] = '_mb_session_token';
+		return $hidden;
+	}
+
+	/**
+	 * Transform any internal technical meta keys into human-readable labels
+	 * in case an admin screen, email, or third-party extension displays raw line item keys.
+	 *
+	 * @param string        $display_key Displayed key string.
+	 * @param \WC_Meta_Data|null $meta Meta object.
+	 * @param \WC_Order_Item|null $item Order item.
+	 * @return string
+	 */
+	public static function filter_display_meta_key( $display_key, $meta = null, $item = null ) {
+		$raw_key = ( $meta && is_object( $meta ) && isset( $meta->key ) ) ? $meta->key : $display_key;
+
+		switch ( $raw_key ) {
+			case '_mb_capacity':
+			case 'mb_capacity':
+			case 'capacity':
+				return __( 'Capacity', 'my-booking-engine' );
+
+			case '_mb_booking_start':
+			case 'mb_booking_start':
+			case 'booking_start':
+				return __( 'Booking Start', 'my-booking-engine' );
+
+			case '_mb_booking_end':
+			case 'mb_booking_end':
+			case 'booking_end':
+				return __( 'Booking End', 'my-booking-engine' );
+
+			case '_mb_entity_id':
+			case 'mb_entity_id':
+			case 'entity_id':
+				return __( 'Listing', 'my-booking-engine' );
+
+			case '_mb_total_price':
+			case 'mb_total_price':
+			case 'total_price':
+				return __( 'Total Price', 'my-booking-engine' );
+
+			case '_mb_booking_id':
+			case 'mb_booking_id':
+			case 'booking_id':
+				return __( 'Booking ID', 'my-booking-engine' );
+
+			default:
+				return $display_key;
 		}
+	}
+
+	/**
+	 * Format technical meta values into human-readable text.
+	 *
+	 * @param string        $display_value Displayed value string.
+	 * @param \WC_Meta_Data|null $meta Meta object.
+	 * @param \WC_Order_Item|null $item Order item.
+	 * @return string
+	 */
+	public static function filter_display_meta_value( $display_value, $meta = null, $item = null ) {
+		if ( ! $meta || ! is_object( $meta ) || ! isset( $meta->key ) ) {
+			return $display_value;
+		}
+
+		$raw_key = $meta->key;
+
+		if ( in_array( $raw_key, array( '_mb_capacity', 'mb_capacity', 'capacity' ), true ) ) {
+			$cap_num   = max( 1, absint( $meta->value ) );
+			$cap_label = ( 1 === $cap_num ) ? __( 'Spot / Guest', 'my-booking-engine' ) : __( 'Spots / Guests', 'my-booking-engine' );
+			return $cap_num . ' ' . $cap_label;
+		}
+
+		if ( in_array( $raw_key, array( '_mb_entity_id', 'mb_entity_id', 'entity_id' ), true ) ) {
+			$title = get_the_title( absint( $meta->value ) );
+			return ! empty( $title ) ? $title : '#' . absint( $meta->value );
+		}
+
+		return $display_value;
 	}
 
 	/**

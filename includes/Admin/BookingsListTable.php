@@ -56,7 +56,7 @@ class BookingsListTable extends \WP_List_Table {
 			'entity_title'    => __( 'Booking Entity', 'my-booking-engine' ),
 			'customer'        => __( 'Customer Details', 'my-booking-engine' ),
 			'booking_dates'   => __( 'Dates / Slot', 'my-booking-engine' ),
-			'capacity_booked' => __( 'Spots', 'my-booking-engine' ),
+			'capacity_booked' => __( 'Capacity', 'my-booking-engine' ),
 			'total_price'     => __( 'Total Price', 'my-booking-engine' ),
 			'status'          => __( 'Status', 'my-booking-engine' ),
 			'order_id'        => __( 'WC Order', 'my-booking-engine' ),
@@ -179,10 +179,32 @@ class BookingsListTable extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function column_booking_dates( $item ) {
-		return '<span class="dashicons dashicons-calendar" style="font-size:14px;vertical-align:middle;"></span> '
-			. esc_html( $item->booking_start ) . '<br>'
-			. '<span class="dashicons dashicons-arrow-right-alt" style="font-size:14px;vertical-align:middle;"></span> '
-			. esc_html( $item->booking_end );
+		$start_ts = ! empty( $item->booking_start ) ? strtotime( $item->booking_start ) : 0;
+		$end_ts   = ! empty( $item->booking_end ) ? strtotime( $item->booking_end ) : 0;
+
+		$start_str = $start_ts ? date_i18n( 'M j, Y — g:i A', $start_ts ) : $item->booking_start;
+		$end_str   = $end_ts ? date_i18n( 'M j, Y — g:i A', $end_ts ) : $item->booking_end;
+
+		return '<div class="mb-booking-dates-cell">'
+			. '<div class="mb-date-row"><span class="mb-date-prefix">' . esc_html__( 'Start', 'my-booking-engine' ) . '</span> <strong>' . esc_html( $start_str ) . '</strong></div>'
+			. '<div class="mb-date-row"><span class="mb-date-prefix">' . esc_html__( 'End', 'my-booking-engine' ) . '</span> <span>' . esc_html( $end_str ) . '</span></div>'
+			. '</div>';
+	}
+
+	/**
+	 * Column: Capacity / Spots booked.
+	 *
+	 * @param object $item Row item.
+	 * @return string
+	 */
+	protected function column_capacity_booked( $item ) {
+		$cap   = max( 1, absint( $item->capacity_booked ) );
+		$label = ( 1 === $cap ) ? __( 'Spot / Guest', 'my-booking-engine' ) : __( 'Spots / Guests', 'my-booking-engine' );
+		return sprintf(
+			'<span class="mb-capacity-pill"><strong>%d</strong> <span class="mb-capacity-subtext">%s</span></span>',
+			$cap,
+			esc_html( $label )
+		);
 	}
 
 	/**
@@ -223,7 +245,7 @@ class BookingsListTable extends \WP_List_Table {
 		}
 
 		$order_url = admin_url( 'post.php?post=' . absint( $item->order_id ) . '&action=edit' );
-		return sprintf( '<a href="%s">#%d</a>', esc_url( $order_url ), absint( $item->order_id ) );
+		return sprintf( '<a href="%s" style="font-weight:600;">#%d ↗</a>', esc_url( $order_url ), absint( $item->order_id ) );
 	}
 
 	/**
@@ -264,19 +286,31 @@ class BookingsListTable extends \WP_List_Table {
 		$settings = get_option( 'mb_engine_settings', array() );
 		$sym      = $settings['currency_symbol'] ?? '$';
 
+		$start_ts = ! empty( $item->booking_start ) ? strtotime( $item->booking_start ) : 0;
+		$end_ts   = ! empty( $item->booking_end ) ? strtotime( $item->booking_end ) : 0;
+
+		$start_formatted = $start_ts ? date_i18n( 'M j, Y — g:i A', $start_ts ) : $item->booking_start;
+		$end_formatted   = $end_ts ? date_i18n( 'M j, Y — g:i A', $end_ts ) : $item->booking_end;
+		$cap             = max( 1, absint( $item->capacity_booked ) );
+
 		$payload = array(
-			'id'             => absint( $item->id ),
-			'entityTitle'    => get_the_title( $item->entity_id ),
-			'customerName'   => $item->customer_name,
-			'customerEmail'  => $item->customer_email,
-			'customerPhone'  => $item->customer_phone,
-			'bookingStart'   => $item->booking_start,
-			'bookingEnd'     => $item->booking_end,
-			'capacityBooked' => $item->capacity_booked,
-			'totalPrice'     => $sym . number_format( (float) $item->total_price, 2 ),
-			'status'         => $item->status,
-			'confirmUrl'     => wp_nonce_url( admin_url( 'admin.php?page=mb-bookings&action=confirm&booking_id=' . absint( $item->id ) ), 'mb_booking_action' ),
-			'cancelUrl'      => wp_nonce_url( admin_url( 'admin.php?page=mb-bookings&action=cancel&booking_id=' . absint( $item->id ) ), 'mb_booking_action' ),
+			'id'                    => absint( $item->id ),
+			'entityTitle'           => get_the_title( $item->entity_id ),
+			'customerName'          => ! empty( $item->customer_name ) ? $item->customer_name : __( 'Guest', 'my-booking-engine' ),
+			'customerEmail'         => $item->customer_email,
+			'customerPhone'         => $item->customer_phone,
+			'bookingStart'          => $item->booking_start,
+			'bookingStartFormatted' => $start_formatted,
+			'bookingEnd'            => $item->booking_end,
+			'bookingEndFormatted'   => $end_formatted,
+			'capacityBooked'        => $cap,
+			'capacityLabel'         => ( 1 === $cap ) ? __( 'Spot / Guest', 'my-booking-engine' ) : __( 'Spots / Guests', 'my-booking-engine' ),
+			'totalPrice'            => $sym . number_format( (float) $item->total_price, 2 ),
+			'status'                => $item->status,
+			'orderId'               => absint( $item->order_id ),
+			'orderUrl'              => $item->order_id ? admin_url( 'post.php?post=' . absint( $item->order_id ) . '&action=edit' ) : '',
+			'confirmUrl'            => wp_nonce_url( admin_url( 'admin.php?page=mb-bookings&action=confirm&booking_id=' . absint( $item->id ) ), 'mb_booking_action' ),
+			'cancelUrl'             => wp_nonce_url( admin_url( 'admin.php?page=mb-bookings&action=cancel&booking_id=' . absint( $item->id ) ), 'mb_booking_action' ),
 		);
 
 		printf(

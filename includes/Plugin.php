@@ -179,9 +179,11 @@ class Plugin {
 			update_option( 'mb_engine_flushed_version', MB_ENGINE_VERSION );
 		}
 
-		// Register search AJAX fallbacks (for environments where REST routes are blocked or cached).
+		// Register search & booking AJAX fallbacks (for environments where REST routes are blocked or cached).
 		add_action( 'wp_ajax_mb_search_entities', array( '\\MyBookingEngine\\Api\\SearchEndpoint', 'ajax_search_entities_static' ) );
 		add_action( 'wp_ajax_nopriv_mb_search_entities', array( '\\MyBookingEngine\\Api\\SearchEndpoint', 'ajax_search_entities_static' ) );
+		add_action( 'wp_ajax_mb_create_booking', array( '\\MyBookingEngine\\Api\\BookingEndpoint', 'ajax_create_booking' ) );
+		add_action( 'wp_ajax_nopriv_mb_create_booking', array( '\\MyBookingEngine\\Api\\BookingEndpoint', 'ajax_create_booking' ) );
 	}
 
 	/**

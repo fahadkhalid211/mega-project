@@ -701,23 +701,24 @@
 			btn.disabled = true;
 			btn.textContent = 'Reserving...';
 
-			const restUrl = (window.mbEngineData && window.mbEngineData.restUrl) ? window.mbEngineData.restUrl : '/wp-json/my-booking-engine/v1/';
-			const nonce = (window.mbEngineData && window.mbEngineData.nonce) ? window.mbEngineData.nonce : '';
+			const restBase = (window.mbEngineData && window.mbEngineData.restUrl) ? window.mbEngineData.restUrl : '/wp-json/my-booking-engine/v1/';
+			const ajaxUrl  = (window.mbEngineData && window.mbEngineData.ajaxUrl) ? window.mbEngineData.ajaxUrl : '/wp-admin/admin-ajax.php';
+			const nonce    = (window.mbEngineData && window.mbEngineData.nonce) ? window.mbEngineData.nonce : '';
 
 			let startFull;
 			let endFull;
 
 			if (this.model === 'hourly_slot' && this.selectedSlot) {
 				startFull = this.selectedSlot.start_datetime;
-				endFull = this.selectedSlot.end_datetime;
+				endFull   = this.selectedSlot.end_datetime;
 			} else if (this.model === 'capacity_roster' && this.entityData) {
 				startFull = this.entityData.start_datetime;
-				endFull = this.entityData.end_datetime;
+				endFull   = this.entityData.end_datetime;
 			} else {
 				const startDateVal = (this.selectedDates.startDate || new Date().toISOString().slice(0, 10));
-				const endDateVal = (this.selectedDates.endDate || this.selectedDates.startDate || new Date().toISOString().slice(0, 10));
+				const endDateVal   = (this.selectedDates.endDate || this.selectedDates.startDate || new Date().toISOString().slice(0, 10));
 				startFull = startDateVal.length > 10 ? startDateVal : (startDateVal + ' 10:00:00');
-				endFull = endDateVal.length > 10 ? endDateVal : (endDateVal + ' 12:00:00');
+				endFull   = endDateVal.length > 10 ? endDateVal : (endDateVal + ' 12:00:00');
 			}
 
 			const payload = {
@@ -732,7 +733,73 @@
 				capacity: this.guests
 			};
 
-			fetch(restUrl + 'book', {
+			const handleSuccess = (data) => {
+				if (data && data.success) {
+					if (data.redirect_url) {
+						window.location.href = data.redirect_url;
+					} else {
+						const bookingId = data.booking_id ? ('#' + data.booking_id) : '';
+						this.modal.querySelector('#mb-funnel-step-content').innerHTML = `
+							<div class="mb-success-view">
+								<div class="mb-success-icon">🎉</div>
+								<h3>Reservation Confirmed!</h3>
+								<p>Your booking ${bookingId} has been reserved. A confirmation email was dispatched to <strong>${this.customer.email}</strong>.</p>
+								<button type="button" class="mb-btn mb-btn-primary" onclick="window.location.reload();">Done</button>
+							</div>
+						`;
+						this.modal.querySelector('.mb-funnel-footer').style.display = 'none';
+					}
+				} else {
+					alert((data && data.message) || 'Booking could not be confirmed. Please try another date or time slot.');
+					btn.disabled = false;
+					btn.textContent = 'Confirm Reservation';
+				}
+			};
+
+			const fallbackToAjax = () => {
+				const formData = new URLSearchParams();
+				formData.append('action', 'mb_create_booking');
+				formData.append('nonce', nonce);
+				Object.keys(payload).forEach(k => {
+					if (payload[k] !== undefined && payload[k] !== null) {
+						formData.append(k, payload[k]);
+					}
+				});
+
+				fetch(ajaxUrl, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded'
+					},
+					body: formData.toString()
+				})
+				.then(res => res.json())
+				.then(res => {
+					if (res && res.success && res.data) {
+						handleSuccess(res.data);
+					} else {
+						alert((res && res.data && res.data.message) || (res && res.message) || 'Booking could not be confirmed. Please try another date or time slot.');
+						btn.disabled = false;
+						btn.textContent = 'Confirm Reservation';
+					}
+				})
+				.catch(() => {
+					alert('Network error submitting reservation. Please check your connection.');
+					btn.disabled = false;
+					btn.textContent = 'Confirm Reservation';
+				});
+			};
+
+			let bookUrl;
+			if (restBase.indexOf('rest_route=') !== -1) {
+				const parts = restBase.split('rest_route=');
+				const route = (parts[1] || '').replace(/\/+$/, '') + '/book';
+				bookUrl = parts[0] + 'rest_route=' + route;
+			} else {
+				bookUrl = restBase.replace(/\/+$/, '') + '/book';
+			}
+
+			fetch(bookUrl, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -740,32 +807,17 @@
 				},
 				body: JSON.stringify(payload)
 			})
-			.then(res => res.json())
-			.then(data => {
-				if (data.success) {
-					if (data.redirect_url) {
-						window.location.href = data.redirect_url;
-					} else {
-						this.modal.querySelector('#mb-funnel-step-content').innerHTML = `
-							<div class="mb-success-view">
-								<div class="mb-success-icon">🎉</div>
-								<h3>Reservation Confirmed!</h3>
-								<p>Booking #${data.booking_id} has been reserved. A confirmation email was dispatched to <strong>${this.customer.email}</strong>.</p>
-								<button type="button" class="mb-btn mb-btn-primary" onclick="window.location.reload();">Done</button>
-							</div>
-						`;
-						this.modal.querySelector('.mb-funnel-footer').style.display = 'none';
-					}
-				} else {
-					alert(data.message || 'Booking could not be confirmed. Please try another date or time slot.');
-					btn.disabled = false;
-					btn.textContent = 'Confirm Reservation';
+			.then(res => {
+				if (!res.ok) {
+					throw new Error('HTTP ' + res.status);
 				}
+				return res.json();
 			})
-			.catch(err => {
-				alert('Network error submitting reservation. Please check your connection.');
-				btn.disabled = false;
-				btn.textContent = 'Confirm Reservation';
+			.then(data => {
+				handleSuccess(data);
+			})
+			.catch(() => {
+				fallbackToAjax();
 			});
 		}
 	}
