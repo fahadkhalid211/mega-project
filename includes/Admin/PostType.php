@@ -32,6 +32,7 @@ class PostType {
 
 		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns', array( __CLASS__, 'manage_columns' ) );
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'render_columns' ), 10, 2 );
+		add_action( 'all_admin_notices', array( __CLASS__, 'render_listings_hero_banner' ) );
 	}
 
 	/**
@@ -144,46 +145,131 @@ class PostType {
 
 		switch ( $column ) {
 			case 'mb_thumb':
-				if ( has_post_thumbnail( $post_id ) ) {
-					echo get_the_post_thumbnail( $post_id, array( 48, 48 ), array( 'style' => 'border-radius:4px;object-fit:cover;' ) );
-				} else {
-					echo '<span style="display:inline-block;width:48px;height:48px;background:#f0f0f1;border-radius:4px;text-align:center;line-height:48px;color:#8c8f94;"><span class="dashicons dashicons-calendar-alt"></span></span>';
-				}
+				$thumb_url = $entity->get_thumbnail_url( 'thumbnail' );
+				echo '<img src="' . esc_url( $thumb_url ) . '" alt="" class="mb-admin-listing-thumb" loading="lazy" />';
 				break;
 
 			case 'mb_model':
 				$models = array(
-					'hourly_slot'     => __( 'Hourly Appointment', 'my-booking-engine' ),
-					'day_rental'      => __( 'Day Rental (Car/Gear)', 'my-booking-engine' ),
-					'night_stay'      => __( 'Night Stay (Property/Hotel)', 'my-booking-engine' ),
-					'capacity_roster' => __( 'Capacity Event / Tour', 'my-booking-engine' ),
+					'hourly_slot'     => __( 'Hourly Session', 'my-booking-engine' ),
+					'day_rental'      => __( 'Day Rental', 'my-booking-engine' ),
+					'night_stay'      => __( 'Night Stay', 'my-booking-engine' ),
+					'capacity_roster' => __( 'Capacity Event', 'my-booking-engine' ),
 				);
-				$type   = $entity->get_model_type();
-				$badge_color = ( 'hourly_slot' === $type ) ? '#2271b1' : ( ( 'day_rental' === $type ) ? '#007017' : ( ( 'night_stay' === $type ) ? '#8a2487' : '#d63638' ) );
-				echo '<span style="display:inline-block;padding:3px 8px;border-radius:3px;font-size:11px;font-weight:600;color:#fff;background:' . esc_attr( $badge_color ) . ';">' . esc_html( $models[ $type ] ?? $type ) . '</span>';
+				$type = $entity->get_model_type();
+				$pill_classes = array(
+					'hourly_slot'     => 'mb-model-pill-hourly',
+					'day_rental'      => 'mb-model-pill-rental',
+					'night_stay'      => 'mb-model-pill-stay',
+					'capacity_roster' => 'mb-model-pill-capacity',
+				);
+				$cls = isset( $pill_classes[ $type ] ) ? $pill_classes[ $type ] : 'mb-model-pill-default';
+				echo '<span class="mb-admin-model-pill ' . esc_attr( $cls ) . '">' . esc_html( $models[ $type ] ?? $type ) . '</span>';
 				break;
 
 			case 'mb_price':
 				$settings = get_option( 'mb_engine_settings', array() );
 				$sym      = $settings['currency_symbol'] ?? '$';
-				echo esc_html( $sym . number_format( $entity->get_base_price(), 2 ) );
+				echo '<span class="mb-admin-price-pill">' . esc_html( $sym . number_format( $entity->get_base_price(), 2 ) ) . '</span>';
 				break;
 
 			case 'mb_location':
 				$loc = $entity->get_location();
 				if ( $loc && ( ! empty( $loc->city ) || ! empty( $loc->postal_code ) ) ) {
-					echo '<strong>' . esc_html( $loc->postal_code ) . '</strong> ' . esc_html( $loc->city );
-					if ( ! empty( $loc->country_code ) ) {
-						echo ' (' . esc_html( $loc->country_code ) . ')';
-					}
+					echo '<div class="mb-admin-location-pill"><svg viewBox="0 0 24 24" width="13" height="13"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg> <span>' . esc_html( trim( "{$loc->postal_code} {$loc->city}" ) ) . '</span></div>';
 				} else {
-					echo '<em style="color:#8c8f94;">' . esc_html__( 'No location saved', 'my-booking-engine' ) . '</em>';
+					echo '<span class="mb-admin-no-data">' . esc_html__( 'No location', 'my-booking-engine' ) . '</span>';
 				}
 				break;
 
 			case 'mb_capacity':
-				echo esc_html( $entity->get_capacity() );
+				$cap = $entity->get_capacity();
+				if ( $cap > 0 ) {
+					echo '<span class="mb-admin-cap-pill"><svg viewBox="0 0 24 24" width="12" height="12"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> ' . esc_html( $cap ) . '</span>';
+				} else {
+					echo '<span class="mb-admin-no-data">—</span>';
+				}
 				break;
 		}
+	}
+
+	/**
+	 * Render listings hero banner and KPI cards above the listings table.
+	 *
+	 * @return void
+	 */
+	public static function render_listings_hero_banner() {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || self::POST_TYPE !== $screen->post_type || 'edit' !== $screen->base ) {
+			return;
+		}
+
+		$counts    = wp_count_posts( self::POST_TYPE );
+		$published = isset( $counts->publish ) ? (int) $counts->publish : 0;
+		$drafts    = isset( $counts->draft ) ? (int) $counts->draft : 0;
+		$total     = $published + $drafts + ( isset( $counts->pending ) ? (int) $counts->pending : 0 );
+		$terms_cnt = (int) wp_count_terms( array( 'taxonomy' => self::TAXONOMY, 'hide_empty' => false ) );
+		?>
+		<div class="mb-admin-dashboard-wrap mb-listings-dashboard-hero">
+			<div class="mb-admin-header-hero">
+				<div class="mb-admin-header-left">
+					<div class="mb-header-badge">
+						<svg viewBox="0 0 24 24" width="13" height="13"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+						<?php esc_html_e( 'Inventory & Experiences', 'my-booking-engine' ); ?>
+					</div>
+					<h1 class="mb-admin-title"><?php esc_html_e( 'All Listings', 'my-booking-engine' ); ?></h1>
+					<p class="mb-admin-subtitle"><?php esc_html_e( 'Manage your catalog of properties, vehicle rentals, medical clinics, salons, and bookable activities.', 'my-booking-engine' ); ?></p>
+				</div>
+				<div class="mb-admin-header-right">
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=mb-add-listing' ) ); ?>" class="mb-btn mb-btn-primary mb-header-action-btn">
+						<svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+						<?php esc_html_e( 'Add New Listing', 'my-booking-engine' ); ?>
+					</a>
+				</div>
+			</div>
+
+			<div class="mb-kpi-row">
+				<div class="mb-kpi-card mb-kpi-total">
+					<div class="mb-kpi-icon-wrap" style="background:#eff6ff;color:#2563eb;">
+						<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+					</div>
+					<div class="mb-kpi-content">
+						<span class="mb-kpi-label"><?php esc_html_e( 'Total Listings', 'my-booking-engine' ); ?></span>
+						<span class="mb-kpi-value"><?php echo esc_html( number_format_i18n( $total ) ); ?></span>
+					</div>
+				</div>
+
+				<div class="mb-kpi-card mb-kpi-confirmed">
+					<div class="mb-kpi-icon-wrap" style="background:#f0fdf4;color:#16a34a;">
+						<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+					</div>
+					<div class="mb-kpi-content">
+						<span class="mb-kpi-label"><?php esc_html_e( 'Published / Active', 'my-booking-engine' ); ?></span>
+						<span class="mb-kpi-value"><?php echo esc_html( number_format_i18n( $published ) ); ?></span>
+					</div>
+				</div>
+
+				<div class="mb-kpi-card mb-kpi-pending">
+					<div class="mb-kpi-icon-wrap" style="background:#fffbeb;color:#d97706;">
+						<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+					</div>
+					<div class="mb-kpi-content">
+						<span class="mb-kpi-label"><?php esc_html_e( 'Drafts / Inactive', 'my-booking-engine' ); ?></span>
+						<span class="mb-kpi-value"><?php echo esc_html( number_format_i18n( $drafts ) ); ?></span>
+					</div>
+				</div>
+
+				<div class="mb-kpi-card mb-kpi-revenue">
+					<div class="mb-kpi-icon-wrap" style="background:#faf5ff;color:#9333ea;">
+						<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+					</div>
+					<div class="mb-kpi-content">
+						<span class="mb-kpi-label"><?php esc_html_e( 'Categories', 'my-booking-engine' ); ?></span>
+						<span class="mb-kpi-value"><?php echo esc_html( number_format_i18n( $terms_cnt ) ); ?></span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php
 	}
 }

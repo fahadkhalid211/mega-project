@@ -2171,7 +2171,655 @@
 	flex: 1;
 	text-align: center;
 	padding: 10px;
-	border-radius: var(--mb-radius, 8px);
+	border-radius: 100px;
 	font-weight: 700;
 	text-decoration: none;
+	font-size: 13px;
+	transition: all 0.15s ease;
+}
+
+/* ==========================================================================
+   SLEEK WHITE THEME: ALL LISTINGS & ALL BOOKINGS ADMIN SCREENS
+   ========================================================================== */
+
+/* 1. Page Canvas: Pure White Background */
+body.mb-admin-white-theme,
+body.mb-admin-white-theme #wpwrap,
+body.mb-admin-white-theme #wpcontent,
+body.mb-admin-white-theme #wpbody,
+body.mb-admin-white-theme #wpbody-content,
+body.post-type-mb_booking_entity.edit-php,
+body.post-type-mb_booking_entity.edit-php #wpwrap,
+body.post-type-mb_booking_entity.edit-php #wpcontent,
+body.post-type-mb_booking_entity.edit-php #wpbody,
+body.post-type-mb_booking_entity.edit-php #wpbody-content,
+body.booking-engine_page_mb-bookings,
+body.booking-engine_page_mb-bookings #wpwrap,
+body.booking-engine_page_mb-bookings #wpcontent,
+body.booking-engine_page_mb-bookings #wpbody,
+body.booking-engine_page_mb-bookings #wpbody-content {
+	background: #ffffff !important;
+}
+
+/* Hide raw WordPress default headings on customized screens */
+body.post-type-mb_booking_entity.edit-php .wrap > h1.wp-heading-inline,
+body.post-type-mb_booking_entity.edit-php .wrap > a.page-title-action,
+body.post-type-mb_booking_entity.edit-php .wrap > hr.wp-header-end,
+body.booking-engine_page_mb-bookings .wrap > h1.wp-heading-inline,
+body.booking-engine_page_mb-bookings .wrap > hr.wp-header-end {
+	display: none !important;
+}
+
+/* 2. Admin Dashboard Wrappers */
+.mb-admin-dashboard-wrap {
+	max-width: 1400px;
+	margin: 15px auto 40px 0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	box-sizing: border-box;
+}
+
+.mb-listings-dashboard-hero {
+	margin-bottom: 24px;
+}
+
+/* 3. Hero Header Section */
+.mb-admin-header-hero {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 16px;
+	margin-bottom: 24px;
+	padding-bottom: 22px;
+	border-bottom: 1px solid #edf2f7;
+}
+
+.mb-header-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 12px;
+	border-radius: 100px;
+	background: #eff6ff;
+	color: #2563eb;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin-bottom: 8px;
+}
+
+.mb-admin-title {
+	font-size: 26px;
+	font-weight: 800;
+	color: #0f172a;
+	margin: 0 0 6px 0;
+	letter-spacing: -0.5px;
+	line-height: 1.25;
+}
+
+.mb-admin-subtitle {
+	font-size: 13.5px;
+	color: #64748b;
+	margin: 0;
+	line-height: 1.5;
+}
+
+.mb-header-action-btn {
+	background: #2563eb !important;
+	color: #ffffff !important;
+	border-radius: 100px !important;
+	padding: 10px 22px !important;
+	font-size: 13.5px !important;
+	font-weight: 700 !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 8px !important;
+	text-decoration: none !important;
+	box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+	transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+	border: none !important;
+	cursor: pointer !important;
+}
+
+.mb-header-action-btn:hover {
+	background: #1d4ed8 !important;
+	transform: translateY(-1px) !important;
+	box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45) !important;
+	color: #ffffff !important;
+}
+
+/* 4. KPI Stat Cards */
+.mb-kpi-row {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 18px;
+	margin-bottom: 24px;
+}
+
+.mb-kpi-card {
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 18px;
+	padding: 18px 20px;
+	box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s, border-color 0.2s;
+}
+
+.mb-kpi-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08);
+	border-color: #cbd5e1;
+}
+
+.mb-kpi-icon-wrap {
+	width: 46px;
+	height: 46px;
+	border-radius: 14px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.mb-kpi-content {
+	display: flex;
+	flex-direction: column;
+}
+
+.mb-kpi-label {
+	font-size: 11.5px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: #64748b;
+	margin-bottom: 2px;
+}
+
+.mb-kpi-value {
+	font-size: 24px;
+	font-weight: 800;
+	color: #0f172a;
+	letter-spacing: -0.3px;
+	line-height: 1.2;
+}
+
+/* 5. Quick Filter Tabs & WP Native .subsubsub Modernization */
+.mb-admin-filter-bar {
+	margin-bottom: 18px;
+}
+
+.mb-filter-pills-list {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.mb-filter-pill,
+body.post-type-mb_booking_entity .subsubsub a {
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 100px;
+	padding: 6px 14px;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: #475569;
+	text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	transition: all 0.18s ease;
+	line-height: 1.4;
+}
+
+.mb-filter-pill:hover,
+body.post-type-mb_booking_entity .subsubsub a:hover {
+	background: #f1f5f9;
+	color: #0f172a;
+	border-color: #cbd5e1;
+}
+
+.mb-filter-pill.is-active,
+body.post-type-mb_booking_entity .subsubsub a.current {
+	background: #2563eb !important;
+	color: #ffffff !important;
+	border-color: #2563eb !important;
+	box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28) !important;
+}
+
+.mb-pill-count,
+body.post-type-mb_booking_entity .subsubsub .count {
+	background: rgba(0, 0, 0, 0.06);
+	padding: 1px 7px;
+	border-radius: 100px;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.mb-filter-pill.is-active .mb-pill-count,
+body.post-type-mb_booking_entity .subsubsub a.current .count {
+	background: rgba(255, 255, 255, 0.28);
+	color: #ffffff;
+}
+
+body.post-type-mb_booking_entity .subsubsub {
+	font-size: 0;
+	display: flex;
+	gap: 8px;
+	margin: 0 0 18px 0;
+	padding: 0;
+}
+
+body.post-type-mb_booking_entity .subsubsub li {
+	font-size: 12.5px;
+	display: inline-block;
+	margin: 0;
+}
+
+/* 6. White Card for Tables */
+.mb-admin-table-card,
+body.post-type-mb_booking_entity.edit-php .wrap > form#posts-filter {
+	background: #ffffff;
+	border: 1px solid #edf2f7;
+	border-radius: 20px;
+	box-shadow: 0 4px 24px -2px rgba(15, 23, 42, 0.05);
+	padding: 22px;
+	margin-top: 14px;
+	box-sizing: border-box;
+}
+
+/* 7. WP_List_Table SaaS Redesign (All Listings & All Bookings) */
+body.mb-admin-white-theme .wp-list-table,
+body.post-type-mb_booking_entity .wp-list-table,
+body.booking-engine_page_mb-bookings .wp-list-table {
+	border: 1px solid #edf2f7 !important;
+	border-radius: 14px !important;
+	overflow: hidden !important;
+	border-collapse: separate !important;
+	border-spacing: 0 !important;
+	box-shadow: none !important;
+	background: #ffffff !important;
+	width: 100% !important;
+}
+
+body.mb-admin-white-theme .wp-list-table thead th,
+body.mb-admin-white-theme .wp-list-table tfoot th,
+body.post-type-mb_booking_entity .wp-list-table thead th,
+body.post-type-mb_booking_entity .wp-list-table tfoot th,
+body.booking-engine_page_mb-bookings .wp-list-table thead th,
+body.booking-engine_page_mb-bookings .wp-list-table tfoot th {
+	background: #f8fafc !important;
+	color: #475569 !important;
+	font-size: 11.5px !important;
+	font-weight: 700 !important;
+	text-transform: uppercase !important;
+	letter-spacing: 0.6px !important;
+	padding: 14px 16px !important;
+	border: none !important;
+	border-bottom: 2px solid #edf2f7 !important;
+}
+
+body.mb-admin-white-theme .wp-list-table thead th a,
+body.post-type-mb_booking_entity .wp-list-table thead th a {
+	color: #475569 !important;
+	text-decoration: none !important;
+}
+
+body.mb-admin-white-theme .wp-list-table tbody tr,
+body.post-type-mb_booking_entity .wp-list-table tbody tr,
+body.booking-engine_page_mb-bookings .wp-list-table tbody tr {
+	border-bottom: 1px solid #f1f5f9 !important;
+	background: #ffffff !important;
+	transition: background 0.15s ease !important;
+}
+
+body.mb-admin-white-theme .wp-list-table tbody tr:hover,
+body.post-type-mb_booking_entity .wp-list-table tbody tr:hover,
+body.booking-engine_page_mb-bookings .wp-list-table tbody tr:hover {
+	background: #f8fafc !important;
+}
+
+body.mb-admin-white-theme .wp-list-table tbody td,
+body.post-type-mb_booking_entity .wp-list-table tbody td,
+body.booking-engine_page_mb-bookings .wp-list-table tbody td {
+	padding: 14px 16px !important;
+	vertical-align: middle !important;
+	color: #334155 !important;
+	font-size: 13.5px !important;
+	border-top: none !important;
+	border-bottom: 1px solid #f1f5f9 !important;
+}
+
+/* Checkbox Column */
+body.mb-admin-white-theme .wp-list-table th.check-column,
+body.mb-admin-white-theme .wp-list-table td.check-column,
+body.post-type-mb_booking_entity .wp-list-table th.check-column,
+body.post-type-mb_booking_entity .wp-list-table td.check-column {
+	width: 38px !important;
+	padding: 14px 0 14px 14px !important;
+	text-align: center !important;
+}
+
+body.mb-admin-white-theme input[type="checkbox"],
+body.post-type-mb_booking_entity input[type="checkbox"] {
+	border-radius: 5px !important;
+	border: 1.5px solid #cbd5e1 !important;
+	width: 18px !important;
+	height: 18px !important;
+	transition: all 0.15s !important;
+	margin: 0 !important;
+}
+
+body.mb-admin-white-theme input[type="checkbox"]:checked,
+body.post-type-mb_booking_entity input[type="checkbox"]:checked {
+	background: #2563eb !important;
+	border-color: #2563eb !important;
+}
+
+/* Title & Row Actions */
+body.post-type-mb_booking_entity .row-title {
+	font-weight: 700 !important;
+	font-size: 14.5px !important;
+	color: #0f172a !important;
+	text-decoration: none !important;
+	transition: color 0.15s !important;
+}
+
+body.post-type-mb_booking_entity .row-title:hover {
+	color: #2563eb !important;
+}
+
+body.post-type-mb_booking_entity .row-actions {
+	margin-top: 5px !important;
+	font-size: 12px !important;
+	color: #94a3b8 !important;
+}
+
+body.post-type-mb_booking_entity .row-actions a {
+	color: #64748b !important;
+	font-weight: 500 !important;
+	text-decoration: none !important;
+	transition: color 0.15s !important;
+}
+
+body.post-type-mb_booking_entity .row-actions a:hover {
+	color: #2563eb !important;
+}
+
+body.post-type-mb_booking_entity .row-actions .trash a {
+	color: #ef4444 !important;
+}
+
+/* Custom Column Elements (Listings Table) */
+.mb-admin-listing-thumb {
+	width: 50px !important;
+	height: 50px !important;
+	border-radius: 12px !important;
+	object-fit: cover !important;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+	display: block !important;
+	border: 1px solid #e2e8f0 !important;
+	background: #f8fafc !important;
+}
+
+.mb-admin-model-pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 11px;
+	border-radius: 100px;
+	font-size: 11.5px;
+	font-weight: 700;
+	letter-spacing: 0.3px;
+}
+
+.mb-model-pill-hourly {
+	background: #eff6ff;
+	color: #1d4ed8;
+	border: 1px solid #bfdbfe;
+}
+
+.mb-model-pill-rental {
+	background: #f0fdf4;
+	color: #15803d;
+	border: 1px solid #bbf7d0;
+}
+
+.mb-model-pill-stay {
+	background: #faf5ff;
+	color: #7e22ce;
+	border: 1px solid #e9d5ff;
+}
+
+.mb-model-pill-capacity {
+	background: #fffbeb;
+	color: #b45309;
+	border: 1px solid #fde68a;
+}
+
+.mb-model-pill-default {
+	background: #f1f5f9;
+	color: #475569;
+	border: 1px solid #cbd5e1;
+}
+
+.mb-admin-price-pill {
+	font-weight: 800;
+	font-size: 15px;
+	color: #0f172a;
+	letter-spacing: -0.2px;
+}
+
+.mb-admin-location-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 100px;
+	padding: 4px 10px;
+	font-size: 12px;
+	color: #334155;
+	font-weight: 600;
+}
+
+.mb-admin-cap-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 12.5px;
+	font-weight: 700;
+	color: #475569;
+}
+
+.mb-admin-no-data {
+	color: #94a3b8;
+	font-size: 12px;
+	font-style: italic;
+}
+
+/* Custom Column Elements (Bookings Table) */
+.mb-status-pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 12px;
+	border-radius: 100px;
+	font-size: 11.5px;
+	font-weight: 700;
+	text-transform: capitalize;
+}
+
+.mb-status-confirmed,
+.mb-status-completed {
+	background: #ecfdf5;
+	color: #059669;
+	border: 1px solid #a7f3d0;
+}
+
+.mb-status-pending {
+	background: #fffbeb;
+	color: #d97706;
+	border: 1px solid #fde68a;
+}
+
+.mb-status-cancelled {
+	background: #fff1f2;
+	color: #e11d48;
+	border: 1px solid #fecdd3;
+}
+
+.mb-booking-view-link {
+	font-weight: 700;
+	font-size: 14px;
+	color: #0f172a;
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	text-decoration: none;
+	text-align: left;
+	transition: color 0.15s ease;
+}
+
+.mb-booking-view-link:hover {
+	color: #2563eb;
+	text-decoration: underline;
+}
+
+.mb-booking-edit-listing {
+	color: #94a3b8;
+	text-decoration: none;
+	margin-left: 4px;
+	vertical-align: middle;
+}
+
+.mb-booking-edit-listing:hover {
+	color: #2563eb;
+}
+
+.mb-row-actions {
+	display: flex;
+	gap: 6px;
+	align-items: center;
+}
+
+.mb-row-action {
+	padding: 4px 12px;
+	border-radius: 100px;
+	font-size: 11.5px;
+	font-weight: 700;
+	text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	transition: all 0.15s ease;
+}
+
+.mb-row-action-approve {
+	background: #ecfdf5;
+	color: #059669;
+	border: 1px solid #a7f3d0;
+}
+
+.mb-row-action-approve:hover {
+	background: #059669;
+	color: #ffffff;
+	border-color: #059669;
+}
+
+.mb-row-action-cancel {
+	background: #fff1f2;
+	color: #e11d48;
+	border: 1px solid #fecdd3;
+}
+
+.mb-row-action-cancel:hover {
+	background: #e11d48;
+	color: #ffffff;
+	border-color: #e11d48;
+}
+
+/* 8. Modernized Table Navigation, Search, and Pagination */
+body.mb-admin-white-theme .tablenav,
+body.post-type-mb_booking_entity .tablenav {
+	margin: 12px 0 16px 0;
+	height: auto;
+}
+
+body.mb-admin-white-theme .tablenav select,
+body.post-type-mb_booking_entity .tablenav select {
+	border-radius: 100px !important;
+	border: 1px solid #cbd5e1 !important;
+	background: #f8fafc !important;
+	padding: 5px 28px 5px 14px !important;
+	font-size: 12.5px !important;
+	height: 36px !important;
+	color: #334155 !important;
+}
+
+body.mb-admin-white-theme .tablenav .button,
+body.post-type-mb_booking_entity .tablenav .button {
+	border-radius: 100px !important;
+	border: 1px solid #cbd5e1 !important;
+	background: #f8fafc !important;
+	color: #334155 !important;
+	font-weight: 600 !important;
+	padding: 0 16px !important;
+	height: 36px !important;
+	line-height: 34px !important;
+	transition: all 0.15s !important;
+}
+
+body.mb-admin-white-theme .tablenav .button:hover,
+body.post-type-mb_booking_entity .tablenav .button:hover {
+	background: #f1f5f9 !important;
+	border-color: #94a3b8 !important;
+	color: #0f172a !important;
+}
+
+body.mb-admin-white-theme .search-box input[type="search"],
+body.post-type-mb_booking_entity .search-box input[type="search"] {
+	border-radius: 100px !important;
+	border: 1px solid #cbd5e1 !important;
+	background: #f8fafc !important;
+	padding: 6px 16px !important;
+	font-size: 13px !important;
+	height: 36px !important;
+	width: 220px !important;
+	transition: all 0.2s ease !important;
+}
+
+body.mb-admin-white-theme .search-box input[type="search"]:focus,
+body.post-type-mb_booking_entity .search-box input[type="search"]:focus {
+	background: #ffffff !important;
+	border-color: #2563eb !important;
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+	width: 260px !important;
+}
+
+body.mb-admin-white-theme .search-box input[type="submit"],
+body.post-type-mb_booking_entity .search-box input[type="submit"] {
+	border-radius: 100px !important;
+	border: 1px solid #cbd5e1 !important;
+	background: #f8fafc !important;
+	color: #334155 !important;
+	font-weight: 600 !important;
+	padding: 0 16px !important;
+	height: 36px !important;
+	line-height: 34px !important;
+}
+
+body.mb-admin-white-theme .tablenav-pages a,
+body.mb-admin-white-theme .tablenav-pages .tablenav-pages-navspan,
+body.post-type-mb_booking_entity .tablenav-pages a,
+body.post-type-mb_booking_entity .tablenav-pages .tablenav-pages-navspan {
+	border-radius: 8px !important;
+	border: 1px solid #e2e8f0 !important;
+	background: #ffffff !important;
+	padding: 5px 11px !important;
+	font-weight: 600 !important;
+	font-size: 12.5px !important;
 }

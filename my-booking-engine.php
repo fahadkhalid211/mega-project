@@ -3,7 +3,7 @@
  * Plugin Name:       Booking Engine - Multi-Model Booking & Appointment System
  * Plugin URI:        https://github.com/fahadkhalid211/mega-project
  * Description:       High-performance booking system supporting hourly appointments, day rentals, night stays, and capacity events with worldwide postal code radius search and WooCommerce checkout.
- * Version:           1.7.2
+ * Version:           1.7.3
  * Author:            Booking Engine Team
  * Author URI:        https://github.com/fahadkhalid211
  * License:           GPL-2.0-or-later
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Plugin version and filesystem constants.
 if ( ! defined( 'MB_ENGINE_VERSION' ) ) {
-	define( 'MB_ENGINE_VERSION', '1.7.2' );
+	define( 'MB_ENGINE_VERSION', '1.7.3' );
 }
 if ( ! defined( 'MB_ENGINE_FILE' ) ) {
 	define( 'MB_ENGINE_FILE', __FILE__ );

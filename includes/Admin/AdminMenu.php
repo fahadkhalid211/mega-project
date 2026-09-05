@@ -29,6 +29,31 @@ class AdminMenu {
 		add_action( 'admin_init', array( __CLASS__, 'handle_booking_actions' ) );
 		add_action( 'load-post-new.php', array( __CLASS__, 'redirect_legacy_add_new' ) );
 		add_action( 'load-post.php', array( __CLASS__, 'redirect_legacy_edit' ) );
+		add_filter( 'admin_body_class', array( __CLASS__, 'add_admin_body_classes' ) );
+	}
+
+	/**
+	 * Add body classes for custom sleek white theme on All Listings and All Bookings pages.
+	 *
+	 * @param string $classes Existing body classes.
+	 * @return string
+	 */
+	public static function add_admin_body_classes( $classes ) {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		$param_page = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( $screen ) {
+			if ( 'mb_booking_entity' === $screen->post_type && 'edit' === $screen->base ) {
+				$classes .= ' mb-admin-white-theme mb-admin-listings-page ';
+			}
+			if ( 'mb-bookings' === $param_page || ( false !== strpos( $screen->id, 'mb-bookings' ) ) ) {
+				$classes .= ' mb-admin-white-theme mb-admin-bookings-page ';
+			}
+		} elseif ( 'mb-bookings' === $param_page ) {
+			$classes .= ' mb-admin-white-theme mb-admin-bookings-page ';
+		}
+
+		return $classes;
 	}
 
 	/**
@@ -261,10 +286,91 @@ class AdminMenu {
 			echo '<div class="notice notice-error"><p>' . esc_html__( 'The bookings table could not be loaded:', 'my-booking-engine' ) . ' ' . esc_html( $e->getMessage() ) . '</p></div></div>';
 			return;
 		}
+
+		$stats        = Booking::get_summary_stats();
+		$settings     = get_option( 'mb_engine_settings', array() );
+		$currency_sym = isset( $settings['currency_symbol'] ) ? $settings['currency_symbol'] : '$';
+		$curr_status  = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		?>
-		<div class="wrap">
-			<h1 class="wp-heading-inline"><?php esc_html_e( 'Bookings & Reservations', 'my-booking-engine' ); ?></h1>
-			<hr class="wp-header-end">
+		<div class="wrap mb-admin-dashboard-wrap mb-bookings-dashboard">
+			<!-- Header Banner -->
+			<div class="mb-admin-header-hero">
+				<div class="mb-admin-header-left">
+					<div class="mb-header-badge">
+						<svg viewBox="0 0 24 24" width="13" height="13"><path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+						<?php esc_html_e( 'Reservations Console', 'my-booking-engine' ); ?>
+					</div>
+					<h1 class="mb-admin-title"><?php esc_html_e( 'Bookings & Reservations', 'my-booking-engine' ); ?></h1>
+					<p class="mb-admin-subtitle"><?php esc_html_e( 'Manage real-time customer bookings, appointment schedules, and confirmed transaction revenues.', 'my-booking-engine' ); ?></p>
+				</div>
+				<div class="mb-admin-header-right">
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=mb-add-listing' ) ); ?>" class="mb-btn mb-btn-primary mb-header-action-btn">
+						<svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+						<?php esc_html_e( 'Add New Listing', 'my-booking-engine' ); ?>
+					</a>
+				</div>
+			</div>
+
+			<!-- KPI Summary Row -->
+			<div class="mb-kpi-row">
+				<div class="mb-kpi-card mb-kpi-total">
+					<div class="mb-kpi-icon-wrap" style="background:#eff6ff;color:#2563eb;">
+						<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+					</div>
+					<div class="mb-kpi-content">
+						<span class="mb-kpi-label"><?php esc_html_e( 'Total Bookings', 'my-booking-engine' ); ?></span>
+						<span class="mb-kpi-value"><?php echo esc_html( number_format_i18n( $stats['total'] ) ); ?></span>
+					</div>
+				</div>
+
+				<div class="mb-kpi-card mb-kpi-confirmed">
+					<div class="mb-kpi-icon-wrap" style="background:#f0fdf4;color:#16a34a;">
+						<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+					</div>
+					<div class="mb-kpi-content">
+						<span class="mb-kpi-label"><?php esc_html_e( 'Confirmed', 'my-booking-engine' ); ?></span>
+						<span class="mb-kpi-value"><?php echo esc_html( number_format_i18n( $stats['confirmed'] ) ); ?></span>
+					</div>
+				</div>
+
+				<div class="mb-kpi-card mb-kpi-pending">
+					<div class="mb-kpi-icon-wrap" style="background:#fffbeb;color:#d97706;">
+						<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+					</div>
+					<div class="mb-kpi-content">
+						<span class="mb-kpi-label"><?php esc_html_e( 'Pending Approval', 'my-booking-engine' ); ?></span>
+						<span class="mb-kpi-value"><?php echo esc_html( number_format_i18n( $stats['pending'] ) ); ?></span>
+					</div>
+				</div>
+
+				<div class="mb-kpi-card mb-kpi-revenue">
+					<div class="mb-kpi-icon-wrap" style="background:#faf5ff;color:#9333ea;">
+						<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+					</div>
+					<div class="mb-kpi-content">
+						<span class="mb-kpi-label"><?php esc_html_e( 'Confirmed Revenue', 'my-booking-engine' ); ?></span>
+						<span class="mb-kpi-value"><?php echo esc_html( $currency_sym . number_format( $stats['revenue'], 2 ) ); ?></span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Quick Filter Pills -->
+			<div class="mb-admin-filter-bar">
+				<div class="mb-filter-pills-list">
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=mb-bookings' ) ); ?>" class="mb-filter-pill<?php echo empty( $curr_status ) ? ' is-active' : ''; ?>">
+						<?php esc_html_e( 'All Bookings', 'my-booking-engine' ); ?> <span class="mb-pill-count"><?php echo esc_html( $stats['total'] ); ?></span>
+					</a>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=mb-bookings&status=confirmed' ) ); ?>" class="mb-filter-pill<?php echo ( 'confirmed' === $curr_status ) ? ' is-active' : ''; ?>">
+						<?php esc_html_e( 'Confirmed', 'my-booking-engine' ); ?> <span class="mb-pill-count"><?php echo esc_html( $stats['confirmed'] ); ?></span>
+					</a>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=mb-bookings&status=pending' ) ); ?>" class="mb-filter-pill<?php echo ( 'pending' === $curr_status ) ? ' is-active' : ''; ?>">
+						<?php esc_html_e( 'Pending', 'my-booking-engine' ); ?> <span class="mb-pill-count"><?php echo esc_html( $stats['pending'] ); ?></span>
+					</a>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=mb-bookings&status=cancelled' ) ); ?>" class="mb-filter-pill<?php echo ( 'cancelled' === $curr_status ) ? ' is-active' : ''; ?>">
+						<?php esc_html_e( 'Cancelled', 'my-booking-engine' ); ?> <span class="mb-pill-count"><?php echo esc_html( $stats['cancelled'] ); ?></span>
+					</a>
+				</div>
+			</div>
 
 			<?php if ( ! empty( $table->db_error ) ) : ?>
 				<div class="notice notice-error"><p>
@@ -274,12 +380,15 @@ class AdminMenu {
 				</p></div>
 			<?php endif; ?>
 
-			<form method="post" action="">
-				<?php
-				$table->search_box( __( 'Search Bookings', 'my-booking-engine' ), 'mb_booking_search' );
-				$table->display();
-				?>
-			</form>
+			<!-- Main White Table Card -->
+			<div class="mb-admin-table-card">
+				<form method="post" action="">
+					<?php
+					$table->search_box( __( 'Search Bookings', 'my-booking-engine' ), 'mb_booking_search' );
+					$table->display();
+					?>
+				</form>
+			</div>
 		</div>
 
 		<div id="mb-booking-details-overlay" class="mb-booking-details-overlay" style="display:none;">

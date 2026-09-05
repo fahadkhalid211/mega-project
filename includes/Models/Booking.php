@@ -256,6 +256,45 @@ class Booking {
 	}
 
 	/**
+	 * Get summary KPI statistics for bookings dashboard.
+	 *
+	 * @return array
+	 */
+	public static function get_summary_stats() {
+		global $wpdb;
+		$table = Schema::get_bookings_table();
+		$stats = array(
+			'total'     => 0,
+			'confirmed' => 0,
+			'pending'   => 0,
+			'cancelled' => 0,
+			'revenue'   => 0.0,
+		);
+
+		$results = $wpdb->get_results(
+			"SELECT status, COUNT(*) as cnt, SUM(total_price) as rev FROM {$table} GROUP BY status"
+		);
+
+		if ( ! empty( $results ) && is_array( $results ) ) {
+			foreach ( $results as $row ) {
+				$cnt = (int) $row->cnt;
+				$rev = (float) $row->rev;
+				$stats['total'] += $cnt;
+
+				if ( isset( $stats[ $row->status ] ) ) {
+					$stats[ $row->status ] += $cnt;
+				}
+
+				if ( 'confirmed' === $row->status || 'completed' === $row->status ) {
+					$stats['revenue'] += $rev;
+				}
+			}
+		}
+
+		return $stats;
+	}
+
+	/**
 	 * Find confirmed bookings whose start time falls within a window —
 	 * used by the reminder scheduler to find bookings due a nudge.
 	 *
