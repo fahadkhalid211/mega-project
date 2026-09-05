@@ -922,9 +922,9 @@
 .mb-app-section-title {
 	margin: 0 0 5px 0;
 	font-size: 19px;
-	font-weight: 800;
+	font-weight: 600;
 	color: #0f172a;
-	letter-spacing: -0.01em;
+	letter-spacing: -0.015em;
 }
 
 .mb-app-section-desc {
@@ -1143,7 +1143,7 @@
 }
 
 .mb-layout-card.mb-app-type-card .mb-layout-card-title {
-	font-weight: 800;
+	font-weight: 600;
 	font-size: 13.5px;
 	color: #0f172a;
 	margin-bottom: 6px;
@@ -2251,10 +2251,10 @@ body.booking-engine_page_mb-bookings .wrap > hr.wp-header-end {
 
 .mb-admin-title {
 	font-size: 26px;
-	font-weight: 800;
+	font-weight: 600;
 	color: #0f172a;
 	margin: 0 0 6px 0;
-	letter-spacing: -0.5px;
+	letter-spacing: -0.4px;
 	line-height: 1.25;
 }
 
@@ -2271,7 +2271,7 @@ body.booking-engine_page_mb-bookings .wrap > hr.wp-header-end {
 	border-radius: 100px !important;
 	padding: 10px 22px !important;
 	font-size: 13.5px !important;
-	font-weight: 700 !important;
+	font-weight: 600 !important;
 	display: inline-flex !important;
 	align-items: center !important;
 	gap: 8px !important;
@@ -2332,7 +2332,7 @@ body.booking-engine_page_mb-bookings .wrap > hr.wp-header-end {
 
 .mb-kpi-label {
 	font-size: 11.5px;
-	font-weight: 700;
+	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 	color: #64748b;
@@ -2341,7 +2341,7 @@ body.booking-engine_page_mb-bookings .wrap > hr.wp-header-end {
 
 .mb-kpi-value {
 	font-size: 24px;
-	font-weight: 800;
+	font-weight: 650;
 	color: #0f172a;
 	letter-spacing: -0.3px;
 	line-height: 1.2;
@@ -2455,7 +2455,7 @@ body.booking-engine_page_mb-bookings .wp-list-table tfoot th {
 	background: #f8fafc !important;
 	color: #475569 !important;
 	font-size: 11.5px !important;
-	font-weight: 700 !important;
+	font-weight: 600 !important;
 	text-transform: uppercase !important;
 	letter-spacing: 0.6px !important;
 	padding: 14px 16px !important;
@@ -2522,7 +2522,7 @@ body.post-type-mb_booking_entity input[type="checkbox"]:checked {
 
 /* Title & Row Actions */
 body.post-type-mb_booking_entity .row-title {
-	font-weight: 700 !important;
+	font-weight: 600 !important;
 	font-size: 14.5px !important;
 	color: #0f172a !important;
 	text-decoration: none !important;
@@ -2572,7 +2572,7 @@ body.post-type-mb_booking_entity .row-actions .trash a {
 	padding: 4px 11px;
 	border-radius: 100px;
 	font-size: 11.5px;
-	font-weight: 700;
+	font-weight: 600;
 	letter-spacing: 0.3px;
 }
 
@@ -2607,7 +2607,7 @@ body.post-type-mb_booking_entity .row-actions .trash a {
 }
 
 .mb-admin-price-pill {
-	font-weight: 800;
+	font-weight: 700;
 	font-size: 15px;
 	color: #0f172a;
 	letter-spacing: -0.2px;
@@ -2631,7 +2631,7 @@ body.post-type-mb_booking_entity .row-actions .trash a {
 	align-items: center;
 	gap: 4px;
 	font-size: 12.5px;
-	font-weight: 700;
+	font-weight: 600;
 	color: #475569;
 }
 
@@ -2648,7 +2648,7 @@ body.post-type-mb_booking_entity .row-actions .trash a {
 	padding: 4px 12px;
 	border-radius: 100px;
 	font-size: 11.5px;
-	font-weight: 700;
+	font-weight: 600;
 	text-transform: capitalize;
 }
 
@@ -2672,7 +2672,7 @@ body.post-type-mb_booking_entity .row-actions .trash a {
 }
 
 .mb-booking-view-link {
-	font-weight: 700;
+	font-weight: 600;
 	font-size: 14px;
 	color: #0f172a;
 	background: none;
@@ -2710,7 +2710,7 @@ body.post-type-mb_booking_entity .row-actions .trash a {
 	padding: 4px 12px;
 	border-radius: 100px;
 	font-size: 11.5px;
-	font-weight: 700;
+	font-weight: 600;
 	text-decoration: none;
 	display: inline-flex;
 	align-items: center;
@@ -2823,3 +2823,168 @@ body.post-type-mb_booking_entity .tablenav-pages .tablenav-pages-navspan {
 	font-weight: 600 !important;
 	font-size: 12.5px !important;
 }
+
+/* 9. Layout Mix & Match Flexibility Callout Banner */
+.mb-flexibility-banner {
+	display: flex;
+	align-items: flex-start;
+	gap: 14px;
+	background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+	border: 1px solid #a7f3d0;
+	border-radius: 14px;
+	padding: 14px 18px;
+	margin-bottom: 22px;
+	box-shadow: 0 2px 8px rgba(16, 185, 129, 0.06);
+}
+
+.mb-flex-icon {
+	font-size: 24px;
+	line-height: 1;
+	flex-shrink: 0;
+	margin-top: 2px;
+}
+
+.mb-flex-text strong {
+	display: block;
+	font-size: 13.5px;
+	font-weight: 600;
+	color: #065f46;
+	margin-bottom: 4px;
+}
+
+.mb-flex-text p {
+	margin: 0;
+	font-size: 12.5px;
+	color: #047857;
+	line-height: 1.45;
+}
+
+/* 10. Booking Model Algorithm Pill Buttons */
+.mb-model-algorithm-wrap {
+	background: #f8fafc;
+	border: 1.5px solid #e2e8f0;
+	border-radius: 16px;
+	padding: 20px;
+	margin-bottom: 20px;
+}
+
+.mb-model-algorithm-header {
+	margin-bottom: 16px;
+}
+
+.mb-model-algorithm-label {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 14.5px;
+	font-weight: 600;
+	color: #0f172a;
+	margin-bottom: 4px;
+}
+
+.mb-model-decoupled-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	background: #eff6ff;
+	border: 1px solid #bfdbfe;
+	color: #1d4ed8;
+	font-size: 11px;
+	font-weight: 600;
+	border-radius: 100px;
+}
+
+.mb-model-algorithm-desc {
+	margin: 0;
+	font-size: 13px;
+	color: #64748b;
+	line-height: 1.45;
+}
+
+.mb-model-pills-group {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 12px;
+}
+
+.mb-model-pill-btn {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 14px;
+	background: #ffffff;
+	border: 1.5px solid #cbd5e1;
+	border-radius: 12px;
+	cursor: pointer;
+	text-align: left;
+	transition: all 0.2s ease;
+	outline: none;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.mb-model-pill-btn:hover {
+	border-color: #94a3b8;
+	background: #f1f5f9;
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+.mb-model-pill-btn.is-active {
+	background: #eff6ff !important;
+	border-color: #2563eb !important;
+	box-shadow: 0 0 0 1px #2563eb, 0 4px 14px rgba(37, 99, 235, 0.12) !important;
+}
+
+.mb-model-pill-btn .mb-pill-icon {
+	font-size: 22px;
+	line-height: 1;
+	flex-shrink: 0;
+}
+
+.mb-model-pill-btn .mb-pill-info {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.mb-model-pill-btn .mb-pill-title {
+	font-size: 13px;
+	font-weight: 600;
+	color: #0f172a;
+	line-height: 1.25;
+}
+
+.mb-model-pill-btn.is-active .mb-pill-title {
+	color: #1d4ed8;
+}
+
+.mb-model-pill-btn .mb-pill-desc {
+	font-size: 11px;
+	color: #64748b;
+	line-height: 1.35;
+}
+
+.mb-model-pill-btn.is-active .mb-pill-desc {
+	color: #3b82f6;
+}
+
+/* 11. Bookings Table Thumbnail Column & Placeholder */
+body.booking-engine_page_mb-bookings .wp-list-table th.column-thumb,
+body.booking-engine_page_mb-bookings .wp-list-table td.column-thumb {
+	width: 58px !important;
+	padding: 10px 8px !important;
+	text-align: center !important;
+}
+
+.mb-thumb-placeholder {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 48px;
+	height: 48px;
+	background: #f1f5f9;
+	border: 1px dashed #cbd5e1;
+	border-radius: 12px;
+}
+

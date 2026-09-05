@@ -32,7 +32,7 @@ $listing_types = array(
 	'hourly' => array(
 		'icon'     => '⏱️',
 		'label'    => __( 'Hourly Studio & Activity', 'my-booking-engine' ),
-		'desc'     => __( 'Studios, activities, quick sessions.', 'my-booking-engine' ),
+		'desc'     => __( 'Studio hero & slots. Great for studios, rooms, sports courts.', 'my-booking-engine' ),
 		'model'    => 'hourly_slot',
 		'price'    => 40,
 		'slot'     => 60,
@@ -43,7 +43,7 @@ $listing_types = array(
 	'hotel' => array(
 		'icon'     => '🏨',
 		'label'    => __( 'Hotel & Vacation Stay', 'my-booking-engine' ),
-		'desc'     => __( 'Rooms, villas, apartments.', 'my-booking-engine' ),
+		'desc'     => __( 'Mosaic photo gallery. Great for villas, hotels, venues, cars.', 'my-booking-engine' ),
 		'model'    => 'night_stay',
 		'price'    => 150,
 		'min'      => 1,
@@ -55,7 +55,7 @@ $listing_types = array(
 	'rental' => array(
 		'icon'     => '🚗',
 		'label'    => __( 'Car & Equipment Rental', 'my-booking-engine' ),
-		'desc'     => __( 'Vehicles, gear, machinery.', 'my-booking-engine' ),
+		'desc'     => __( 'Showcase photo slider. Great for vehicles, boats, equipment.', 'my-booking-engine' ),
 		'model'    => 'day_rental',
 		'price'    => 89,
 		'min'      => 1,
@@ -67,7 +67,7 @@ $listing_types = array(
 	'doctor' => array(
 		'icon'     => '🩺',
 		'label'    => __( 'Doctor & Specialist', 'my-booking-engine' ),
-		'desc'     => __( 'Clinics, consultations.', 'my-booking-engine' ),
+		'desc'     => __( 'Verified profile & timeslots. Great for doctors, consultants.', 'my-booking-engine' ),
 		'model'    => 'hourly_slot',
 		'price'    => 120,
 		'slot'     => 30,
@@ -78,7 +78,7 @@ $listing_types = array(
 	'salon' => array(
 		'icon'     => '✂️',
 		'label'    => __( 'Salon & Spa', 'my-booking-engine' ),
-		'desc'     => __( 'Stylists, treatments.', 'my-booking-engine' ),
+		'desc'     => __( 'Treatments & services menu. Great for salons, spas, stylists.', 'my-booking-engine' ),
 		'model'    => 'hourly_slot',
 		'price'    => 55,
 		'slot'     => 45,
@@ -89,7 +89,7 @@ $listing_types = array(
 	'shop' => array(
 		'icon'     => '🏪',
 		'label'    => __( 'Shop & Local Business', 'my-booking-engine' ),
-		'desc'     => __( 'Storefronts, local venues.', 'my-booking-engine' ),
+		'desc'     => __( 'Storefront & timetable. Great for shops, restaurants, retail.', 'my-booking-engine' ),
 		'model'    => 'hourly_slot',
 		'price'    => 25,
 		'slot'     => 30,
@@ -181,13 +181,22 @@ if ( $is_edit ) {
 
 		<div id="mb-app-alert" class="mb-app-alert" style="display:none;"></div>
 
-		<!-- 1. Type Picker with Notification Marks & Hover Mockups -->
+		<!-- 1. Layout & Design Picker with Notification Marks & Hover Mockups -->
 		<div class="mb-app-card mb-app-card-types" id="mb-app-type-picker">
 			<div class="mb-app-card-header">
-				<div class="mb-app-card-badge-icon" style="background:#eff6ff; color:#2563eb;">🏷️</div>
+				<div class="mb-app-card-badge-icon" style="background:#eff6ff; color:#2563eb;">🎨</div>
 				<div>
-					<h2 class="mb-app-section-title"><?php esc_html_e( 'What are you listing?', 'my-booking-engine' ); ?></h2>
-					<p class="mb-app-section-desc"><?php esc_html_e( 'Pick the closest match. Hover over any card or its Preview badge to see the exact frontend layout mockup before selecting.', 'my-booking-engine' ); ?></p>
+					<h2 class="mb-app-section-title"><?php esc_html_e( 'Choose Layout & Visual Design', 'my-booking-engine' ); ?></h2>
+					<p class="mb-app-section-desc"><?php esc_html_e( 'Select the presentation style your visitors will see. Hover over any card or its Preview badge to inspect the exact live layout mockup.', 'my-booking-engine' ); ?></p>
+				</div>
+			</div>
+
+			<!-- Mix & Match Flexibility Callout Banner -->
+			<div class="mb-flexibility-banner">
+				<div class="mb-flex-icon">✨</div>
+				<div class="mb-flex-text">
+					<strong><?php esc_html_e( '100% Flexible — Mix & Match Any Layout with Any Booking Engine!', 'my-booking-engine' ); ?></strong>
+					<p><?php esc_html_e( 'You have total freedom to pick ANY layout for ANY business. For example, use the Hotel mosaic gallery for a luxury car rental, or the Car showcase slider for a photography studio. You can independently customize the booking engine model in Section 5 below.', 'my-booking-engine' ); ?></p>
 				</div>
 			</div>
 
@@ -603,14 +612,52 @@ if ( $is_edit ) {
 				</div>
 			</div>
 
-			<div class="mb-w-field">
-				<label for="mb_model_type"><?php esc_html_e( 'Booking Model Algorithm', 'my-booking-engine' ); ?></label>
-				<select name="mb_model_type" id="mb_model_type" class="widefat mb-model-switcher" style="padding:10px 14px; font-weight:600;">
-					<option value="hourly_slot" <?php selected( $model_val, 'hourly_slot' ); ?>><?php esc_html_e( 'Hourly / Slot Appointments', 'my-booking-engine' ); ?></option>
-					<option value="day_rental" <?php selected( $model_val, 'day_rental' ); ?>><?php esc_html_e( 'Day-based Rentals', 'my-booking-engine' ); ?></option>
-					<option value="night_stay" <?php selected( $model_val, 'night_stay' ); ?>><?php esc_html_e( 'Night-based Stays', 'my-booking-engine' ); ?></option>
-					<option value="capacity_roster" <?php selected( $model_val, 'capacity_roster' ); ?>><?php esc_html_e( 'Capacity Roster / Tickets', 'my-booking-engine' ); ?></option>
-				</select>
+			<div class="mb-model-algorithm-wrap">
+				<div class="mb-model-algorithm-header">
+					<label class="mb-model-algorithm-label">
+						<span><?php esc_html_e( 'Booking Engine Algorithm', 'my-booking-engine' ); ?></span>
+						<span class="mb-model-decoupled-badge">💡 <?php esc_html_e( 'Decoupled from Visual Layout', 'my-booking-engine' ); ?></span>
+					</label>
+					<p class="mb-model-algorithm-desc">
+						<?php esc_html_e( 'Select which scheduling calculation rules calculate pricing and slot availability. You can freely pair any algorithm with any layout chosen above!', 'my-booking-engine' ); ?>
+					</p>
+				</div>
+
+				<input type="hidden" name="mb_model_type" id="mb_model_type" value="<?php echo esc_attr( $model_val ); ?>" class="mb-model-switcher">
+
+				<div class="mb-model-pills-group" id="mb-model-pills">
+					<button type="button" class="mb-model-pill-btn <?php echo ( 'hourly_slot' === $model_val ) ? 'is-active' : ''; ?>" data-model="hourly_slot">
+						<span class="mb-pill-icon">⏱️</span>
+						<span class="mb-pill-info">
+							<span class="mb-pill-title"><?php esc_html_e( 'Hourly / Appointments', 'my-booking-engine' ); ?></span>
+							<span class="mb-pill-desc"><?php esc_html_e( 'Time slots, duration & prep buffers', 'my-booking-engine' ); ?></span>
+						</span>
+					</button>
+
+					<button type="button" class="mb-model-pill-btn <?php echo ( 'day_rental' === $model_val ) ? 'is-active' : ''; ?>" data-model="day_rental">
+						<span class="mb-pill-icon">🚗</span>
+						<span class="mb-pill-info">
+							<span class="mb-pill-title"><?php esc_html_e( 'Day-based Rentals', 'my-booking-engine' ); ?></span>
+							<span class="mb-pill-desc"><?php esc_html_e( 'Full calendar days, pickup & return times', 'my-booking-engine' ); ?></span>
+						</span>
+					</button>
+
+					<button type="button" class="mb-model-pill-btn <?php echo ( 'night_stay' === $model_val ) ? 'is-active' : ''; ?>" data-model="night_stay">
+						<span class="mb-pill-icon">🏨</span>
+						<span class="mb-pill-info">
+							<span class="mb-pill-title"><?php esc_html_e( 'Night-based Stays', 'my-booking-engine' ); ?></span>
+							<span class="mb-pill-desc"><?php esc_html_e( 'Overnight stays, check-in & check-out dates', 'my-booking-engine' ); ?></span>
+						</span>
+					</button>
+
+					<button type="button" class="mb-model-pill-btn <?php echo ( 'capacity_roster' === $model_val ) ? 'is-active' : ''; ?>" data-model="capacity_roster">
+						<span class="mb-pill-icon">👥</span>
+						<span class="mb-pill-info">
+							<span class="mb-pill-title"><?php esc_html_e( 'Capacity / Event Roster', 'my-booking-engine' ); ?></span>
+							<span class="mb-pill-desc"><?php esc_html_e( 'Fixed events, attendee limits & spots', 'my-booking-engine' ); ?></span>
+						</span>
+					</button>
+				</div>
 			</div>
 
 			<!-- Hourly slot settings -->

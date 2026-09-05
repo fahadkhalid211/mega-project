@@ -15,6 +15,7 @@
 		initHeroSliders();
 		initCategoryFilterPills();
 		initCardSliders();
+		initMobileStickyBar();
 	});
 
 	/**
@@ -776,6 +777,92 @@
 				d.classList.remove('is-active');
 			}
 		});
+	}
+
+	/**
+	 * Mobile Sticky Reservation Bar Controller.
+	 * Only active on mobile viewport (< 900px).
+	 * Strictly hides over hero/gallery slider and appears when scrolled past hero images.
+	 * Hides when the booking form card is fully in view.
+	 */
+	function initMobileStickyBar() {
+		const stickyBar = document.getElementById('mb-mobile-sticky-bar');
+		if (!stickyBar) return;
+
+		const bookBtn = document.getElementById('mb-mobile-book-btn');
+		const heroEl = document.querySelector('.mb-gallery-mosaic, .mb-hero-slider-wrap, .mb-rental-slider-wrap, .mb-doctor-hero, .mb-salon-hero, .mb-shop-hero, .mb-listing-header');
+		const bookingCard = document.querySelector('.mb-sticky-card, .mb-booking-card, #mb-start-booking-btn, .mb-booking-funnel-trigger, #mb-trigger-date-picker');
+
+		function checkScroll() {
+			if (window.innerWidth > 900) {
+				stickyBar.classList.remove('is-visible');
+				return;
+			}
+
+			// Determine bottom of the hero/gallery section
+			let heroBottom = 350;
+			if (heroEl) {
+				const rect = heroEl.getBoundingClientRect();
+				heroBottom = window.scrollY + rect.bottom;
+			}
+
+			const scrollY = window.scrollY || window.pageYOffset;
+
+			// If user is viewing the hero gallery slider, never obscure it
+			if (scrollY < heroBottom) {
+				stickyBar.classList.remove('is-visible');
+				return;
+			}
+
+			// If the user has scrolled all the way to the booking card, hide sticky bar
+			if (bookingCard) {
+				const cardRect = bookingCard.getBoundingClientRect();
+				const cardVisible = cardRect.top < (window.innerHeight - 80) && cardRect.bottom > 80;
+				if (cardVisible) {
+					stickyBar.classList.remove('is-visible');
+					return;
+				}
+			}
+
+			// User is scrolled past hero/gallery and booking card is not visible
+			stickyBar.classList.add('is-visible');
+		}
+
+		// Throttle scroll checks with requestAnimationFrame
+		let ticking = false;
+		window.addEventListener('scroll', function() {
+			if (!ticking) {
+				window.requestAnimationFrame(function() {
+					checkScroll();
+					ticking = false;
+				});
+				ticking = true;
+			}
+		}, { passive: true });
+
+		window.addEventListener('resize', checkScroll);
+		checkScroll();
+
+		// Tapping Book Now smoothly scrolls to the booking card and highlights it
+		if (bookBtn) {
+			bookBtn.addEventListener('click', function(e) {
+				e.preventDefault();
+				if (bookingCard) {
+					bookingCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					bookingCard.style.transition = 'box-shadow 0.3s ease';
+					bookingCard.style.boxShadow = '0 0 0 4px rgba(37, 99, 235, 0.35)';
+					setTimeout(() => {
+						bookingCard.style.boxShadow = '';
+					}, 1400);
+
+					// If there is an interactive button on the card, focus it
+					const reserveBtn = document.getElementById('mb-start-booking-btn');
+					if (reserveBtn) {
+						reserveBtn.focus();
+					}
+				}
+			});
+		}
 	}
 })();
 

@@ -222,15 +222,47 @@ $days_of_week = array(
 				</label>
 			</div>
 
-			<div class="mb-wizard-card" style="margin-top:24px;">
-				<h4><?php esc_html_e( 'Underlying Booking Engine Algorithm', 'my-booking-engine' ); ?></h4>
-				<p class="description"><?php esc_html_e( 'Decoupled from design. Select which scheduling math rules calculate pricing and slot availability:', 'my-booking-engine' ); ?></p>
-				<select name="mb_model_type" id="mb_model_type" class="widefat mb-model-switcher" style="padding:8px 12px; font-weight:600; font-size:14px; margin-top:8px;">
-					<option value="hourly_slot" <?php selected( $model_type, 'hourly_slot' ); ?>><?php esc_html_e( 'Hourly / Slot Appointments (Salons, Doctors, Consultations, Studios)', 'my-booking-engine' ); ?></option>
-					<option value="day_rental" <?php selected( $model_type, 'day_rental' ); ?>><?php esc_html_e( 'Day-based Rentals (Cars, Vehicles, Equipment, Machinery)', 'my-booking-engine' ); ?></option>
-					<option value="night_stay" <?php selected( $model_type, 'night_stay' ); ?>><?php esc_html_e( 'Night-based Stays (Hotels, Villas, Apartments, Resorts)', 'my-booking-engine' ); ?></option>
-					<option value="capacity_roster" <?php selected( $model_type, 'capacity_roster' ); ?>><?php esc_html_e( 'Capacity Roster / Tickets (Workshops, Events, Tours)', 'my-booking-engine' ); ?></option>
-				</select>
+			<div class="mb-wizard-card mb-model-algorithm-card" style="margin-top:24px;">
+				<div class="mb-model-algorithm-header">
+					<h4 style="margin:0 0 4px 0;"><?php esc_html_e( 'Underlying Booking Engine Algorithm', 'my-booking-engine' ); ?></h4>
+					<p class="description" style="margin:0 0 14px 0;"><?php esc_html_e( 'Decoupled from design. Select which scheduling calculation rules calculate pricing and slot availability. You can pair any algorithm with any layout style!', 'my-booking-engine' ); ?></p>
+				</div>
+
+				<input type="hidden" name="mb_model_type" id="mb_model_type" value="<?php echo esc_attr( $model_type ); ?>" class="mb-model-switcher">
+
+				<div class="mb-model-pills-group" id="mb-model-pills">
+					<button type="button" class="mb-model-pill-btn <?php echo ( 'hourly_slot' === $model_type ) ? 'is-active' : ''; ?>" data-model="hourly_slot">
+						<span class="mb-pill-icon">⏱️</span>
+						<span class="mb-pill-info">
+							<span class="mb-pill-title"><?php esc_html_e( 'Hourly / Appointments', 'my-booking-engine' ); ?></span>
+							<span class="mb-pill-desc"><?php esc_html_e( 'Time slots, duration & prep buffers', 'my-booking-engine' ); ?></span>
+						</span>
+					</button>
+
+					<button type="button" class="mb-model-pill-btn <?php echo ( 'day_rental' === $model_type ) ? 'is-active' : ''; ?>" data-model="day_rental">
+						<span class="mb-pill-icon">🚗</span>
+						<span class="mb-pill-info">
+							<span class="mb-pill-title"><?php esc_html_e( 'Day-based Rentals', 'my-booking-engine' ); ?></span>
+							<span class="mb-pill-desc"><?php esc_html_e( 'Full calendar days, pickup & return times', 'my-booking-engine' ); ?></span>
+						</span>
+					</button>
+
+					<button type="button" class="mb-model-pill-btn <?php echo ( 'night_stay' === $model_type ) ? 'is-active' : ''; ?>" data-model="night_stay">
+						<span class="mb-pill-icon">🏨</span>
+						<span class="mb-pill-info">
+							<span class="mb-pill-title"><?php esc_html_e( 'Night-based Stays', 'my-booking-engine' ); ?></span>
+							<span class="mb-pill-desc"><?php esc_html_e( 'Overnight stays, check-in & check-out dates', 'my-booking-engine' ); ?></span>
+						</span>
+					</button>
+
+					<button type="button" class="mb-model-pill-btn <?php echo ( 'capacity_roster' === $model_type ) ? 'is-active' : ''; ?>" data-model="capacity_roster">
+						<span class="mb-pill-icon">👥</span>
+						<span class="mb-pill-info">
+							<span class="mb-pill-title"><?php esc_html_e( 'Capacity / Event Roster', 'my-booking-engine' ); ?></span>
+							<span class="mb-pill-desc"><?php esc_html_e( 'Fixed events, attendee limits & spots', 'my-booking-engine' ); ?></span>
+						</span>
+					</button>
+				</div>
 			</div>
 		</div>
 

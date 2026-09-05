@@ -252,8 +252,24 @@
 		const $switcher = $('#mb_model_type');
 		if (!$switcher.length) return;
 
+		// Pill buttons click listener
+		$(document).on('click', '.mb-model-pill-btn', function(e) {
+			e.preventDefault();
+			const model = $(this).data('model');
+			if (!model) return;
+
+			$(this).closest('.mb-model-pills-group').find('.mb-model-pill-btn').removeClass('is-active');
+			$(this).addClass('is-active');
+
+			$switcher.val(model).trigger('change');
+		});
+
 		function updateVisibleFields() {
 			const selectedModel = $switcher.val();
+
+			// Sync active pill button
+			$('.mb-model-pill-btn').removeClass('is-active');
+			$('.mb-model-pill-btn[data-model="' + selectedModel + '"]').addClass('is-active');
 
 			// Hide all model-specific rows.
 			$('.mb-field-row').hide();

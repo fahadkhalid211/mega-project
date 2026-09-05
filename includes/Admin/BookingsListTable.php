@@ -52,6 +52,7 @@ class BookingsListTable extends \WP_List_Table {
 		return array(
 			'cb'              => '<input type="checkbox" />',
 			'id'              => __( 'ID', 'my-booking-engine' ),
+			'thumb'           => __( 'Photo', 'my-booking-engine' ),
 			'entity_title'    => __( 'Booking Entity', 'my-booking-engine' ),
 			'customer'        => __( 'Customer Details', 'my-booking-engine' ),
 			'booking_dates'   => __( 'Dates / Slot', 'my-booking-engine' ),
@@ -106,6 +107,27 @@ class BookingsListTable extends \WP_List_Table {
 	 */
 	protected function column_id( $item ) {
 		return '<strong>#' . absint( $item->id ) . '</strong>';
+	}
+
+	/**
+	 * Column: Listing Thumbnail / Photo.
+	 *
+	 * @param object $item Row item.
+	 * @return string
+	 */
+	protected function column_thumb( $item ) {
+		$entity = new \MyBookingEngine\Models\BookingEntity( $item->entity_id );
+		$url    = $entity->get_thumbnail_url( 'thumbnail' );
+
+		if ( $url ) {
+			return sprintf(
+				'<img src="%s" class="mb-admin-listing-thumb" alt="%s" />',
+				esc_url( $url ),
+				esc_attr( get_the_title( $item->entity_id ) )
+			);
+		}
+
+		return '<div class="mb-admin-listing-thumb mb-thumb-placeholder"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="#94a3b8" d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg></div>';
 	}
 
 	/**

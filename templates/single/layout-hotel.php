@@ -220,15 +220,23 @@ $loc_text       = $loc ? esc_html( trim( $loc->city . ', ' . $loc->postal_code .
 				</div>
 
 				<div class="mb-guests-field">
-					<label><?php esc_html_e( 'GUESTS', 'my-booking-engine' ); ?></label>
-					<select id="mb-select-guests" class="mb-form-select">
-						<?php for ( $g = 1; $g <= $capacity; $g++ ) : ?>
-							<option value="<?php echo esc_attr( $g ); ?>"><?php
-							/* translators: %d: number of guests */
-							echo esc_html( sprintf( _n( '%d guest', '%d guests', $g, 'my-booking-engine' ), $g ) );
-							?></option>
-						<?php endfor; ?>
-					</select>
+					<label for="mb-select-guests"><?php esc_html_e( 'GUESTS', 'my-booking-engine' ); ?></label>
+					<div class="mb-guests-input-wrap">
+						<span class="mb-guests-field-icon" aria-hidden="true">
+							<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+						</span>
+						<select id="mb-select-guests" class="mb-form-select mb-sleek-guests-select">
+							<?php for ( $g = 1; $g <= $capacity; $g++ ) : ?>
+								<option value="<?php echo esc_attr( $g ); ?>"><?php
+								/* translators: %d: number of guests */
+								echo esc_html( sprintf( _n( '%d guest', '%d guests', $g, 'my-booking-engine' ), $g ) );
+								?></option>
+							<?php endfor; ?>
+						</select>
+						<span class="mb-guests-chevron-icon" aria-hidden="true">
+							<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+						</span>
+					</div>
 				</div>
 
 				<button type="button" class="mb-btn mb-btn-primary mb-btn-reserve" id="mb-start-booking-btn" data-entity-id="<?php echo esc_attr( $post_id ); ?>" data-model="<?php echo esc_attr( $entity->get_model_type() ); ?>">
