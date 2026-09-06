@@ -142,24 +142,41 @@
 }
 
 .mb-cal-day-cell.mb-range-start {
-	background-color: var(--mb-primary) !important;
-	color: #ffffff !important;
+	background-color: var(--mb-primary-range) !important;
+	color: var(--mb-primary) !important;
 	border-top-left-radius: 50% !important;
 	border-bottom-left-radius: 50% !important;
 	border-top-right-radius: 0 !important;
 	border-bottom-right-radius: 0 !important;
-	font-weight: 700;
+	font-weight: 800;
 	z-index: 1;
 }
 
+/* Inner dot marker to mark start/end endpoint */
+.mb-cal-day-cell.mb-range-start::before,
+.mb-cal-day-cell.mb-range-end::before {
+	content: '';
+	position: absolute;
+	inset: 3px;
+	border-radius: 50%;
+	background: var(--mb-primary);
+	z-index: -1;
+}
+
+/* Override text to white on top of the dot */
+.mb-cal-day-cell.mb-range-start,
 .mb-cal-day-cell.mb-range-end {
-	background-color: var(--mb-primary) !important;
+	color: #ffffff !important;
+}
+
+.mb-cal-day-cell.mb-range-end {
+	background-color: var(--mb-primary-range) !important;
 	color: #ffffff !important;
 	border-top-right-radius: 50% !important;
 	border-bottom-right-radius: 50% !important;
 	border-top-left-radius: 0 !important;
 	border-bottom-left-radius: 0 !important;
-	font-weight: 700;
+	font-weight: 800;
 	z-index: 1;
 }
 

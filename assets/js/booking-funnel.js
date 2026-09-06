@@ -381,13 +381,19 @@
 				<div class="mb-funnel-container">
 					<div class="mb-funnel-header">
 						<div class="mb-funnel-steps-indicator">
-							<span class="mb-step-dot ${this.currentStep >= 1 ? 'is-active' : ''}">1</span>
-							<span class="mb-step-line ${this.currentStep >= 2 ? 'is-active' : ''}"></span>
-							<span class="mb-step-dot ${this.currentStep >= 2 ? 'is-active' : ''}">2</span>
-							<span class="mb-step-line ${this.currentStep >= 3 ? 'is-active' : ''}"></span>
-							<span class="mb-step-dot ${this.currentStep >= 3 ? 'is-active' : ''}">3</span>
-							<span class="mb-step-line ${this.currentStep >= 4 ? 'is-active' : ''}"></span>
-							<span class="mb-step-dot ${this.currentStep >= 4 ? 'is-active' : ''}">4</span>
+							<span class="mb-step-dot ${this.currentStep === 1 ? 'is-current' : this.currentStep > 1 ? 'is-completed' : ''}">
+								${this.currentStep > 1 ? '✓' : '1'}
+							</span>
+							<span class="mb-step-line ${this.currentStep > 1 ? 'is-done' : ''}"></span>
+							<span class="mb-step-dot ${this.currentStep === 2 ? 'is-current' : this.currentStep > 2 ? 'is-completed' : ''}">
+								${this.currentStep > 2 ? '✓' : '2'}
+							</span>
+							<span class="mb-step-line ${this.currentStep > 2 ? 'is-done' : ''}"></span>
+							<span class="mb-step-dot ${this.currentStep === 3 ? 'is-current' : this.currentStep > 3 ? 'is-completed' : ''}">
+								${this.currentStep > 3 ? '✓' : '3'}
+							</span>
+							<span class="mb-step-line ${this.currentStep > 3 ? 'is-done' : ''}"></span>
+							<span class="mb-step-dot ${this.currentStep === 4 ? 'is-current' : ''}">4</span>
 						</div>
 						<button type="button" class="mb-funnel-close" aria-label="Close">&times;</button>
 					</div>
