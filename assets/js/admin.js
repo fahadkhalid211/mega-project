@@ -195,23 +195,66 @@
 	function initGalleryPicker() {
 		let mediaFrame;
 
+		// Delegate individual remove button on thumbnails
+		$(document).on('click', '.mb-remove-thumb-btn', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			const $thumb = $(this).closest('.mb-preview-thumb');
+			const removeId = String($thumb.data('id') || '');
+			$thumb.fadeOut(180, function() {
+				$(this).remove();
+			});
+
+			if (removeId) {
+				const currentVal = $('#mb_gallery_images').val().trim();
+				let currentIds = currentVal ? currentVal.split(',').map(function(id) { return id.trim(); }) : [];
+				currentIds = currentIds.filter(function(id) { return id !== removeId; });
+				$('#mb_gallery_images').val(currentIds.join(', '));
+			}
+		});
+
 		$('#mb_btn_select_gallery').on('click', function(e) {
 			e.preventDefault();
-
-			if (mediaFrame) {
-				mediaFrame.open();
-				return;
-			}
 
 			if (typeof wp === 'undefined' || !wp.media) {
 				alert('WordPress Media Library is not available.');
 				return;
 			}
 
+			if (mediaFrame) {
+				mediaFrame.open();
+				return;
+			}
+
 			mediaFrame = wp.media({
 				title: 'Select Listing Gallery Photos',
-				button: { text: 'Use Selected Photos' },
+				button: { text: 'Add to Gallery' },
 				multiple: true
+			});
+
+			// Enhance media library: clicking an attachment toggles selection directly
+			// without needing Ctrl/Cmd key pressed!
+			mediaFrame.on('open', function() {
+				const contentRegion = mediaFrame.content.get();
+				if (contentRegion && contentRegion.view && contentRegion.view.attachments) {
+					contentRegion.view.attachments.$el.off('click.mbMulti').on('click.mbMulti', '.attachment', function(ev) {
+						if (!ev.ctrlKey && !ev.metaKey && !ev.shiftKey) {
+							// Simulate toggle selection directly on click
+							const id = $(this).data('id');
+							if (id) {
+								const selection = mediaFrame.state().get('selection');
+								const attachment = wp.media.attachment(id);
+								if (selection.get(id)) {
+									selection.remove(attachment);
+								} else {
+									selection.add(attachment);
+								}
+								ev.stopImmediatePropagation();
+								return false;
+							}
+						}
+					});
+				}
 			});
 
 			mediaFrame.on('select', function() {
@@ -226,8 +269,13 @@
 					if (currentIds.indexOf(idStr) === -1) {
 						currentIds.push(idStr);
 
-						const thumbUrl = item.sizes && item.sizes.thumbnail ? item.sizes.thumbnail.url : item.url;
-						const $thumb = $('<div class="mb-preview-thumb"><img src="' + thumbUrl + '"></div>');
+						const thumbUrl = item.sizes && item.sizes.thumbnail ? item.sizes.thumbnail.url : (item.sizes && item.sizes.medium ? item.sizes.medium.url : item.url);
+						const $thumb = $(
+							'<div class="mb-preview-thumb" data-id="' + idStr + '">' +
+								'<img src="' + thumbUrl + '" alt="">' +
+								'<button type="button" class="mb-remove-thumb-btn" title="Remove image" aria-label="Remove image">&times;</button>' +
+							'</div>'
+						);
 						$preview.append($thumb);
 					}
 				});
@@ -240,8 +288,10 @@
 
 		$('#mb_btn_clear_gallery').on('click', function(e) {
 			e.preventDefault();
-			$('#mb_gallery_images').val('');
-			$('#mb_gallery_preview').empty();
+			if (confirm('Are you sure you want to remove all photos from this listing?')) {
+				$('#mb_gallery_images').val('');
+				$('#mb_gallery_preview').empty();
+			}
 		});
 	}
 

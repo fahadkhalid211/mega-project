@@ -245,15 +245,23 @@
 			const $preview = $('#mb_gallery_preview');
 			if (!$preview.length) return;
 
-			let urls = [];
+			let items = [];
 			try {
-				urls = JSON.parse($preview.attr('data-existing') || '[]');
+				items = JSON.parse($preview.attr('data-existing') || '[]');
 			} catch (err) {
-				urls = [];
+				items = [];
 			}
 
-			urls.forEach(function(url) {
-				$preview.append('<div class="mb-preview-thumb"><img src="' + url + '"></div>');
+			items.forEach(function(item) {
+				const url = typeof item === 'object' && item.url ? item.url : item;
+				const id  = typeof item === 'object' && item.id ? String(item.id) : '';
+				const dataAttr = id ? ' data-id="' + id + '"' : '';
+				$preview.append(
+					'<div class="mb-preview-thumb"' + dataAttr + '>' +
+						'<img src="' + url + '" alt="">' +
+						'<button type="button" class="mb-remove-thumb-btn" title="Remove image" aria-label="Remove image">&times;</button>' +
+					'</div>'
+				);
 			});
 		}
 

@@ -131,6 +131,24 @@ $lng_val         = $location_val ? $location_val->longitude : '';
 $gallery_ids_val = $is_edit ? get_post_meta( $edit_entity_id, '_mb_gallery_images', true ) : '';
 $gallery_ids_val = is_array( $gallery_ids_val ) ? implode( ',', $gallery_ids_val ) : (string) $gallery_ids_val;
 
+// Build rich gallery array with ID and thumbnail URL for the media preview
+$existing_gallery_items = array();
+if ( ! empty( $gallery_ids_val ) ) {
+	$raw_gids = explode( ',', $gallery_ids_val );
+	foreach ( $raw_gids as $gid ) {
+		$gid = absint( trim( $gid ) );
+		if ( $gid > 0 ) {
+			$thumb_url = wp_get_attachment_image_url( $gid, 'thumbnail' );
+			if ( $thumb_url ) {
+				$existing_gallery_items[] = array(
+					'id'  => $gid,
+					'url' => $thumb_url,
+				);
+			}
+		}
+	}
+}
+
 $amenities_val = $is_edit ? get_post_meta( $edit_entity_id, '_mb_amenities', true ) : '';
 if ( is_array( $amenities_val ) ) {
 	$amenities_val = implode( "\n", $amenities_val );
@@ -574,17 +592,30 @@ $mb_border_radius = isset( $mb_appearance['border_radius'] ) ? absint( $mb_appea
 
 			<input type="hidden" name="mb_gallery_images" id="mb_gallery_images" value="<?php echo esc_attr( $gallery_ids_val ); ?>">
 			
-			<div class="mb-gallery-actions">
-				<button type="button" class="button button-primary button-large" id="mb_btn_select_gallery">
-					<span class="dashicons dashicons-images-alt2" style="vertical-align:middle; margin-top:-2px;"></span>
-					<?php esc_html_e( 'Select Photos from Media Library', 'my-booking-engine' ); ?>
-				</button>
-				<button type="button" class="button button-link-delete" id="mb_btn_clear_gallery" style="margin-left:12px;">
-					<?php esc_html_e( 'Remove All Photos', 'my-booking-engine' ); ?>
-				</button>
+			<div class="mb-gallery-dropzone" id="mb_gallery_dropzone">
+				<div class="mb-dropzone-icon">🖼️</div>
+				<div class="mb-dropzone-content">
+					<div class="mb-dropzone-title"><?php esc_html_e( 'Upload & Select Multiple Photos', 'my-booking-engine' ); ?></div>
+					<div class="mb-dropzone-desc"><?php esc_html_e( 'Click any photo in the library to toggle select/deselect instantly — no Ctrl or Command key required!', 'my-booking-engine' ); ?></div>
+				</div>
+				<div class="mb-gallery-actions">
+					<button type="button" class="button button-primary button-large mb-btn-media-picker" id="mb_btn_select_gallery">
+						<span class="dashicons dashicons-images-alt2" style="vertical-align:middle; margin-top:-2px; margin-right:4px;"></span>
+						<?php esc_html_e( 'Select Photos from Media Library', 'my-booking-engine' ); ?>
+					</button>
+					<button type="button" class="button button-secondary mb-btn-clear-gallery" id="mb_btn_clear_gallery">
+						<span class="dashicons dashicons-trash" style="vertical-align:middle; margin-top:-2px; margin-right:2px;"></span>
+						<?php esc_html_e( 'Remove All Photos', 'my-booking-engine' ); ?>
+					</button>
+				</div>
 			</div>
 
-			<div id="mb_gallery_preview" class="mb-gallery-preview-grid" style="margin-top:16px;" data-existing='<?php echo esc_attr( wp_json_encode( $entity ? $entity->get_gallery_images( 'thumbnail' ) : array() ) ); ?>'></div>
+			<div class="mb-gallery-hint">
+				<span class="dashicons dashicons-info" style="font-size:16px; width:16px; height:16px; margin-right:4px; vertical-align:text-bottom;"></span>
+				<span><?php esc_html_e( 'Tip: Hover over any photo below and click the ✕ button to delete individual images from this listing.', 'my-booking-engine' ); ?></span>
+			</div>
+
+			<div id="mb_gallery_preview" class="mb-gallery-preview-grid" data-existing="<?php echo esc_attr( wp_json_encode( $existing_gallery_items ) ); ?>"></div>
 		</div>
 
 		<!-- 4. Services & Add-ons (Menu-driven: Salon & Spa) -->
@@ -891,7 +922,7 @@ $mb_border_radius = isset( $mb_appearance['border_radius'] ) ? absint( $mb_appea
 
 		<!-- Sticky Footer Publish Bar -->
 		<div class="mb-app-sticky-footer">
-			<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=mb_booking_entity' ) ); ?>" class="button button-large button-secondary"><?php esc_html_e( 'Cancel', 'my-booking-engine' ); ?></a>
+			<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=mb_booking_entity' ) ); ?>" class="button button-large mb-app-cancel-btn"><?php esc_html_e( 'Cancel', 'my-booking-engine' ); ?></a>
 			<button type="submit" class="button button-primary button-hero mb-app-publish-btn" id="mb-app-publish-btn">
 				<?php echo $is_edit ? '💾 ' . esc_html__( 'Update Listing', 'my-booking-engine' ) : '🚀 ' . esc_html__( 'Publish Listing', 'my-booking-engine' ); ?>
 			</button>
