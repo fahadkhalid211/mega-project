@@ -336,6 +336,21 @@
 		function escapeAttr(val) {
 			return String(val === undefined || val === null ? '' : val).replace(/"/g, '&quot;');
 		}
+
+		// ── Palette Presets (Appearance & Colors card) ──────────────────────
+		$(document).on('click', '.mb-al-palette', function () {
+			var $btn    = $(this);
+			var primary = $btn.data('primary');
+			var hover   = $btn.data('hover');
+			var accent  = $btn.data('accent');
+
+			$('#mb_al_primary_color_picker').val(primary);
+			$('#mb_al_primary_color').val(primary);
+			$('#mb_al_primary_hover_picker').val(hover);
+			$('#mb_al_primary_hover').val(hover);
+			$('#mb_al_accent_color_picker').val(accent);
+			$('#mb_al_accent_color').val(accent);
+		});
 	});
 
 })(jQuery);

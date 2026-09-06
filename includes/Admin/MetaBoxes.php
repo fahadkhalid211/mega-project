@@ -292,6 +292,44 @@ class MetaBoxes {
 		// which runs self::save_meta_box_data( $post_id ) and reads pricing,
 		// location, schedule, gallery, services, etc. straight from this
 		// same $_POST payload.
+
+		// Save any appearance/color settings submitted from the add-listing form.
+		if ( isset( $_POST['mb_engine_settings'] ) && is_array( $_POST['mb_engine_settings'] ) ) {
+			$submitted_appearance = wp_unslash( $_POST['mb_engine_settings'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$current_settings     = get_option( 'mb_engine_settings', array() );
+
+			$clean_hex = function( $val, $fallback ) {
+				if ( empty( $val ) ) {
+					return $fallback;
+				}
+				$trimmed = trim( (string) $val );
+				if ( '' === $trimmed ) {
+					return $fallback;
+				}
+				if ( '#' !== $trimmed[0] ) {
+					$trimmed = '#' . $trimmed;
+				}
+				$hex = sanitize_hex_color( $trimmed );
+				return $hex ? $hex : $fallback;
+			};
+
+			if ( isset( $submitted_appearance['primary_color'] ) ) {
+				$current_settings['primary_color'] = $clean_hex( $submitted_appearance['primary_color'], '#2563eb' );
+			}
+			if ( isset( $submitted_appearance['primary_hover'] ) ) {
+				$current_settings['primary_hover'] = $clean_hex( $submitted_appearance['primary_hover'], '#1d4ed8' );
+			}
+			if ( isset( $submitted_appearance['accent_color'] ) ) {
+				$current_settings['accent_color'] = $clean_hex( $submitted_appearance['accent_color'], '#f59e0b' );
+			}
+			if ( isset( $submitted_appearance['border_radius'] ) ) {
+				$radius = absint( $submitted_appearance['border_radius'] );
+				$current_settings['border_radius'] = max( 0, min( 30, $radius ) );
+			}
+
+			update_option( 'mb_engine_settings', $current_settings );
+		}
+
 		wp_send_json_success(
 			array(
 				'redirect' => get_permalink( $post_id ),

@@ -157,6 +157,13 @@ if ( $is_edit ) {
 		}
 	}
 }
+
+// Appearance & Color Customizer — read current global settings for prefill
+$mb_appearance    = get_option( 'mb_engine_settings', array() );
+$mb_primary_color = ! empty( $mb_appearance['primary_color'] ) ? $mb_appearance['primary_color'] : '#2563eb';
+$mb_primary_hover = ! empty( $mb_appearance['primary_hover'] ) ? $mb_appearance['primary_hover'] : '#1d4ed8';
+$mb_accent_color  = ! empty( $mb_appearance['accent_color'] ) ? $mb_appearance['accent_color'] : '#f59e0b';
+$mb_border_radius = isset( $mb_appearance['border_radius'] ) ? absint( $mb_appearance['border_radius'] ) : 8;
 ?>
 <div class="mb-app-shell" id="mb-app-add-listing" data-mode="<?php echo $is_edit ? 'edit' : 'create'; ?>">
 
@@ -793,6 +800,92 @@ if ( $is_edit ) {
 					<textarea name="mb_policy" id="mb_policy" rows="4" class="widefat" placeholder="<?php esc_attr_e( 'Free cancellation up to 48 hours before check-in. No smoking.', 'my-booking-engine' ); ?>"><?php echo esc_textarea( $policy_val ); ?></textarea>
 					<span class="description"><?php esc_html_e( 'Displayed in the policies accordion on the single listing page.', 'my-booking-engine' ); ?></span>
 				</div>
+			</div>
+		</div>
+
+		<!-- 8. Appearance & Color Customizer -->
+		<div class="mb-app-card" id="mb-app-appearance-card">
+			<div class="mb-app-card-header">
+				<div class="mb-app-card-badge-icon" style="background:#fef3c7; color:#92400e;">🎨</div>
+				<div>
+					<h2 class="mb-app-section-title"><?php esc_html_e( 'Appearance & Colors', 'my-booking-engine' ); ?></h2>
+					<p class="mb-app-section-desc"><?php esc_html_e( 'Global brand colors applied across all frontend widgets, buttons, and cards. Changes here update site-wide styling instantly.', 'my-booking-engine' ); ?></p>
+				</div>
+			</div>
+
+			<!-- One-Click Palette Presets -->
+			<div class="mb-palette-presets" style="margin:0 0 20px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+				<span style="font-weight:500; font-size:12px; color:#64748b; white-space:nowrap;"><?php esc_html_e( 'Quick Presets:', 'my-booking-engine' ); ?></span>
+				<button type="button" class="button mb-palette-btn mb-al-palette" data-primary="#2563eb" data-hover="#1d4ed8" data-accent="#f59e0b">🔵 <?php esc_html_e( 'Modern Blue', 'my-booking-engine' ); ?></button>
+				<button type="button" class="button mb-palette-btn mb-al-palette" data-primary="#ff385c" data-hover="#e00b41" data-accent="#00a699">🌺 <?php esc_html_e( 'Airbnb Coral', 'my-booking-engine' ); ?></button>
+				<button type="button" class="button mb-palette-btn mb-al-palette" data-primary="#059669" data-hover="#047857" data-accent="#d97706">🌿 <?php esc_html_e( 'Emerald Spa', 'my-booking-engine' ); ?></button>
+				<button type="button" class="button mb-palette-btn mb-al-palette" data-primary="#7c3aed" data-hover="#6d28d9" data-accent="#ec4899">👑 <?php esc_html_e( 'Royal Purple', 'my-booking-engine' ); ?></button>
+				<button type="button" class="button mb-palette-btn mb-al-palette" data-primary="#0f172a" data-hover="#1e293b" data-accent="#f59e0b">🕶️ <?php esc_html_e( 'Luxury Obsidian', 'my-booking-engine' ); ?></button>
+			</div>
+
+			<!-- Color Pickers Grid -->
+			<div class="mb-app-grid-3" style="gap:20px;">
+				<!-- Primary Brand Color -->
+				<div class="mb-w-field">
+					<label for="mb_al_primary_color"><?php esc_html_e( 'Primary Brand Color', 'my-booking-engine' ); ?></label>
+					<div style="display:flex; align-items:center; gap:10px; margin-top:6px;">
+						<input type="color" id="mb_al_primary_color_picker"
+							value="<?php echo esc_attr( $mb_primary_color ); ?>"
+							oninput="document.getElementById('mb_al_primary_color').value=this.value;"
+							onchange="document.getElementById('mb_al_primary_color').value=this.value;"
+							style="width:42px;height:38px;padding:2px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;">
+						<input type="text" name="mb_engine_settings[primary_color]" id="mb_al_primary_color"
+							value="<?php echo esc_attr( $mb_primary_color ); ?>"
+							oninput="if(/^#[0-9A-Fa-f]{6}$/.test(this.value))document.getElementById('mb_al_primary_color_picker').value=this.value;"
+							class="small-text" style="font-family:monospace; border-radius:6px;">
+					</div>
+					<span class="description"><?php esc_html_e( 'Buttons, calendar, tabs, filters.', 'my-booking-engine' ); ?></span>
+				</div>
+
+				<!-- Primary Hover Color -->
+				<div class="mb-w-field">
+					<label for="mb_al_primary_hover"><?php esc_html_e( 'Hover Color', 'my-booking-engine' ); ?></label>
+					<div style="display:flex; align-items:center; gap:10px; margin-top:6px;">
+						<input type="color" id="mb_al_primary_hover_picker"
+							value="<?php echo esc_attr( $mb_primary_hover ); ?>"
+							oninput="document.getElementById('mb_al_primary_hover').value=this.value;"
+							onchange="document.getElementById('mb_al_primary_hover').value=this.value;"
+							style="width:42px;height:38px;padding:2px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;">
+						<input type="text" name="mb_engine_settings[primary_hover]" id="mb_al_primary_hover"
+							value="<?php echo esc_attr( $mb_primary_hover ); ?>"
+							oninput="if(/^#[0-9A-Fa-f]{6}$/.test(this.value))document.getElementById('mb_al_primary_hover_picker').value=this.value;"
+							class="small-text" style="font-family:monospace; border-radius:6px;">
+					</div>
+					<span class="description"><?php esc_html_e( 'Applied on button/link hover states.', 'my-booking-engine' ); ?></span>
+				</div>
+
+				<!-- Accent / Star Color -->
+				<div class="mb-w-field">
+					<label for="mb_al_accent_color"><?php esc_html_e( 'Accent & Star Color', 'my-booking-engine' ); ?></label>
+					<div style="display:flex; align-items:center; gap:10px; margin-top:6px;">
+						<input type="color" id="mb_al_accent_color_picker"
+							value="<?php echo esc_attr( $mb_accent_color ); ?>"
+							oninput="document.getElementById('mb_al_accent_color').value=this.value;"
+							onchange="document.getElementById('mb_al_accent_color').value=this.value;"
+							style="width:42px;height:38px;padding:2px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;">
+						<input type="text" name="mb_engine_settings[accent_color]" id="mb_al_accent_color"
+							value="<?php echo esc_attr( $mb_accent_color ); ?>"
+							oninput="if(/^#[0-9A-Fa-f]{6}$/.test(this.value))document.getElementById('mb_al_accent_color_picker').value=this.value;"
+							class="small-text" style="font-family:monospace; border-radius:6px;">
+					</div>
+					<span class="description"><?php esc_html_e( 'Review stars, badges, highlights.', 'my-booking-engine' ); ?></span>
+				</div>
+			</div>
+
+			<!-- Border Radius -->
+			<div class="mb-w-field" style="margin-top:20px; max-width:320px;">
+				<label for="mb_al_border_radius"><?php esc_html_e( 'Card & Button Corner Radius', 'my-booking-engine' ); ?></label>
+				<select name="mb_engine_settings[border_radius]" id="mb_al_border_radius" class="regular-text" style="border-radius:8px; margin-top:6px;">
+					<option value="4"  <?php selected( $mb_border_radius, 4 ); ?>><?php esc_html_e( '4px — Subtle / Sharp', 'my-booking-engine' ); ?></option>
+					<option value="8"  <?php selected( $mb_border_radius, 8 ); ?>><?php esc_html_e( '8px — Modern Default', 'my-booking-engine' ); ?></option>
+					<option value="12" <?php selected( $mb_border_radius, 12 ); ?>><?php esc_html_e( '12px — Smooth Rounded', 'my-booking-engine' ); ?></option>
+					<option value="16" <?php selected( $mb_border_radius, 16 ); ?>><?php esc_html_e( '16px — High Curves', 'my-booking-engine' ); ?></option>
+				</select>
 			</div>
 		</div>
 
