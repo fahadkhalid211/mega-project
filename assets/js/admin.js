@@ -327,14 +327,28 @@
 			// Show rows that match this model.
 			if (selectedModel === 'night_stay' || selectedModel === 'hotel_room') {
 				$('.mb-field-night_stay').show();
+				$('#mb_meta_capacity_label').html('👥 ' + (window.mbAdminData?.i18n?.maxGuestsAllowed || 'Maximum Guests Allowed') + ' <span class="mb-req">*</span>');
+				$('#mb_meta_capacity_desc').text(window.mbAdminData?.i18n?.maxGuestsDesc || 'Maximum simultaneous guests or occupants allowed to stay in this property.');
 			} else if (selectedModel === 'day_rental' || selectedModel === 'daily_booking') {
 				$('.mb-field-day_rental').show();
+				$('#mb_meta_capacity_label').html('👥 ' + (window.mbAdminData?.i18n?.maxGuestsAllowed || 'Maximum Guests / Rental Capacity') + ' <span class="mb-req">*</span>');
+				$('#mb_meta_capacity_desc').text(window.mbAdminData?.i18n?.maxGuestsDesc || 'Maximum simultaneous guests or vehicle/equipment capacity.');
 			} else if (selectedModel === 'capacity_roster') {
 				$('.mb-field-capacity_roster').show();
+				$('#mb_meta_capacity_label').html('👥 ' + (window.mbAdminData?.i18n?.eventCapacity || 'Event Capacity / Tickets') + ' <span class="mb-req">*</span>');
+				$('#mb_meta_capacity_desc').text(window.mbAdminData?.i18n?.eventCapacityDesc || 'Total event seats, tickets, or attendee capacity.');
 			} else {
 				$('.mb-field-hourly_slot').show();
+				$('#mb_meta_capacity_label').html('👥 ' + (window.mbAdminData?.i18n?.maxCapacitySpots || 'Maximum Capacity / Spots per Slot') + ' <span class="mb-req">*</span>');
+				$('#mb_meta_capacity_desc').text(window.mbAdminData?.i18n?.maxCapacityDesc || 'Maximum simultaneous attendees per appointment slot.');
 			}
 		}
+
+		// Two-way sync for property rental guests & capacity field
+		$(document).on('input change', '.mb-capacity-sync-field', function() {
+			const val = $(this).val();
+			$('.mb-capacity-sync-field').not(this).val(val);
+		});
 
 		$switcher.on('change', updateVisibleFields);
 		updateVisibleFields();

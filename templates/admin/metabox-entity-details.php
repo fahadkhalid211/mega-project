@@ -294,9 +294,9 @@ $days_of_week = array(
 				<div class="mb-wizard-card">
 					<h4>👥 <?php esc_html_e( 'Capacity & Attendance', 'my-booking-engine' ); ?></h4>
 					<div class="mb-w-field">
-						<label for="mb_capacity"><?php esc_html_e( 'Maximum Capacity / Spots', 'my-booking-engine' ); ?></label>
-						<input type="number" name="mb_capacity" id="mb_capacity" value="<?php echo esc_attr( $capacity ); ?>" min="1" class="widefat">
-						<span class="mb-w-hint"><?php esc_html_e( 'Maximum simultaneous guests, rooms, vehicles, or available event seats.', 'my-booking-engine' ); ?></span>
+						<label for="mb_capacity" id="mb_meta_capacity_label">👥 <?php esc_html_e( 'Maximum Capacity / Guests Allowed', 'my-booking-engine' ); ?></label>
+						<input type="number" name="mb_capacity" id="mb_capacity" value="<?php echo esc_attr( $capacity ); ?>" min="1" max="1000" class="widefat mb-capacity-sync-field">
+						<span class="mb-w-hint" id="mb_meta_capacity_desc"><?php esc_html_e( 'Maximum simultaneous guests, rooms, vehicles, or available event seats.', 'my-booking-engine' ); ?></span>
 					</div>
 				</div>
 			</div>
@@ -328,14 +328,21 @@ $days_of_week = array(
 
 				<!-- Day & Night Stays / Rentals -->
 				<div class="mb-field-row mb-field-day_rental mb-field-night_stay" style="display:none;">
-					<div class="mb-wizard-grid-2">
+					<div class="mb-wizard-grid-3">
+						<div class="mb-w-field" style="background:#f0f7ff; border:1px solid #bfdbfe; border-radius:8px; padding:10px 12px;">
+							<label for="mb_capacity_property_meta" style="color:#1d4ed8; font-weight:700;">👥 <?php esc_html_e( 'Maximum Guests Allowed', 'my-booking-engine' ); ?> <span class="mb-req">*</span></label>
+							<input type="number" name="mb_capacity_property" id="mb_capacity_property_meta" value="<?php echo esc_attr( $capacity ); ?>" min="1" max="100" class="widefat mb-capacity-sync-field" placeholder="<?php esc_attr_e( 'e.g. 4 guests', 'my-booking-engine' ); ?>" style="margin-top:4px; font-weight:600;">
+							<span class="mb-w-hint" style="color:#2563eb; display:block; margin-top:2px;"><?php esc_html_e( 'Max guests permitted for this property rental.', 'my-booking-engine' ); ?></span>
+						</div>
 						<div class="mb-w-field">
 							<label for="mb_min_duration"><?php esc_html_e( 'Minimum Stay / Rental (Days/Nights)', 'my-booking-engine' ); ?></label>
-							<input type="number" name="mb_min_duration" id="mb_min_duration" value="<?php echo esc_attr( $min_duration ); ?>" min="1" class="widefat">
+							<input type="number" name="mb_min_duration" id="mb_min_duration" value="<?php echo esc_attr( $min_duration ); ?>" min="1" class="widefat" style="margin-top:4px;">
+							<span class="mb-w-hint"><?php esc_html_e( 'Shortest allowable stay.', 'my-booking-engine' ); ?></span>
 						</div>
 						<div class="mb-w-field">
 							<label for="mb_max_duration"><?php esc_html_e( 'Maximum Stay / Rental (Days/Nights)', 'my-booking-engine' ); ?></label>
-							<input type="number" name="mb_max_duration" id="mb_max_duration" value="<?php echo esc_attr( $max_duration ); ?>" min="1" class="widefat">
+							<input type="number" name="mb_max_duration" id="mb_max_duration" value="<?php echo esc_attr( $max_duration ); ?>" min="1" class="widefat" style="margin-top:4px;">
+							<span class="mb-w-hint"><?php esc_html_e( 'Longest allowable stay.', 'my-booking-engine' ); ?></span>
 						</div>
 					</div>
 					<div class="mb-wizard-grid-2" style="margin-top:14px;">

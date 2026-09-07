@@ -1925,45 +1925,100 @@
 }
 
 .mb-gallery-actions {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	flex-shrink: 0;
+	display: inline-flex !important;
+	align-items: center !important;
+	align-content: center !important;
+	align-self: center !important;
+	justify-content: flex-end !important;
+	vertical-align: middle !important;
+	gap: 12px !important;
+	flex-shrink: 0 !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.mb-gallery-actions button,
+.mb-gallery-actions .button,
+.mb-btn-media-picker,
+.mb-btn-clear-gallery {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	align-self: center !important;
+	vertical-align: middle !important;
+	box-sizing: border-box !important;
+	height: 42px !important;
+	min-height: 42px !important;
+	max-height: 42px !important;
+	margin: 0 !important;
+	padding: 0 18px !important;
+	border-radius: 10px !important;
+	border-width: 1.5px !important;
+	border-style: solid !important;
+	font-family: inherit !important;
+	line-height: 1 !important;
+	text-decoration: none !important;
+	white-space: nowrap !important;
+	cursor: pointer !important;
+	transform: none !important;
+	top: auto !important;
+	bottom: auto !important;
 }
 
 .mb-btn-media-picker {
-	height: 42px !important;
-	line-height: 40px !important;
-	padding: 0 20px !important;
-	border-radius: 10px !important;
+	background: #2563eb !important;
+	border-color: #2563eb !important;
+	color: #ffffff !important;
 	font-weight: 700 !important;
 	font-size: 13.5px !important;
-	display: inline-flex !important;
-	align-items: center !important;
-	justify-content: center !important;
 	box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
-}
-
-.mb-btn-clear-gallery {
-	height: 42px !important;
-	line-height: 40px !important;
-	padding: 0 16px !important;
-	border-radius: 10px !important;
-	font-weight: 600 !important;
-	font-size: 13px !important;
-	color: #64748b !important;
-	border: 1px solid #cbd5e1 !important;
-	background: #ffffff !important;
-	display: inline-flex !important;
-	align-items: center !important;
-	justify-content: center !important;
 	transition: all 0.15s ease !important;
 }
 
-.mb-btn-clear-gallery:hover {
+.mb-btn-media-picker:hover,
+.mb-btn-media-picker:focus {
+	background: #1d4ed8 !important;
+	border-color: #1d4ed8 !important;
+	color: #ffffff !important;
+	box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35) !important;
+}
+
+.mb-btn-clear-gallery {
+	background: #ffffff !important;
+	border-color: #cbd5e1 !important;
+	color: #64748b !important;
+	font-weight: 600 !important;
+	font-size: 13px !important;
+	transition: all 0.15s ease !important;
+}
+
+.mb-btn-clear-gallery:hover,
+.mb-btn-clear-gallery:focus {
 	color: #ef4444 !important;
 	border-color: #fca5a5 !important;
 	background: #fef2f2 !important;
+}
+
+.mb-gallery-actions .dashicons {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: 18px !important;
+	height: 18px !important;
+	font-size: 18px !important;
+	line-height: 1 !important;
+	margin: 0 6px 0 0 !important;
+	padding: 0 !important;
+	vertical-align: middle !important;
+	color: inherit !important;
+}
+
+.mb-gallery-actions .mb-btn-text {
+	display: inline-block !important;
+	line-height: 1 !important;
+	vertical-align: middle !important;
+	margin: 0 !important;
+	padding: 0 !important;
 }
 
 .mb-gallery-hint {
@@ -2061,23 +2116,38 @@
 	z-index: 10;
 }
 
-.mb-app-cancel-btn {
-	height: 44px !important;
-	line-height: 42px !important;
-	padding: 0 22px !important;
-	border-radius: 12px !important;
-	font-size: 14px !important;
-	font-weight: 700 !important;
-	color: #64748b !important;
-	border: 1.5px solid #cbd5e1 !important;
-	background: #ffffff !important;
+.mb-app-cancel-btn,
+.mb-app-publish-btn {
 	display: inline-flex !important;
 	align-items: center !important;
 	justify-content: center !important;
+	align-self: center !important;
 	vertical-align: middle !important;
 	box-sizing: border-box !important;
-	transition: all 0.2s ease !important;
+	height: 44px !important;
+	min-height: 44px !important;
+	max-height: 44px !important;
+	line-height: 1 !important;
+	margin: 0 !important;
+	padding-top: 0 !important;
+	padding-bottom: 0 !important;
+	border-radius: 12px !important;
+	border-width: 1.5px !important;
+	border-style: solid !important;
+	cursor: pointer !important;
+	white-space: nowrap !important;
+}
+
+.mb-app-cancel-btn {
+	padding-left: 22px !important;
+	padding-right: 22px !important;
+	font-size: 14px !important;
+	font-weight: 700 !important;
+	color: #64748b !important;
+	border-color: #cbd5e1 !important;
+	background: #ffffff !important;
 	text-decoration: none !important;
+	transition: all 0.2s ease !important;
 }
 
 .mb-app-cancel-btn:hover {
@@ -2087,22 +2157,15 @@
 }
 
 .mb-app-publish-btn {
-	height: 44px !important;
-	line-height: 44px !important;
-	background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-	border: none !important;
-	border-radius: 12px !important;
-	padding: 0 28px !important;
+	padding-left: 28px !important;
+	padding-right: 28px !important;
 	font-size: 14.5px !important;
 	font-weight: 800 !important;
-	display: inline-flex !important;
-	align-items: center !important;
-	justify-content: center !important;
-	vertical-align: middle !important;
-	box-sizing: border-box !important;
+	color: #ffffff !important;
+	background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+	border-color: transparent !important;
 	box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.45) !important;
 	transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-	color: #ffffff !important;
 }
 
 .mb-app-publish-btn:hover {

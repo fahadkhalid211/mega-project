@@ -96,7 +96,12 @@ class MetaBoxes {
 		$slot_duration = isset( $_POST['mb_slot_duration'] ) ? absint( wp_unslash( $_POST['mb_slot_duration'] ) ) : 60;
 		$buffer_before = isset( $_POST['mb_buffer_before'] ) ? absint( wp_unslash( $_POST['mb_buffer_before'] ) ) : 0;
 		$buffer_after  = isset( $_POST['mb_buffer_after'] ) ? absint( wp_unslash( $_POST['mb_buffer_after'] ) ) : 0;
-		$capacity      = isset( $_POST['mb_capacity'] ) ? max( 1, absint( wp_unslash( $_POST['mb_capacity'] ) ) ) : 1;
+		$capacity = 1;
+		if ( isset( $_POST['mb_capacity'] ) && '' !== $_POST['mb_capacity'] ) {
+			$capacity = max( 1, absint( wp_unslash( $_POST['mb_capacity'] ) ) );
+		} elseif ( isset( $_POST['mb_capacity_property'] ) && '' !== $_POST['mb_capacity_property'] ) {
+			$capacity = max( 1, absint( wp_unslash( $_POST['mb_capacity_property'] ) ) );
+		}
 
 		update_post_meta( $post_id, '_mb_slot_duration', $slot_duration );
 		update_post_meta( $post_id, '_mb_buffer_before', $buffer_before );

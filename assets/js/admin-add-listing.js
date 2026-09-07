@@ -30,6 +30,10 @@
 			applyTypeDefaults($(this), false);
 		});
 
+		$('#mb_model_type').on('change', function() {
+			updateCapacityLabels($(this).val());
+		});
+
 		function applyTypeDefaults($card, isInitialLoad) {
 			if (!$card.length) return;
 
@@ -43,6 +47,7 @@
 			const max      = $card.data('max');
 			const checkin  = $card.data('checkin');
 			const checkout = $card.data('checkout');
+			const capacity = $card.data('capacity');
 			const schedule = $card.data('schedule');
 			const label    = $card.data('label');
 
@@ -67,15 +72,40 @@
 				if (max) $('#mb_max_duration').val(max);
 				if (checkin) $('#mb_checkin_time').val(checkin);
 				if (checkout) $('#mb_checkout_time').val(checkout);
+				if (capacity !== undefined && capacity !== '' && !$('#mb_capacity').data('user-edited')) {
+					$('.mb-capacity-sync-field').val(capacity);
+				}
 
 				if (schedule && SCHEDULE_PRESETS[schedule]) {
 					applySchedulePreset(SCHEDULE_PRESETS[schedule]);
 				}
 			}
 
+			updateCapacityLabels(model);
 			updateDefaultsSummary($card);
 			toggleServicesCard(type);
 		}
+
+		function updateCapacityLabels(model) {
+			if (model === 'night_stay' || model === 'day_rental') {
+				$('#mb_capacity_general_label').html('👥 Maximum Guests Allowed <span class="mb-req">*</span>');
+				$('#mb_capacity_general_desc').text('Maximum number of guests / occupants permitted for this property rental.');
+			} else if (model === 'capacity_roster') {
+				$('#mb_capacity_general_label').html('👥 Event Capacity / Tickets <span class="mb-req">*</span>');
+				$('#mb_capacity_general_desc').text('Total number of tickets or attendee spots available for this event.');
+			} else {
+				$('#mb_capacity_general_label').html('👥 Maximum Capacity / Spots <span class="mb-req">*</span>');
+				$('#mb_capacity_general_desc').text('Max customers or tickets allowed per slot/booking.');
+			}
+		}
+
+		// Two-way sync for property rental guests & capacity field
+		$(document).on('input change', '.mb-capacity-sync-field', function() {
+			const val = $(this).val();
+			$('.mb-capacity-sync-field').not(this).val(val);
+			$('#mb_capacity').data('user-edited', true);
+			updateDefaultsSummary($('.mb-app-type-card.selected'));
+		});
 
 		// Live one-line recap of what the current type/settings mean, so
 		// admins can see at a glance what "smart defaults" actually set.
@@ -96,7 +126,9 @@
 			} else if (model === 'day_rental' || model === 'night_stay') {
 				const min = $('#mb_min_duration').val();
 				const max = $('#mb_max_duration').val();
+				const cap = $('#mb_capacity_property').val() || $('#mb_capacity').val();
 				if (min && max) bits.push(min + '–' + max + (model === 'night_stay' ? ' night stay' : ' day rental'));
+				if (cap) bits.push('up to ' + cap + ' guests');
 			} else if (model === 'capacity_roster') {
 				bits.push('fixed-schedule event');
 			}

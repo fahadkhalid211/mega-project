@@ -50,6 +50,7 @@ $listing_types = array(
 		'max'      => 30,
 		'checkin'  => '15:00',
 		'checkout' => '11:00',
+		'capacity' => 4,
 		'schedule' => 'all_week',
 	),
 	'rental' => array(
@@ -62,6 +63,7 @@ $listing_types = array(
 		'max'      => 14,
 		'checkin'  => '09:00',
 		'checkout' => '17:00',
+		'capacity' => 5,
 		'schedule' => 'all_week',
 	),
 	'doctor' => array(
@@ -239,6 +241,7 @@ $mb_border_radius = isset( $mb_appearance['border_radius'] ) ? absint( $mb_appea
 						data-max="<?php echo esc_attr( $type['max'] ?? '' ); ?>"
 						data-checkin="<?php echo esc_attr( $type['checkin'] ?? '' ); ?>"
 						data-checkout="<?php echo esc_attr( $type['checkout'] ?? '' ); ?>"
+						data-capacity="<?php echo esc_attr( $type['capacity'] ?? '' ); ?>"
 						data-schedule="<?php echo esc_attr( $type['schedule'] ); ?>">
 						
 						<input type="radio" name="mb_visual_layout" value="<?php echo esc_attr( $key ); ?>" <?php checked( $default_type, $key ); ?>>
@@ -599,13 +602,13 @@ $mb_border_radius = isset( $mb_appearance['border_radius'] ) ? absint( $mb_appea
 					<div class="mb-dropzone-desc"><?php esc_html_e( 'Click any photo in the library to toggle select/deselect instantly — no Ctrl or Command key required!', 'my-booking-engine' ); ?></div>
 				</div>
 				<div class="mb-gallery-actions">
-					<button type="button" class="button button-primary button-large mb-btn-media-picker" id="mb_btn_select_gallery">
-						<span class="dashicons dashicons-images-alt2" style="vertical-align:middle; margin-top:-2px; margin-right:4px;"></span>
-						<?php esc_html_e( 'Select Photos from Media Library', 'my-booking-engine' ); ?>
+					<button type="button" class="button mb-btn-media-picker" id="mb_btn_select_gallery">
+						<span class="dashicons dashicons-images-alt2"></span>
+						<span class="mb-btn-text"><?php esc_html_e( 'Select Photos from Media Library', 'my-booking-engine' ); ?></span>
 					</button>
-					<button type="button" class="button button-secondary mb-btn-clear-gallery" id="mb_btn_clear_gallery">
-						<span class="dashicons dashicons-trash" style="vertical-align:middle; margin-top:-2px; margin-right:2px;"></span>
-						<?php esc_html_e( 'Remove All Photos', 'my-booking-engine' ); ?>
+					<button type="button" class="button mb-btn-clear-gallery" id="mb_btn_clear_gallery">
+						<span class="dashicons dashicons-trash"></span>
+						<span class="mb-btn-text"><?php esc_html_e( 'Remove All Photos', 'my-booking-engine' ); ?></span>
 					</button>
 				</div>
 			</div>
@@ -719,25 +722,36 @@ $mb_border_radius = isset( $mb_appearance['border_radius'] ) ? absint( $mb_appea
 
 			<!-- Day rental & Night stay settings -->
 			<div class="mb-field-row mb-field-day_rental mb-field-night_stay" style="display:none; margin-top:20px;">
-				<p class="description" style="margin:0 0 10px;"><?php esc_html_e( 'Set minimum and maximum duration, plus standard check-in and check-out times.', 'my-booking-engine' ); ?></p>
-				<div class="mb-wizard-grid-2">
-					<div class="mb-w-field">
-						<label for="mb_min_duration"><?php esc_html_e( 'Minimum Stay / Rental (Days/Nights)', 'my-booking-engine' ); ?></label>
-						<input type="number" name="mb_min_duration" id="mb_min_duration" value="<?php echo esc_attr( $min_val ); ?>" min="1" class="widefat">
+				<p class="description" style="margin:0 0 12px;"><?php esc_html_e( 'Configure guest limits, minimum and maximum duration, plus check-in and check-out times for property rentals.', 'my-booking-engine' ); ?></p>
+				
+				<div class="mb-wizard-grid-3" style="margin-bottom:16px;">
+					<div class="mb-w-field" style="background:#f0f7ff; border:1.5px solid #bfdbfe; border-radius:10px; padding:12px 14px;">
+						<label for="mb_capacity_property" style="color:#1d4ed8; font-weight:700;">👥 <?php esc_html_e( 'Maximum Guests Allowed', 'my-booking-engine' ); ?> <span class="mb-req">*</span></label>
+						<input type="number" name="mb_capacity_property" id="mb_capacity_property" value="<?php echo esc_attr( $capacity_val ); ?>" min="1" max="100" class="widefat mb-capacity-sync-field" placeholder="<?php esc_attr_e( 'e.g. 4', 'my-booking-engine' ); ?>" style="margin-top:4px; font-weight:700; font-size:15px; color:#1e293b;">
+						<span class="description" style="color:#2563eb; display:block; margin-top:4px;"><?php esc_html_e( 'Max guests permitted. Controls the guest selector dropdown on the single property page.', 'my-booking-engine' ); ?></span>
 					</div>
 					<div class="mb-w-field">
-						<label for="mb_max_duration"><?php esc_html_e( 'Maximum Stay / Rental (Days/Nights)', 'my-booking-engine' ); ?></label>
-						<input type="number" name="mb_max_duration" id="mb_max_duration" value="<?php echo esc_attr( $max_val ); ?>" min="1" class="widefat">
+						<label for="mb_min_duration"><?php esc_html_e( 'Minimum Stay / Rental (Nights/Days)', 'my-booking-engine' ); ?></label>
+						<input type="number" name="mb_min_duration" id="mb_min_duration" value="<?php echo esc_attr( $min_val ); ?>" min="1" class="widefat" style="margin-top:4px;">
+						<span class="description"><?php esc_html_e( 'Shortest allowable booking duration.', 'my-booking-engine' ); ?></span>
+					</div>
+					<div class="mb-w-field">
+						<label for="mb_max_duration"><?php esc_html_e( 'Maximum Stay / Rental (Nights/Days)', 'my-booking-engine' ); ?></label>
+						<input type="number" name="mb_max_duration" id="mb_max_duration" value="<?php echo esc_attr( $max_val ); ?>" min="1" class="widefat" style="margin-top:4px;">
+						<span class="description"><?php esc_html_e( 'Longest allowable booking duration.', 'my-booking-engine' ); ?></span>
 					</div>
 				</div>
-				<div class="mb-wizard-grid-2" style="margin-top:16px;">
+
+				<div class="mb-wizard-grid-2">
 					<div class="mb-w-field">
 						<label for="mb_checkin_time"><?php esc_html_e( 'Check-in Time', 'my-booking-engine' ); ?></label>
 						<input type="time" name="mb_checkin_time" id="mb_checkin_time" value="<?php echo esc_attr( $checkin_val ); ?>" class="widefat">
+						<span class="description"><?php esc_html_e( 'Standard check-in time for arriving guests.', 'my-booking-engine' ); ?></span>
 					</div>
 					<div class="mb-w-field">
 						<label for="mb_checkout_time"><?php esc_html_e( 'Check-out Time', 'my-booking-engine' ); ?></label>
 						<input type="time" name="mb_checkout_time" id="mb_checkout_time" value="<?php echo esc_attr( $checkout_val ); ?>" class="widefat">
+						<span class="description"><?php esc_html_e( 'Standard check-out time on departure date.', 'my-booking-engine' ); ?></span>
 					</div>
 				</div>
 			</div>
@@ -764,10 +778,10 @@ $mb_border_radius = isset( $mb_appearance['border_radius'] ) ? absint( $mb_appea
 					<input type="number" name="mb_weekend_price" id="mb_weekend_price" class="widefat" step="0.01" min="0" placeholder="<?php esc_attr_e( 'Leave blank to use base rate', 'my-booking-engine' ); ?>" value="<?php echo esc_attr( $weekend_val ); ?>">
 					<span class="description"><?php esc_html_e( 'Applies automatically for Saturday and Sunday bookings.', 'my-booking-engine' ); ?></span>
 				</div>
-				<div class="mb-w-field">
-					<label for="mb_capacity"><?php esc_html_e( 'Maximum Capacity / Spots', 'my-booking-engine' ); ?></label>
-					<input type="number" name="mb_capacity" id="mb_capacity" value="<?php echo esc_attr( $capacity_val ); ?>" min="1" class="widefat">
-					<span class="description"><?php esc_html_e( 'Max customers or tickets allowed per slot/booking.', 'my-booking-engine' ); ?></span>
+				<div class="mb-w-field" id="mb_capacity_general_wrapper">
+					<label for="mb_capacity" id="mb_capacity_general_label">👥 <?php esc_html_e( 'Maximum Capacity / Spots', 'my-booking-engine' ); ?> <span class="mb-req">*</span></label>
+					<input type="number" name="mb_capacity" id="mb_capacity" value="<?php echo esc_attr( $capacity_val ); ?>" min="1" max="1000" class="widefat mb-capacity-sync-field">
+					<span class="description" id="mb_capacity_general_desc"><?php esc_html_e( 'Max customers, attendees, or tickets allowed per slot/booking.', 'my-booking-engine' ); ?></span>
 				</div>
 			</div>
 		</div>
@@ -922,8 +936,8 @@ $mb_border_radius = isset( $mb_appearance['border_radius'] ) ? absint( $mb_appea
 
 		<!-- Sticky Footer Publish Bar -->
 		<div class="mb-app-sticky-footer">
-			<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=mb_booking_entity' ) ); ?>" class="button button-large mb-app-cancel-btn"><?php esc_html_e( 'Cancel', 'my-booking-engine' ); ?></a>
-			<button type="submit" class="button button-primary button-hero mb-app-publish-btn" id="mb-app-publish-btn">
+			<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=mb_booking_entity' ) ); ?>" class="button mb-app-cancel-btn"><?php esc_html_e( 'Cancel', 'my-booking-engine' ); ?></a>
+			<button type="submit" class="button mb-app-publish-btn" id="mb-app-publish-btn">
 				<?php echo $is_edit ? '💾 ' . esc_html__( 'Update Listing', 'my-booking-engine' ) : '🚀 ' . esc_html__( 'Publish Listing', 'my-booking-engine' ); ?>
 			</button>
 		</div>
